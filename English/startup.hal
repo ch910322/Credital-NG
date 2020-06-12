@@ -1,0 +1,35 @@
+event startup
+begin
+
+  SetLangMode(LangEnglish,"ENG",0);
+
+  Setting("Telephone Prefixes",PhonePrefixTClass,modCredMan);
+
+  Setting("Campaigns",WebCampaignLClass,modWebShopNG);
+  Setting("Partners",WebPartnerTClass,modWebShopNG);
+  Setting("FAQ",WebFAQLClass,modWebShopNG);
+  Setting("FAQ Categories",WebFAQCategoryLClass,modWebShopNG);
+  Setting("Loan Calculators",WebLoanCalcLClass,modWebShopNG);
+  Setting("Partner Search Settings",WebInvoicingPartnerTClass,modWebShopNG);
+  Setting("Password Sessions",PassSessLClass,modWebShopNG);
+  Setting("Agreement Type Links",WebLoanAppTypeTClass,modWebShopNG);
+  Setting("Credital Web Settings",CreditalWebSetTClass,modWebShopNG);
+  Setting("Meta Tags",WebMetaTagLClass,modWebShopNG);
+  Setting("Meta Tags Translations",WebMetaTagTransLClass,modWebShopNG);
+  Setting("Exit Popup Links",ExitPopupLinksTClass,modWebShopNG);
+  Setting("Contact Page Companies",LangCompanyMapTClass,modWebShopNG);
+  Setting("Bank - Account Connections",WebBankConnTClass,modWebShopNG);
+  Setting("Mobile Surveys",NovWebFormLClass,modWebShopNG);
+  Setting("URL Translations",WebNodeTransLClass,modWebShopNG);
+  Setting("Registration Number Patterns",RegNrPatternTClass,modWebShopNG);
+  Setting("Order Classes on Web",OrderClassTransLClass,modWebShopNG);
+
+/* Sales ledger */
+	Report("Income Analysis",EBSIncomeAnalysisRClass,EBSIncomeAnalysisRn,0,modSL);
+
+/* System */
+	Setting("Rekvizitai.lt Classifications",RekvizitaiClassTClass,modSY);
+
+
+  return;
+end;

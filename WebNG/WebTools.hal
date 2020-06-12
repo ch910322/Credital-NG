@@ -1,0 +1,2156 @@
+//<halrule>server-only</halrule>
+external inner procedure SetContentTypeForExtension(string);
+external inner function string 255 ToolWebNGTranslateText2(Longint);
+external inner function Boolean GetNextCustNr(var string);
+external inner procedure SendTextParameter(string,var Area);
+external inner procedure SendFunctionVersion(string,string,var Area);
+external inner function boolean SendServiceRequestNonUpdating(string,Boolean,Boolean,area,var Area,Boolean,Boolean,LongInt,string);
+external inner updating function Boolean SendServiceRequest(string,Boolean,area,var Area);
+external inner procedure ReadTXServiceReply(var record TXServiceReplyVc,var Area,Boolean);
+external inner function string 255 FormatLink(string,string,boolean,boolean);
+external inner function LongInt DateDiff(Date,Date);
+external inner updating procedure SendCustomerLetterWithDetails(record RCVc,string,string,string);
+external inner procedure ToolWebOutElementTextFormat(record WebNGElementVc);
+external function string 255 MakeWebSafe(string);
+external inner function boolean IsNumeric(string);
+external inner function string 255 removenextnode(var string);
+external inner function string 10 CurrentWebLang();
+external inner procedure ShowRedirectHtml(string,boolean);
+external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record CUVc,LongInt,LongInt);
+external function Boolean InsertSuretyInB2BApplication(var record B2BLoanApplicationVc,Integer);
+external inner function string 255 GetLoginPageStructLink();
+external updating procedure CreateSuretyDataAgreement(string,record B2BLoanApplicationVc);
+external inner function Boolean PasteActTypeInAct2(string,var record ActVc,var string);
+forward function string 255 CreditalFixPhone(string,string);
+external inner function string 255 StrReplace(string,string,string);
+external inner function string 255 GetTranslatedNameCountry(record WebNGCountryVc);
+external inner function string 10 ToolWebNGGetCountry();
+external inner function string 60 AddObjectToObjectList(string,string);
+external inner procedure UpdateWebCountry(string);
+external inner function string 255 FormatSimpleLink(string,boolean);
+external function Boolean NovitiMaskMatches(string,string);
+external inner procedure StripTrailingSpaces(var string);
+external inner procedure StripLeadingSpaces(var string);
+external inner function string 255 GetLinkToStruct(LongInt,boolean);
+external inner function string 255 GetBrowserOperatingSystem();
+
+global
+function Integer SetCompanyBasedOnCountry()
+begin
+  Integer res;
+  record WebNGCompCountryVc WCCr;
+
+  res = -1;
+  WCCr.Country = ToolWebNGGetCountry;
+  if (ReadFirstKey("Country",WCCr,1,true)) then begin
+    if (CurrentCompany!=WCCr.CompanyNr) then begin
+      res = CurrentCompany;
+      SetCompany(WCCr.CompanyNr,false);
+    end;
+  end;
+
+  SetCompanyBasedOnCountry = res;
+  return;
+end;
+
+global
+procedure ResetCompanyBasedOnCountry(Integer oldcomp)
+begin
+  Integer res;
+
+  if (res>0 and res!=CurrentCompany) then begin
+    ResetCompany(oldcomp)
+  end;
+
+  return;
+end;
+
+global
+function string 255 NovitiGetEmailSender()
+begin
+  string 255 res;
+  record MailSettingsBlock MSb;
+
+  BlockLoad(MSb);
+  res = MSb.FromSystem;
+
+  NovitiGetEmailSender = res;
+  return;
+end;
+
+
+global
+procedure GetWebCampaignAttachedImages(record WebCampaignVc WCr,var array string aName)
+begin
+  Integer i;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+
+  i = 1;
+  while (ReadRecordLink(WCr,i,Attachr,RLr)) begin
+    aName[aName.length] = Attachr.FileName;
+    i = i + 1;
+  end;
+
+  return;
+end;
+
+
+global
+procedure ShowPartnerList(record WebNGElementVc WEr)
+begin
+  record WebPartnerBlock WPb;
+  row WebPartnerBlock WPbrw;
+  record CClassVc CClassr;
+  record CUVc CUr;
+  Integer i,rwcnt,cnt;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  Integer type,oldcomp;
+  
+  oldcomp = SetCompanyBasedOnCountry;
+
+  BlockLoad(WPb);
+  
+  type = StringToInt(WEr.HALFunc);
+
+  if (type==1) then begin
+    WebOutString("<div class='row about-partner-head'><div class='col'>" & ToolWebNGTranslateText2(70020) & "</div></div>");
+    WebOutString("<div class='row about-partner-list'><div class='col partner-media-list owl-carousel'>");
+  end else begin
+    WebOutString("<div class='col-5 col-xl-2 col-md-3'>" & ToolWebNGTranslateText2(70012) & "</div>");
+    WebOutString("<div class='col-7 col-xl-10 col-md-9'><div class='partner-full-list owl-carousel'>");
+  end;
+
+  rwcnt = MatRowCnt(WPb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(WPb,i,WPbrw);
+    if (type==WPbrw.Type or type==3) then begin
+      CClassr.Code = WPbrw.Classification;
+      if (ReadFirstMain(CClassr,1,true)) then begin    
+        ResetLoop(CUr);
+        RecordClear(CUr);
+        cnt = 0;
+        while (LoopKey("Classification:" & WPbrw.Classification,CUr,1,true)) begin
+          if (ReadRecordLink(CUr,1,Attachr,RLr)) then begin
+            cnt = cnt + 1;
+            WebOutString("<div>");
+            if (nonblank(CUr.wwwAddr)) then begin
+              WebOutString("<a href='" & CUr.wwwAddr & "' target='_blank'>");        
+            end;
+            WebOutString("<div><img src='/WebShowPartnerImage.hal?id=" & CUr.UUID & "&code=" & CUr.Code & "' alt='" & CUr.Name & "'></div>");
+            if (nonblank(CUr.wwwAddr)) then begin
+              WebOutString("</a>");
+            end;
+            
+            WebOutString("</div>");
+          end;
+        end;
+      end;
+    end;
+  end;
+  WebOutString("</div></div>");
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+global webpublic
+procedure WebShowPartnerImage()
+begin
+  record CUVc CUr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  string 255 ext;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  CUr.UUID = StringToUUID(WebGetArg("id"));
+  if (ReadFirstKey("UUID",CUr,1,true)) then begin
+    if (CUr.Code==WebGetArg("code")) then begin
+      if (ReadRecordLink(CUr,1,Attachr,RLr)) begin
+        ext = right(Attachr.FileName,4);
+        SetContentTypeForExtension(ext);
+        WebSetContentDisposition("inline; filename=" & Attachr.FileName);
+        WebOutAttachment(Attachr.SerNr);
+      end;
+    end;
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+  
+  return;
+end;
+
+global webpublic
+procedure WebShowCampaignImage()
+begin
+  record WebCampaignVc WCr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  string 255 ext;
+  Integer i;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  WCr.SerNr = StringToLongint(WebGetArg("id"));//this should be fine. we don't have anything to hide here
+  if (ReadFirstMain(WCr,1,true)) then begin
+    i = 1;
+    while (ReadRecordLink(WCr,i,Attachr,RLr)) begin
+      if (blank(WCr.Image) or WCr.Image==Attachr.FileName) then begin
+        ext = right(Attachr.FileName,4);
+        SetContentTypeForExtension(ext);
+        WebSetContentDisposition("inline; filename=" & Attachr.FileName);
+        WebOutAttachment(Attachr.SerNr);
+        goto LWebShowCampaignImage;
+      end;
+      i = i + 1;
+    end;
+  end;
+LWebShowCampaignImage:;
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+
+procedure ShowSingleBanner(record WebCampaignVc WCr)
+begin
+  Integer i;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  Boolean imgf;
+  
+  i = 1;
+  while (ReadRecordLink(WCr,i,Attachr,RLr)) begin
+    if (blank(WCr.Image) or WCr.Image==Attachr.FileName) then begin
+      imgf = true;
+      goto LShowSingleBanner;
+    end;
+    i = i + 1;
+  end;
+LShowSingleBanner:;
+
+  WebOutString("<div class='web-campaign'>");
+  if (nonblank(WCr.Link)) then begin
+    WebOutString("<a href='" & WCr.Link & "' target='blank'>");
+  end;
+  if (imgf) then begin
+    WebOutString("<div class='campaign_img'><img src='/WebShowCampaignImage.hal?id=" & WCr.SerNr & "' alt='" & WCr.Text1 & "'></div>");
+  end;
+
+  WebOutString("<div class='banner_text'><div class='banner_text1'>" & WCr.Text1 & "</div><div class='banner_text2'>" & WCr.Text2 & "</div></div>");
+  if (nonblank(WCr.Link)) then begin
+    WebOutString("</a>");
+  end;
+
+  WebOutString("</div>");
+  if (nonblank(WCr.Style)) then begin
+    WebOutString("<style>" & WCr.Style & "</style>");
+  end;
+
+  return;
+end;
+
+global
+procedure ShowBannerList(record WebNGElementVc WEr)
+begin
+  record WebCampaignVc WCr;
+  Integer type;
+  Integer oldcomp;
+  
+  oldcomp = SetCompanyBasedOnCountry;
+
+  type = StringToInt(WEr.HALFunc);
+  WCr.Type = type;
+  WCr.EndDate = CurrentDate;
+  if (ReadFirstKey("TypeEndDate",WCr,2,false)) then begin
+    if (WCr.Type==type) then begin
+      if (WCr.StartDate<=CurrentDate and WCr.EndDate>=CurrentDate) then begin
+        ShowSingleBanner(WCr);
+      end;
+    end;
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+function string 255 GetFAQCategoryName(record WebFAQCategoryVc FCr,string langcode)
+begin
+  string 255 res;
+  Integer i,rwcnt;
+  row WebFAQCategoryVc FCrw;
+
+  res = FCr.Comment;
+  rwcnt = MatRowCnt(FCr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(FCr,i,FCrw);
+    if (FCrw.LangCode==langcode) then begin
+      res = FCrw.Text;
+      i = rwcnt;
+    end;
+  end;
+
+  GetFAQCategoryName = res;
+  return;
+end;
+
+global
+procedure ShowFAQList()
+begin
+  record WebFAQVc WFr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  area a;
+  Longint asz,pos,l;
+  xml x;
+  string 255 tstr,langcode;
+  record WebFAQCategoryVc FCr;
+
+  langcode = CurrentWebLang;
+  //Show categories
+  WebOutString("<div class='row faq_cat_list_wrap'>");
+  WebOutString("<div class='col faq_cat_list'>");
+  WebOutString("<div class='row'>");
+  while (LoopMain(FCr,1,true)) begin
+    WebOutString("<div class='faq_cat col' id='" & FCr.Code & "'>" & GetFAQCategoryName(FCr,langcode) & "</div>");//possibly we should do a translation, but not yet
+  end;
+  WebOutString("</div>");
+  WebOutString("</div>");
+  WebOutString("<div class='col-md-4 col-12'>");
+  WebOutString("<div class='searchbox'><input type='text' placeholder='" & ToolWebNGTranslateText2(70019) & "'></div>");
+  WebOutString("</div>");
+  WebOutString("</div>");
+
+
+  WebOutString("<div class='row faq_item_list'>");
+  while (LoopMain(WFr,1,true)) begin
+    if (WFr.LangCode==langcode or blank(WFr.LangCode)) then begin
+      if (ReadRecordLink(WFr,1,Attachr,RLr)) begin
+        SetAreaZeroSize(a);
+        asz = AttachFileSize(Attachr);    
+        LoadAttachFilePartToArea(Attachr,0,asz,a);
+
+        WebOutString("<div class='faq-item' category='" & WFr.Class & "'>");
+        WebOutString("<div class='faq-q'>" & WFr.Question & "</div>");
+        WebOutString("<div class='faq-answer'>");
+        tstr = "";
+        pos = FindStringInArea("<body",a);
+        if (pos>0) then begin
+          pos = pos + 6;
+          l = GetAreaLength(a)-pos-13;
+          tstr = GetStringFromArea(a,pos,l);
+          SetAreaZeroSize(a);
+          AddTextToArea(tstr,a);
+          pos = FindStringInArea(">",a);
+          if (pos>0) then begin
+            pos = pos + 1;
+            tstr = GetStringFromArea(a,pos,GetAreaLength(a)-pos-1);
+          end;
+        end;
+    
+        WebOutString(tstr);
+        WebOutString("</div>");
+        WebOutString("</div>");
+      end;
+    end;
+  end;
+  WebOutString("</div>");
+
+  return;
+end;
+
+procedure ShowSimpleField(string type,string name,string label,string placeholder)
+begin
+  
+  WebOutString("<div class='app_textfield'><div class='label'>" & label & "</div><div class='field'><input type='" & type & "' placeholder='" & placeholder & "'></div></div>");
+
+
+  return;
+end;
+
+procedure ShowSlideBar(Longint min,Longint max,Longint step,string name,string label,string add,Boolean inputf,val prcfrom,val prcto)
+begin
+  
+//70007,70008
+  WebOutString("<div class='single_small_slider'>");
+  WebOutString("<div class='slider_label'>" & label & "</div>");
+  if (inputf) then begin
+    WebOutString("<div class='slider-update'><input type='text' name='" & name & "_inp' add='" & add & "'></div>");
+    WebOutString("<div class='slider-input'><input type='range' name='" & name & "' id='cowbell' name='cowbell' min='" & min & "' max='" & max & "' value='" & ((max-min)/2+min) & "' step='" & step & "' prcfrom='" & prcfrom & "' prcto='" & prcto & "'></div>");
+  end else begin
+    WebOutString("<div class='slider-input'><input type='range' name='" & name & "' id='cowbell' name='cowbell' min='" & min & "' max='" & max & "' value='" & ((max-min)/2+min) & "' step='" & step & "'></div>");
+    WebOutString("<div class='slider-update'><input type='text' name='" & name & "_inp' add='" & add & "'></div>");
+  end;
+  WebOutString("<script>$('input[name=\"" & name & "\"]').change()</script>");
+  WebOutString("</div>");
+  return;
+end;
+
+procedure ShowCheckBox(string name,string text)
+begin
+
+  WebOutString("<div class='app_checkbox'><div class='field'><input type='checkbox' name='" & name & "'></div><div class='label'>" & text & "</div></div>");
+
+  return;
+end;
+
+global
+procedure ShowLoanApplicationOnWeb(record WebNGElementVc WEr)
+begin
+  record WebLoanCalcVc WLCr;
+  row WebLoanCalcVc WLCrw;
+  Longint amount_min,amount_max,amount_step,term_min,term_max,term_step;
+  Integer type;
+  string 255 add,termtext,link;
+  Integer i,rwcnt;
+  Integer oldcomp;
+  record CreditalWebSetBlock CWSb;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  switch (WEr.HALFunc) begin
+    case "Verslo": type = 0;
+    case "Verslo2": type = 3;
+    case "Verslo3": type = 4;
+    case "Faktoringas": type = 1;
+    case "Atsiskaitymo": type = 2;
+  end;
+
+  WLCr.Type = type;
+  if (ReadFirstMain(WLCr,1,true)) then begin
+  
+    amount_min = WLCr.AmountMin;
+    amount_max = WLCr.AmountMax;
+    amount_step = WLCr.AmountStep;
+    term_min = WLCr.TermMin;
+    term_max = WLCr.TermMax;
+    term_step = WLCr.TermStep;
+    add = ToolWebNGTranslateText2(70014);
+    if (WLCr.TermType==1) then begin
+      add = ToolWebNGTranslateText2(70073);
+    end;
+    if (type==4) then begin
+      add = ToolWebNGTranslateText2(70013);
+    end;
+
+
+    BlockLoad(CWSb);
+    link = GetLinkToStruct(CWSb.LoanStruct,true);
+    WebOutString("<div class='loan_app'><form method='POST' type='" & type & "'>");
+    rwcnt = MatRowCnt(WLCr);
+    WebOutString("<script>");
+    WebOutString("var loan_link = '" & link & "';");
+    WebOutString("var rates" & type & " = [];");//sorry for doing it like this. 
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WLCr,i,WLCrw);
+      WebOutString("rates" & type & ".push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+    end;
+    WebOutString("</script>");
+
+    WebOutString("<div class='loan_small_title'>" & ToolWebNGTranslateText2(70144) & "</div>");
+    WebOutString("<div class='loan_small_descr'>" & WLCr.WebText & "</div>");
+/*
+    ShowSimpleField("text","compname",ToolWebNGTranslateText2(70001),ToolWebNGTranslateText2(70002));
+    ShowSimpleField("email","email",ToolWebNGTranslateText2(70003),ToolWebNGTranslateText2(70004));
+    ShowSimpleField("text","phone",ToolWebNGTranslateText2(70005),ToolWebNGTranslateText2(70006));
+*/
+    if (amount_min>0) then begin
+      ShowSlideBar(amount_min,amount_max,amount_step,"amount",ToolWebNGTranslateText2(70007),ToolWebNGTranslateText2(70013),true,WLCr.PrcFrom,WLCr.PrcTo);
+
+    end;
+    if (term_min>0) then begin
+      termtext = ToolWebNGTranslateText2(70008);
+      if (type==4) then begin
+        termtext = ToolWebNGTranslateText2(70284);
+      end;
+      if (type==0) then begin
+        termtext = ToolWebNGTranslateText2(70375);
+      end;
+      ShowSlideBar(term_min,term_max,term_step,"term",termtext,add,true,WLCr.PrcFrom,WLCr.PrcTo);
+    end;
+/*
+    ShowCheckBox("accept",ToolWebNGTranslateText2(70009));
+    ShowCheckBox("newsletter",ToolWebNGTranslateText2(70010));
+*/
+    WebOutString("<div class='loan_small_bottom gradient'>");
+    WebOutString("<div class='loan_small_totals'>");
+    WebOutString("<div class='loan_small_totals_val'></div>");
+    WebOutString("<div class='loan_small_totals_text'>" & ToolWebNGTranslateText2(70147) & "</div>");
+    WebOutString("</div>");
+    WebOutString("<div class='submit'><div class='hl_button' type='" & WLCr.Type & "'>" & ToolWebNGTranslateText2(70145) & "</div></div>");
+    WebOutString("</div>");
+
+    WebOutString("</form></div>");
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+global
+procedure ShowLoanApplicationOnWeb2(record WebNGElementVc WEr)
+begin
+  record WebLoanCalcVc WLCr;
+  row WebLoanCalcVc WLCrw;
+  Longint amount_min,amount_max,amount_step,term_min,term_max,term_step;
+  Boolean verslof,faktf,garantf;
+  Integer type,i,rwcnt;
+  string 255 add,link;
+  Integer oldcomp;
+  record CreditalWebSetBlock CWSb;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  switch (WEr.HALFunc) begin
+    case "Verslo": type = 0;
+    case "Faktoringas": type = 1;
+    case "Atsiskaitymo": type = 2;
+  end;
+
+  WLCr.Type = type;
+  if (ReadFirstMain(WLCr,1,true)) then begin
+  
+    amount_min = WLCr.AmountMin;
+    amount_max = WLCr.AmountMax;
+    amount_step = WLCr.AmountStep;
+    term_min = WLCr.TermMin;
+    term_max = WLCr.TermMax;
+    term_step = WLCr.TermStep;
+    add = ToolWebNGTranslateText2(70014);
+    if (WLCr.TermType==1) then begin
+      add = ToolWebNGTranslateText2(70073);
+    end;
+
+    BlockLoad(CWSb);
+    link = GetLinkToStruct(CWSb.LoanStruct,true);
+    rwcnt = MatRowCnt(WLCr);
+    WebOutString("<script>");
+    WebOutString("var loan_link = '" & link & "';");
+    WebOutString("var rates = [];");
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WLCr,i,WLCrw);
+      WebOutString("rates.push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+    end;
+    WebOutString("</script>");
+
+    WebOutString("<div class='loan_app'><form method='POST'>");
+    WebOutString("<div class='row'><div class='col-sm'>")
+    if (amount_min>0) then begin
+      ShowSlideBar(amount_min,amount_max,amount_step,"amount",ToolWebNGTranslateText2(70368),ToolWebNGTranslateText2(70013),true,WLCr.PrcFrom,WLCr.PrcTo);
+    end;
+    if (term_min>0) then begin
+      ShowSlideBar(term_min,term_max,term_step,"term",ToolWebNGTranslateText2(70107),add,true,WLCr.PrcFrom,WLCr.PrcTo);
+    end;
+    WebOutString("</div><div class='col-sm'>")
+    //show selection box
+    WebOutString("<div class='payment_info'>");
+    WebOutString("<div class='total_repayment'><div class='payment_ind'></div><div class='payment_val'></div><div class='payment_text'>" & ToolWebNGTranslateText2(70232) & "</div></div>");
+    WebOutString("<div class='monthly_repayment'><div class='payment_ind'></div><div class='payment_val'></div><div class='payment_text'>" & ToolWebNGTranslateText2(70233) & "</div></div>");
+    
+    WebOutString("</div>");
+    WebOutString("<div class='submit main_submit'><div class='hl_button' type='" & WLCr.Type & "'>" & ToolWebNGTranslateText2(70145) & "</div></div>");
+    WebOutString("</div>");
+    WebOutString("<div class='calc_summary'>");
+    WebOutString("<div class='outer_circle'><div class='mid_circle'><canvas id='main_loan_canvas' width=348 height=348>></canvas><div class='inner_circle'><div class='summ_content'></div><div class='summ_text'>" & ToolWebNGTranslateText2(70148) & "</div></div></div></div>");
+    WebOutString("</div></div>");
+    WebOutString("<div class='row main_calc_buttom'><div class='col-auto'>" & ToolWebNGTranslateText2(70082) & "</div><div class='col-auto'>" & ToolWebNGTranslateText2(70083) & "</div></div>");
+    WebOutString("</form></div>");
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+
+global
+procedure ShowNewsLetterSignup(record WebNGElementVc WEr)
+begin
+  
+  WebOutString("<div class='newsletter'>");
+  //WebOutString("<div class='newsletter-title'>" & ToolWebNGTranslateText2(70015) & "</div>");
+  //WebOutString("<div class='newsletter-descr'>" & ToolWebNGTranslateText2(70016) & "</div>");
+  WebOutString("<div class='newsletter-form'><form><input type='hidden' name='id' value='" & WEr.Code & ":" & WEr.HALFunc & "'><input type='email' name='email' placeholder='" & ToolWebNGTranslateText2(70026) & "'><input type='button' class='button hl_button' value='" & ToolWebNGTranslateText2(70017) & "'></div>");
+  WebOutString("</div>");
+
+  return;
+end;
+
+updating procedure SendSignupMail(record CUVc CUr)
+begin
+  record CreditalWebSetBlock WSb;
+  record RcVc RepSpec;
+
+  BlockLoad(WSb);
+  if (nonblank(WSb.NewsLetterMail)) then begin
+    RepSpec.f1 = CUr.Code;
+    SendCustomerLetterWithDetails(RepSpec,WSb.NewsLetterMail,CUr.LangCode,CUr.eMail);
+  end;
+
+  return;
+end;
+
+global
+updating procedure AddContactToMailingList(record PersColVc PersColr,record CUVc CUr)
+begin
+  record PersColListVc PersColListr;
+
+  RecordNew(PersColListr);
+  PersColListr.Code = CUr.Code;
+  if (nonblank(CUr.Person)) then begin
+    PersColListr.Name = CUr.Person;
+  end else begin
+    PersColListr.Name = CUr.Name;
+  end;
+  PersColListr.PersColCode = PersColr.Code;
+  PersColListr.FileName = "CUVc";
+  PersColListr.TransDate = CurrentDate;
+  if (RecordInsert(PersColListr,true)) then begin 
+    //Send mail for submittion
+    SendSignupMail(CUr);
+  end;
+
+  return;
+end;
+
+global webpublic
+updating procedure WebSubmitNewsLetter()
+begin
+  record PersColVc PersColr;
+  record CUVc CUr; 
+  string 255 tstr,email,res,el,id;
+  Longint pos;
+  record WebNGElementVc WEr;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  tstr = WebGetArg("id");
+  GetNextSubString(tstr,pos,":",el);
+  GetNextSubString(tstr,pos,":",id);
+  PersColr.Code = id;
+  email = WebGetArg("email");
+  if (ReadFirstMain(PersColr,1,true) and nonblank(email)) then begin
+    Wer.Code = el;
+    if (ReadFirstMain(WEr,1,true) and WEr.HALFunc==id) then begin
+      CUr.eMail = email;
+      if (ReadFirstKey("eMail",Cur,1,true)) then begin
+        AddContactToMailingList(PersColr,CUr);
+        res = ToolWebNGTranslateText2(70018);
+      end else begin
+        RecordNew(CUr);
+        GetNextCustNr(tstr);//
+        CUr.Code = tstr;
+        CUr.eMail = email;
+        if (RecordInsert(CUr,true)) then begin
+          AddContactToMailingList(PersColr,CUr);
+          res = ToolWebNGTranslateText2(70018);
+        end;
+      end;
+    end;
+  end;
+  if (blank(res)) then begin
+    res = ToolWebNGTranslateText2(70025);
+  end;
+
+  WebOutString("<res msg='" & res & "'></res>");
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+/*not used anymore*/
+/*
+procedure SetLanguageCompany(var Integer oldcomp)
+begin
+  record LangCompanyMapBlock LCb;
+  row LangCompanyMapBlock LCbrw;
+  Integer i,rwcnt;
+  string 255 langcode;
+  
+  oldcomp = CurrentCompany;
+  langcode = CurrentWebLang;
+  BlockLoad(LCb);
+  rwcnt = MatRowCnt(LCb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(LCb,i,LCbrw);
+    if (LCbrw.LangCode==langcode and LCbrw.CompanyNr>0) then begin
+      SetCompany(LCBrw.CompanyNr,false);
+      i = rwcnt;
+    end;
+  end;
+
+  return;
+end;
+
+procedure ResetLanguageCompany(var Integer oldcomp)
+begin
+  
+  if (CurrentCompany!=oldcomp) then begin
+    ResetCompany(oldcomp);
+  end;
+
+  return;
+end;
+*/
+global webpublic
+procedure WebShowEmpPic()
+begin 
+  record UserVc Userr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  string 255 ext;
+  Integer i;
+
+  Userr.Code = WebGetArg("emp");
+  if (ReadFirstMain(Userr,1,true)) then begin
+    if (ReadRecordLink(Userr,1,Attachr,RLr)) begin
+      ext = right(Attachr.FileName,4);
+      if (left(ext,1)==".") then begin
+        ext = right(Attachr.FileName,3);
+      end;
+      SetContentTypeForExtension(ext);
+      WebSetContentDisposition("inline; filename=" & Attachr.FileName);
+      WebOutAttachment(Attachr.SerNr);
+    end;
+  end;
+  return;
+end;
+
+procedure ShowSingleUserOnWeb(record UserVc Userr)
+begin
+  string 255 link;
+   
+  link = Userr.Spec;
+  WebOutString("<div class='col-auto single_emp justify-content-center'>");
+  if (nonblank(link)) then begin
+    WebOutString("<a href='" &  link & "' target='blank'>");
+  end;
+  WebOutString("<div class='emp_pic'><img src='/WebShowEmpPic.hal?emp=" & Userr.Code & "' alt='" & Userr.Name & "'></div>")
+  WebOutString("<div class='emp_name'>" & Userr.Name & "</div>")
+  WebOutString("<div class='emp_descr'>" & Userr.Job & "</div>")
+  WebOutString("</div>");
+  if (nonblank(link)) then begin
+    WebOutString("</a>");
+  end;
+
+  return;
+end;
+
+global
+procedure ShowEmployeesOnWeb(record WebNGElementVc WEr)
+begin
+  record UserVc Userr;
+  Boolean TrHs;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  record EGVc EGr;
+  array record UserVc aUser;
+  Integer i;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  EGr.Code = WEr.HALFunc;
+  if (ReadFirstMain(EGr,1,true)) then begin
+    WebOutString("<div class='emplist_head'>" & EGr.Comment & "</div>");
+    WebOutString("<div class='row'>");
+    while (LoopKey("ActCode",Userr,1,true)) begin
+      if (Userr.JobGroup==WEr.HALFunc) then begin
+        if (ReadRecordLink(Userr,1,Attachr,RLr)) then begin
+          aUser[aUser.length] = Userr;
+        end;
+      end;
+    end;
+    SortRecordArray(aUser,"SortCode");
+    for (i=0;i<aUser.length;i=i+1) begin
+      Userr = aUser[i];
+      ShowSingleUserOnWeb(Userr);
+    end;
+    WebOutString("</div>");
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+
+  return;
+end;
+
+procedure ShowContactLine(string cls,string text)
+begin
+  string 255 tstr;
+  
+  WebOutString("<div class='contactline " & cls & "'>" & text & "</div>");
+
+  return;
+end;
+
+function string 255 GetWorkingHours(record CYBlock CYb)
+begin
+  
+
+  GetWorkingHours = "";
+  return;
+end;
+
+global
+procedure ShowContactInfo(record WebNGElementVc WEr)
+begin
+  record CYBlock CYb;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  BlockLoad(CYb);
+
+  switch (WEr.HALFunc) begin
+    case "contactus":
+      //show content 1
+      ShowContactLine("location",CYb.CompName);
+      ShowContactLine("blank",CYb.Addr0);
+      ShowContactLine("empty","");
+      ShowContactLine("blank",ToolWebNGTranslateText2(70024) & CYb.OrgNr);
+      ShowContactLine("empty","");
+      ShowContactLine("hours",ToolWebNGTranslateText2(70021));
+      ShowContactLine("blank",GetWorkingHours(CYb));
+      ShowContactLine("empty","");
+      ShowContactLine("phone",ToolWebNGTranslateText2(70022) & "<span class='use_phone'>" & CYb.Phone & "</span>");
+      ShowContactLine("email",ToolWebNGTranslateText2(70023) & "<span class='use_mail'>" & CYb.emailAddr & "</span>");
+
+    case "footer":
+      //show content 2
+      ShowContactLine("blank",CYb.Addr0);
+      ShowContactLine("phone","<span class='use_phone'>" & CYb.Phone & "</span>");
+      ShowContactLine("email","<span class='use_mail'>" & CYb.emailAddr & "</span>");
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+procedure OutputContactHTMLNote(record CUVc CUr)
+begin
+  record WebFAQVc WFr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  area a;
+  Longint asz,pos,l;
+  xml x;
+  string 255 tstr;
+  Integer i;
+  
+  //if (CUr.HtmlFlag==0) then begin
+    WebOutText(CUr,false,"");
+/*
+  end else begin
+    i = 1;
+    while (ReadRecordLink(CUr,i,Attachr,RLr)) begin
+      i = i + 1;
+      if (Attachr.FileName == "body.html") then begin
+        SetAreaZeroSize(a);
+        asz = AttachFileSize(Attachr);    
+        LoadAttachFilePartToArea(Attachr,0,asz,a);
+
+        tstr = "";
+        pos = FindStringInArea("<body",a);
+        if (pos>0) then begin
+          pos = pos + 6;
+          l = GetAreaLength(a)-pos-13;
+          tstr = GetStringFromArea(a,pos,l);
+          SetAreaZeroSize(a);
+          AddTextToArea(tstr,a);
+          pos = FindStringInArea(">",a);
+          if (pos>0) then begin
+            pos = pos + 1;
+            tstr = GetStringFromArea(a,pos,GetAreaLength(a)-pos-1);
+          end;
+        end;
+        WebOutString(tstr);
+      end;
+    end;
+  end;
+*/
+  return;
+end;
+
+global
+procedure PartnerSearchForm(record WebNGElementVc WEr)
+begin
+  record WebInvoicingPartnerBlock IPb;
+  Longint pos;
+  string 255 tstr,tstr2;
+  record CClassVc CCr;
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  record CUVc CUr;
+
+  BlockLoad(IPb);
+
+  WebOutString("<div class='partner_search'>");
+  WebOutString("<div class='loan_small_title'>" & ToolWebNGTranslateText2(70149) & "</div>");
+  WebOutString("<div class='cat_wrap'>");
+  while (GetNextSubstring(IPb.PartnerClass,pos,",",tstr)) begin
+    CCr.Code = tstr;
+    if (ReadFirstMain(CCr,1,true)) then begin
+      WebOutString("<div class='single_cat' id='" & tstr & "'>" & CCr.Comment & "</div>");
+    end;
+  end;
+  WebOutString("</div>");
+
+  pos = -1;
+  WebOutString("<div class='partner-list-wrap'>");
+  while (GetNextSubstring(IPb.PartnerClass,pos,",",tstr)) begin
+    ResetLoop(CUr);
+    RecordClear(Cur);
+    while (LoopKey("Classification:" & tstr,CUr,1,true)) begin
+      if (ReadRecordLink(CUr,1,Attachr,RLr)) then begin
+        WebOutString("<div class='single-partner' category='" & tstr & "'><div class='partner-image-wrap'><img src='/WebShowPartnerImage.hal?id=" & CUr.UUID & "&code=" & CUr.Code & "' alt='" & CUr.Name & "'></div>");
+        WebOutString("<div class='description'>");
+        OutputContactHTMLNote(CUr);
+        if (nonblank(CUr.wwwAddr)) then begin
+          tstr2 = CUr.wwwAddr;
+          if (left(tstr2,4)!="http") then begin
+            tstr2 = "http://" & tstr2;
+          end;
+          WebOutString("<div class='comp_wwwaddr'><a href='" & tstr2 & "' target='blank'>" & ToolWebNGTranslateText2(70364) & "</a></div>");
+        end;
+        WebOutString("</div>");
+        WebOutString("</div>");
+      end;
+    end;
+  end;
+  WebOutString("</div>")
+  WebOutString("<div class='partner-search'><input type='text' placeholder='" & ToolWebNGTranslateText2(70153) & "'></div>");
+  WebOutString("<div class='partner_bottom gradient'>");
+  WebOutString("<div class='submit'><div class='hl_button' type='3'>" & ToolWebNGTranslateText2(70145) & "</div></div>");
+  WebOutString("<div class='partner_bottom_text'>" & ToolWebNGTranslateText2(70150) & "</div>");
+  WebOutString("<div class='partner_bottom_link'><a href=''>" & ToolWebNGTranslateText2(70151) & "</a></div>");
+  WebOutString("</div>");
+  WebOutString("</div>");
+
+  return;
+end;
+
+global
+procedure ShowNormalWebStrings()
+begin
+  
+  WebOutString("<script>");
+  WebOutString("var web_strings = {};");
+  WebOutString("web_strings['EnterCompName'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70154)) & "';");
+  WebOutString("web_strings['EnterRegNr'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70155)) & "';");
+  WebOutString("web_strings['EnterNameSurname'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70156)) & "';");
+  WebOutString("web_strings['EnterEmail'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70157)) & "';");
+  WebOutString("web_strings['EnterPhone'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70158)) & "';");
+  WebOutString("web_strings['EnterPassword'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70159)) & "';");
+  WebOutString("web_strings['EnterName'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70160)) & "';");
+  WebOutString("web_strings['EnterComment'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70161)) & "';");
+  WebOutString("web_strings['EnterEmailAddress'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70162)) & "';");
+  WebOutString("web_strings['BlankPassword'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70163)) & "';");
+  WebOutString("web_strings['SamePassword'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70164)) & "';");
+  WebOutString("web_strings['Balance'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70285)) & "';");
+  WebOutString("web_strings['Interest'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70286)) & "';");
+  WebOutString("web_strings['Instalment'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70287)) & "';");
+  WebOutString("web_strings['Legend01'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70307)) & "';");
+  WebOutString("web_strings['Legend02'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70308)) & "';");
+  WebOutString("web_strings['Legend03'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70309)) & "';");
+  WebOutString("web_strings['Legend11'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70310)) & "';");
+  WebOutString("web_strings['Legend12'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70311)) & "';");
+  WebOutString("web_strings['Legend13'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70312)) & "';");
+  WebOutString("web_strings['Legend21'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70313)) & "';");
+  WebOutString("web_strings['Legend22'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70314)) & "';");
+  WebOutString("web_strings['Legend23'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70315)) & "';");
+  WebOutString("web_strings['Legend24'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70376)) & "';");
+  WebOutString("web_strings['PutOldPassword'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70357)) & "';");
+  WebOutString("web_strings['PutNewPassword'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70359)) & "';");
+  WebOutString("web_strings['PutNewPassword2'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70361)) & "';");
+  WebOutString("web_strings['SpecifyCompany'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70374)) & "';");
+  WebOutString("web_strings['CantBeBlank'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70377)) & "';");
+  WebOutString("web_strings['SamePasswords'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70398)) & "';");
+  WebOutString("web_strings['EnterLoanAmount'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70399)) & "';");
+  WebOutString("web_strings['SubmitLoanApplication'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70400)) & "';");
+  WebOutString("web_strings['AfterSubmit'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70401)) & "';");
+
+  WebOutString("</script>");
+
+  return;
+end;
+
+function Boolean FileNameIsImage(string fn)
+begin
+  
+
+  FileNameIsImage = true;//for now
+  return;
+end;
+
+global
+procedure DisplayContentGallery(string code,Integer filename)
+begin
+  record Attach2Vc Attachr;
+  record RLinkVc RLr;
+  Integer i;
+  Boolean galf;
+  vector Integer vImages;
+  array string 255 aImages;
+  string 255 link;
+  record WebNGContentVc WCr;
+  
+  if (filename==1) then begin
+    WCr.SerNr = StringToLongint(code);
+    if (ReadFirstMain(WCr,1,true)) then begin
+
+      if (WCr.ContentStyle!="SEKMES") then begin//sorry for hardcoding this...
+        goto LDisplayContentGallery;
+      end;
+
+      i = 1;
+      while (ReadRecordLink(WCr,i,Attachr,RLr)) begin
+        if (FileNameIsImage(Attachr.FileName)) then begin
+          if (WCr.ThumbnailImage!=Attachr.FileName and WCr.CoverImage!=Attachr.FileName) then begin
+            galf = true;
+            vImages[Attachr.FileName] = i; 
+          end;
+        end;
+        i = i + 1;
+      end;
+
+      if (galf) then begin
+        GetVectorTags(vImages,aImages);
+        WebOutString("<div class='gallery_wrap'>");
+        WebOutString("<div class='gallery_content'>");
+        WebOutString("<div class='gallery_title'><span class='gallery_title_text'>" & ToolWebNGTranslateText2(70200) & "</span><span class='highlight'>" & aImages.length & "</span></div>")
+        for (i=0;i<aImages.length;i=i+1) begin
+          link = WebGetArg("path") & "/images?image=" & aImages[i];
+          WebOutString("<a class='fancybox' rel='group' href='" & link & "'><img src='" & link & "' alt='" & WCr.ImgAlt & " - " & (i+1) & "'></a>")
+        end;
+        WebOutString("</div>");
+        WebOutString("</div>");
+      end;
+    end;
+  end;
+
+LDisplayContentGallery:;
+  return;
+end;
+
+procedure SplitLatvianAddress(string fulladdr,var string addr1,var string addr2)
+begin
+  integer pos;
+  
+  pos = InString(fulladdr,",");
+  addr1 = Right(fulladdr,len(fulladdr)-pos-1);
+  addr2 = Left(fulladdr,pos);
+
+  return;
+end;
+
+function Boolean ItemInArray(string tstr,array string arr)
+begin
+  Integer i;
+  Boolean res;
+
+  for (i=0;i<arr.length;i=i+1) begin
+    if (arr[i]==tstr) then begin
+      res = true;
+      i = arr.length;
+    end;
+  end;
+
+  ItemInArray = res;
+  return;
+end;
+
+global
+updating procedure AddNewCategoriesToRekvizitaiSetting(array string alist,array string nlist)
+begin
+  Longint pos;
+  record RekvizitaiClassBlock RCb;
+  row RekvizitaiClassBlock RCbrw;
+  string 255 tmp;
+  Boolean updf;
+  Integer i;
+  
+  BlockLoad(RCb);
+  for (i=0;i<alist.length;i=i+1) begin
+    tmp = alist[i];
+    StripTrailingSpaces(tmp);
+    StripLeadingSpaces(tmp);
+    if (ItemInArray(tmp,nlist)==false) then begin
+      ClearRow(RCb,RCbrw,1);
+      RCbrw.Category = tmp;
+      MatRowPut(RCb,MatRowCnt(RCb),RCbrw);
+      updf = true;
+    end;
+  end;
+  if (updf) then begin
+    BlockStore(RCb);
+  end;
+  
+  return;
+end;
+
+global
+procedure GetCustomerNameFromServer2(string regnr,var string name,var string addr0,var string addr1,var string addr2,var string addr3,var string phone,var string mobile,var string fax,var string homepage,var string email,var string vatnr,var string custclass,Boolean checkclassf,string countrycode,var Boolean res)
+begin
+  area a_req,a_reply;
+  string 255 fres,err,tstr,fulladdr,root,post,city;
+  record TXServiceReplyVc TXSrvReplyr;
+  string 255 gEBSAddrLookupCountry;
+  xml axml;
+  Integer i,rwcnt,cnt,listcnt;
+  string 255 list;
+  array string 255 alist,nlist;
+  Longint pos;
+  record RekvizitaiClassBlock RCb;
+  row RekvizitaiClassBlock RCbrw;
+  
+  
+  name = "";
+  SendFunctionVersion("54.0","",a_req);
+  SendTextParameter("web",a_req);
+  SendTextParameter(regnr,a_req);
+  SendTextParameter(0,a_req);
+  gEBSAddrLookupCountry = countrycode;
+  res = SendServiceRequestNonUpdating("UPDATECOMPANYDATA",false,true,a_req,a_reply,true,false,60,"");      
+  ReadTXServiceReply(TXSrvReplyr,a_reply,true);
+  if (res) then begin
+    switch (countrycode) begin
+      case "LV":
+        axml = ParseXmlArea(a_reply);
+        root = "soap:Envelope/soap:Body/answer/person";
+        if (XmlNodeExists(axml,root & "/address/adress_full")) then begin
+          fulladdr = XmlGet(axml,root & "/address/adress_full");
+          SplitLatvianAddress(fulladdr,addr1,city);
+          post = XmlGet(axml,root & "/address/index");
+        end;
+        if (XmlNodeExists(axml,root & "/firm")) then begin
+          name = XmlGet(axml,root & "/firm");
+          if (Right(name,1)!=",") then begin
+            name = name & ",";
+          end;
+          name = name & " " & XmlGet(axml,root & "/type");
+        end;
+        if (nonblank(post)) then begin
+          post = "LV-" & post;
+        end;
+        if (XmlNodeExists(axml,root & "/pvncode")) then begin
+          vatnr = XmlGet(axml,root & "/pvncode");
+        end;
+
+        addr0 = addr1;
+        addr1 = city;
+        addr2 = post;
+
+      case "LT":
+        name  = GetTabTextFromArea(0,1,a_reply);
+
+        addr0  = GetTabTextFromArea(0,4,a_reply);
+        tstr  = GetTabTextFromArea(0,5,a_reply);
+        if (nonblank(tstr)) then begin
+          if (nonblank(addr0)) then begin
+            addr0 = addr0 & " ";
+          end;
+          addr0 = addr0 & tstr;
+        end;
+        tstr  = GetTabTextFromArea(0,6,a_reply);
+        if (nonblank(tstr)) then begin
+          if (nonblank(addr0)) then begin
+            addr0 = addr0 & " ";
+          end;
+          addr0 = addr0 & tstr;
+        end;
+        addr2  = GetTabTextFromArea(0,7,a_reply);
+        addr3  = GetTabTextFromArea(0,3,a_reply);
+        phone  = GetTabTextFromArea(0,9,a_reply);
+        mobile  = GetTabTextFromArea(0,10,a_reply);
+        fax  = GetTabTextFromArea(0,11,a_reply);
+        homepage  = GetTabTextFromArea(0,12,a_reply);
+        email  = GetTabTextFromArea(0,13,a_reply);
+        vatnr  = GetTabTextFromArea(0,14,a_reply);
+
+        if (checkclassf) then begin
+          list  = GetTabTextFromArea(0,8,a_reply);
+          while (GetNextSubstring(list,pos,";",tstr)) begin
+            listcnt = listcnt + 1;
+            alist[alist.length] = Trim(tstr);
+          end;
+          BlockLoad(RCb);
+          rwcnt = MatRowCnt(RCb);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(RCb,i,RCbrw);
+            if (ItemInArray(RCbrw.Category,alist)) then begin
+              custclass = AddObjectToObjectList(custclass,RCbrw.Class);
+              nlist[nlist.length] = RCbrw.Category;
+              cnt = cnt + 1;
+            end;
+            if (listcnt==cnt) then begin
+              i = rwcnt;
+            end;
+          end;
+          if (cnt!=listcnt) then begin
+            queued.AddNewCategoriesToRekvizitaiSetting(alist,nlist);
+          end;
+        end;
+    end;
+  end;
+
+  return;
+end;
+
+global
+procedure GetCustomerNameFromServer(string regnr,var string name,var string addr0,var string addr1,var string addr2,var string addr3,var string phone,var string mobile,var string fax,var string homepage,var string email,var string vatnr,var string custclass,Boolean checkclassf,string countrycode)
+begin
+  Boolean res;
+  GetCustomerNameFromServer2(regnr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,email,vatnr,custclass,checkclassf,countrycode,res)
+
+  return;
+end;
+
+function Boolean RegistrationNumberMatchesCountry(record CYBlock CYb,string compid,var Boolean checkf)
+begin
+  Boolean res;
+  record RegNrPatternBlock RPb;
+  row RegNrPatternBlock RPbrw;
+  Integer i,rwcnt;
+
+  BlockLoad(RPb);
+  rwcnt = MatRowCnt(RPb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RPb,i,RPbrw);
+    if (CYb.CountryCode==RPbrw.CountryCode and NovitiMaskMatches(RPbrw.Pattern,compid)) then begin
+      res = true;
+      checkf = (RPbrw.Action==0);
+      i = rwcnt;
+    end;
+  end;
+
+  RegistrationNumberMatchesCountry = res;
+  return;
+end;
+
+global webpublic
+procedure WebCheckCompanyName()
+begin
+  string 255 fres,compid,err,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,email,vatnr,addrstr,custclass;
+  record CUVc CUr;
+  Integer oldcomp;
+  record CYBlock CYb;
+  Boolean checkf,res;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  if (GetSessionString("LoanAppVer")==WebGetArg("scall")) then begin
+    compid = WebGetArg("regnr");
+    BlockLoad(CYb);
+    if (nonblank(compid) and RegistrationNumberMatchesCountry(CYb,compid,checkf)) then begin
+      CUr.RegNr1 = compid;
+      if (ReadFirstKey("RegNr1",CUr,1,true)) then begin
+        fres = CUr.Name;
+        vatnr = CUr.VATNr;
+        addrstr = CUr.InvAddr0;
+      end else begin
+        
+        if (checkf) then begin//only for companies (9 chars) not persons (12 chars)
+          GetCustomerNameFromServer2(compid,fres,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,email,vatnr,custclass,false,CYb.CountryCode,res);
+          if (!res) then begin
+            fres = " ";
+          end else begin
+            addrstr = addr0 & "," & addr1 & "," & addr2 & "," & addr3;
+          end;
+        end else begin
+          fres = " ";
+        end;
+      end;
+    end;
+  end;
+
+  if (blank(fres)) then begin
+    err = ToolWebNGTranslateText2(70074);
+  end;
+
+  WebOutString("<res err='" & err & "' name='" & fres & "' vatnr='" & vatnr & "' address='" & addrstr & "'></res>");
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+
+global
+procedure ShowNewsLetterForm(record WebNGElementVc WEr)
+begin
+  
+  //WebOutString("<div class='")
+
+  return;
+end;
+
+global
+procedure ShowResetPasswordElement(record WebNGElementVc WEr)
+begin
+  
+  WebOutString("<div class='reset_password_form'>");
+  ToolWebOutElementTextFormat(WEr);
+
+  WebOutTagOpen("<form method=""post"" action=""" & FormatLink("/WebAction.hal","?action=createnewpasssess",true,true) & """>");
+
+  WebOutStringFormatNL("<div class='reset_password_line'><div class='reset_password_label'>" & ToolWebNGTranslateText2(70257) & "</div><div class='reset_password_input'><input type=""text"" name=""email"" placeholder='" & ToolWebNGTranslateText2(70258) & "'></div></div>");
+
+  WebOutString("<div class='reset_password_line submit'><div class='reset_password_submit'>" & ToolWebNGTranslateText2(70259) & "</div></div>");
+
+  WebOutString("</form></div>");
+  return;
+end;
+
+global
+updating procedure SendResetPasswordMail()
+begin
+  record PassSessVc PSr;
+  string 255 tstr;
+  record CUVc CUr;
+  Boolean foundf;
+  record RcVc RepSpec;
+  record CMApplicationSetBlock CMb;
+  string 255 msg;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+  
+  tstr = WebGetArg("email");
+  CUr.eMail = tstr;
+  if (ReadFirstKey("eMail",CUr,1,true)) then begin
+    foundf = true;
+  end;
+  if (!foundf) then begin
+    ResetLoop(CUr);
+    CUr.Code = tstr;
+    if (ReadFirstMain(CUr,1,true)) then begin
+      foundf = true;
+    end;
+  end;
+
+  if (foundf) then begin
+    RecordNew(PSr);
+    PSr.UUID = MakeUUID;
+    PSr.CustCode = CUr.Code;
+    PSr.TransDate = CurrentDate;
+    PSr.TransTime = CurrentTime;
+    if (RecordInsert(PSr,true)) then begin
+      BlockLoad(CMb);
+      msg = ToolWebNGTranslateText2(70260);
+      RepSpec.f1 = CUr.Code;
+      RepSpec.searchstr = "?sess=" & PSr.UUID & "&cc=" & CUr.Code;
+      SendCustomerLetterWithDetails(RepSpec,"reset-password",CUr.LangCode,CUr.eMail);
+    end;
+  end else begin
+    msg = ToolWebNGTranslateText2(70261);    
+  end;
+  if (blank(msg)) then begin
+    msg = ToolWebNGTranslateText2(70262);
+  end;
+
+  WebOutString("<res msg='" & msg & "'></res>");
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+global
+procedure ShowUpdatePasswordElement(record WebNGElementVc WEr) 
+begin
+  record PassSessVc PSr;
+  Boolean expf,showf;
+  Integer oldcomp;
+   
+  oldcomp = SetCompanyBasedOnCountry;
+
+  PSr.UUID = StringToUUID(WebGetArg("sess"));
+  if (ReadFirstMain(PSr,1,true)) then begin
+    if (PSr.CustCode==WebGetArg("cc")) then begin
+      showf = true;
+      if (PSr.UsedFlag==1 or DateDiff(PSr.TransDate,CurrentDate)>2) then begin
+        expf = true;
+        showf = false;
+      end;
+      if (showf) then begin
+        WebOutString("<div class='update_password_form'>");
+        ToolWebOutElementTextFormat(WEr);
+        WebOutTagOpen("<form method=""post"" action=""" & FormatLink("/WebUpdatingAction.hal","?action=updatepasssess",true,true) & """>");
+        WebOutString("<input type='hidden' name='sess' value='" & PSr.UUID & "'><input type='hidden' name='cc' value='" & PSr.CustCode & "' >");
+        WebOutStringFormatNL("<div class='reset_password_line'><div class='reset_password_label'>" & ToolWebNGTranslateText2(70266) & "</div><div class='reset_password_input'><input type=""password"" name=""passw1"" placeholder='" & ToolWebNGTranslateText2(70267) & "'></div></div>");
+
+        WebOutStringFormatNL("<div class='reset_password_line'><div class='reset_password_label'>" & ToolWebNGTranslateText2(70268) & "</div><div class='reset_password_input'><input type=""password"" name=""passw2"" placeholder='" & ToolWebNGTranslateText2(70269) & "'></div></div>");
+
+        WebOutString("<div class='reset_password_line submit'><div class='reset_password_submit'>" & ToolWebNGTranslateText2(70270) & "</div></div>");
+
+        WebOutString("</form></div>");
+      end;
+    end;
+  end;  
+
+  if (expf) then begin
+    WebOutString("<div class='reset_err'>" & ToolWebNGTranslateText2(70271) & "</div>");
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+
+global
+updating procedure UpdatePasswordSession()
+begin
+  record PassSessVc PSr,oldPSr;
+  record CUVc CUr,oldCUr;
+  string 255 passw1,passw2,msg;
+  Boolean showf,expf;
+  Boolean res;
+  string 255 link;
+  Integer oldcomp;
+  
+  oldcomp = SetCompanyBasedOnCountry;
+
+  PSr.UUID = StringToUUID(WebGetArg("sess"));
+  if (ReadFirstMain(PSr,1,true)) then begin
+    if (PSr.CustCode==WebGetArg("cc")) then begin
+      showf = true;
+      passw1 = WebGetArg("passw1");
+      passw2 = WebGetArg("passw2");
+      if (PSr.UsedFlag==1 or DateDiff(CurrentDate,PSr.TransDate)>7) then begin
+        expf = true;
+        showf = false;
+      end;
+      if (passw1!=passw2 or len(passw1)<6) then begin//maybe we want longer passwords
+        showf = false;
+      end;
+      if (showf) then begin
+        Cur.Code = PSr.CustCode;
+        if (ReadFirstMain(CUr,1,true)) then begin
+          res = true;
+          RecordCopy(oldCUr,CUr);
+          CUr.Password = CalcPassword(passw1,CUr.Code,0);
+          CUr.AllowLogin = 1;
+          RecordUpdate(oldCUr,CUr,false);
+          RecordCopy(oldPSr,PSr);
+          PSr.UsedFlag = 1;
+          RecordUpdate(oldPSr,PSr,true);
+
+          link = "<form method=\"POST\" action=\"/dologin\" name=\"loginform\" style=\"display:none\"><input type=\"text\" name=\"login\" value=\"" & CUr.Code & "\"><input type=\"text\" name=\"passwd\" value=\"" & passw1 & "\"><input type=\"text\" name=\"failed\" value=\"/WebUpdatingAction.hal?action=afterlogin&failed=1\"><input type=\"text\" name=\"custpage\" value=\"/WebUpdatingAction.hal?action=afterlogin&cust=1\"><input type=\"submit\" value=\"ddd\"></form>";
+
+          //link = "/dologin?login=" & CUr.Code & "&passwd=" & passw1 & "&failed=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&failed=1") & "&custpage=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&cust=1") & "&cooksess=true";
+
+          //link = AddParamToEncryptedLink("",link);
+
+        end;
+      end;
+    end;
+  end;
+
+  if (res==false) then begin
+    msg = ToolWebNGTranslateText2(70264);
+  end;
+
+  if (expf) then begin
+    msg = ToolWebNGTranslateText2(70263);
+  end;
+
+  WebOutString("<res msg='" & msg & "' stat='" & res & "' link='" & link & "'></res>");
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+function Boolean FindMetaTranslation(Longint sernr,string lang,var string title,var string kw,var string descr)
+begin
+  record WebMetaTagTransVc MTTr;
+  Boolean res;
+  
+  MTTr.SerNr = sernr;
+  MTTr.LangCode = lang;
+  if (ReadFirstMain(MTTr,2,true)) then begin
+    title = MTTr.Title;
+    kw = MTTr.KeyWords;
+    descr = MTTr.Description;
+    res = true;
+  end;
+
+  FindMetaTranslation = res;
+  return;
+end;
+
+procedure FindMetaTag(Longint strnr,Longint cont,var string title,var string kw,var string descr)
+begin
+  record WebMetaTagVc MTr;
+  
+  MTr.StructNr = strnr;
+  MTr.ContentNr = cont;
+  if (ReadFirstKey("StructNr",MTr,2,true)) then begin
+    if (FindMetaTranslation(MTr.SerNr,CurrentWebLang,title,kw,descr)==false) then begin
+      FindMetaTranslation(MTr.SerNr,"",title,kw,descr);
+    end;
+  end;
+
+  return;
+end;
+
+function Longint FindContentID(string node)
+begin
+  Longint res;
+  record WebNGContentVc WCr;
+
+  WCr.NodeName = node;
+  if (ReadFirstKey("NodeName",WCr,1,true)) then begin
+    res = WCr.SerNr;
+  end else begin
+    WCr.SerNr = StringToLongint(node);
+    if (ReadFirstMain(WCr,1,true)) then begin
+      res = WCr.SerNr;
+    end;
+  end;
+
+
+  FindContentID = res;
+  return;
+end;
+
+function Boolean IsMobileDevice()
+begin
+  string 255 os;
+  Boolean res;
+  
+  os = GetBrowserOperatingSystem;
+  if (os=="android" or os=="ios" or os=="linux") then begin
+    res = true;
+  end;
+
+  IsMobileDevice = res;
+  return;
+end;
+
+global
+procedure OuterSetPageMetaData(record WebNGStructVc WSr,string mpath)
+begin
+  transaction string 255 gExtraHeadHTML;
+  transaction string 255 gExtraSiteTitle;
+  string 255 node,path,title,kw,descr,fullpath;
+  record CreditalWebSetBlock CWb;
+  record ExitPopupLinksBlock EPb;
+  row ExitPopupLinksBlock EPbrw;
+  Integer i,rwcnt;
+  
+  path = mpath;
+
+  if (WSr.Type==kStructTypeContentHandlerApp) then begin
+    node = removenextnode(mpath);
+    if (blank(node)) then begin
+      FindMetaTag(WSr.SerNr,-1,title,kw,descr);
+    end else begin
+      FindMetaTag(-1,FindContentID(node),title,kw,descr);      
+    end;
+  end else begin
+    if (WSr.Type!=21 and WSr.Type!=19 and WSr.Type!=13) then begin
+      FindMetaTag(WSr.SerNr,-1,title,kw,descr);
+    end;
+  end;
+
+  if (nonblank(title)) then begin
+    gExtraSiteTitle = " " & title;
+  end;
+  if (nonblank(descr)) then begin
+    gExtraHeadHTML = gExtraHeadHTML & "<meta name='description' content='" & descr & "'>";
+  end;
+  if (nonblank(kw)) then begin
+    gExtraHeadHTML = gExtraHeadHTML & "<meta name='keywords' content='" & kw & "'>";
+  end;
+  //canonical link
+  BlockLoad(CWb);
+  if (nonblank(CWb.CanonicalBase)) then begin
+    gExtraHeadHTML = gExtraHeadHTML & "<link rel='canonical' href='" & CWb.CanonicalBase & WebGetArg("path") & "'>";
+  end;
+
+  if (IsMobileDevice==false) then begin
+    if (blank(GetCookie("exitpopup"))) then begin
+      fullpath = WebGetArg("path");
+      BlockLoad(EPb);
+      rwcnt = MatRowCnt(EPb);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(EPb,i,EPbrw);
+        if (fullpath==EPbrw.Link) then begin
+          gExtraHeadHTML = gExtraHeadHTML & "<script src='/scripts/exitpopup.js'></script>";
+          i = rwcnt;
+        end;
+      end;
+    end;
+  end;
+
+  return;
+end;
+
+global webpublic
+procedure WebConnectUser()
+begin
+  string 255 link;
+/*
+  link = "/dologin?login=" & WebGetArg("custcode") & "&passwd=123123123&failed=" & UrlEncode("/WebUpdatingAction.hal?action=afterlogin&failed=1") & "&custpage=" & UrlEncode("/WebUpdatingAction.hal?action=afterlogin&cust=1") & "&cooksess=true";
+
+  //link = AddParamToEncryptedLink("",link);
+
+  ShowRedirectHTML(link,WebSecureMode);
+*/
+  WebOutString("<html><head></head><body><form  method='POST' action='/dologin' name='loginform' style='display:none'><input type='text' name='login' value='" & WebGetArg("custcode") & "'><input type='text' name='passwd' value='123123123'><input type=\"hidden\" name=\"company\" value=\"" & WebGetArg("compno") & "\"><input type='text' name='failed' value='/WebUpdatingAction.hal?action=afterlogin&failed=1'><input type='text' name='custpage' value='/WebUpdatingAction.hal?action=afterlogin&cust=1'><input type='submit' value='ddd'></form><script>document.loginform.submit();</script></body></html>")
+
+  return;
+end;
+
+procedure ShowInputField(string label,string ph,string name,string value,string type)
+begin
+  
+  WebOutStringFormatNL("<div class='reset_password_line'><div class='reset_password_label'>" & label & "</div><div class='reset_password_input'><input type=""" & type & """ name=""" & name & """ placeholder='" & ph & "'><div class='ver_msg'></div></div></div>");//i'll reuse all the classnames
+
+  return;
+end;
+
+function Boolean FindSuretyInvitation(string sess,string cc,var record InvitationRequestVc IRr)
+begin
+  Boolean res;
+  
+  IRr.UUID = StringToUUID(sess);
+  if (ReadFirstMain(IRr,1,true)) then begin
+    if (IRr.ContactCode==cc) then begin
+      if (IRr.Status==0) then begin
+        res = true;
+      end;
+    end;
+  end;
+
+  FindSuretyInvitation = res;
+  return;
+end;
+
+global
+procedure ShowRegisterSuretyElement(record WebNGELementVc WEr)
+begin
+  record InvitationRequestVc IRr;
+  Integer oldcomp;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  if (FindSuretyInvitation(WebGetArg("sess"),WebGetArg("cc"),IRr)) then begin  
+    WebOutString("<div class='new_surety_form'>");
+    ToolWebOutElementTextFormat(WEr);
+    WebOutTagOpen("<form method=""post"" action=""" & FormatLink("/WebUpdatingAction.hal","?action=finishsurety",true,true) & """>");
+    WebOutString("<input type='hidden' name='sess' value='" & IRr.UUID & "'><input type='hidden' name='cc' value='" & IRr.ContactCode & "' >");
+
+    ShowInputField(ToolWebNGTranslateText2(70244),ToolWebNGTranslateText2(70245),"name","","text");
+    ShowInputField(ToolWebNGTranslateText2(70246),ToolWebNGTranslateText2(70247),"persid","","text");
+    ShowInputField(ToolWebNGTranslateText2(70252),ToolWebNGTranslateText2(70253),"phone","","text");
+    ShowInputField(ToolWebNGTranslateText2(70127),ToolWebNGTranslateText2(70128),"address","","text");
+
+    ShowInputField(ToolWebNGTranslateText2(70266),ToolWebNGTranslateText2(70267),"passw1","","password");
+    ShowInputField(ToolWebNGTranslateText2(70268),ToolWebNGTranslateText2(70269),"passw2","","password");
+
+    WebOutString("<div class='reset_password_line submit'><div class='reset_password_submit'>" & ToolWebNGTranslateText2(70270) & "</div></div>");
+
+    WebOutString("</form></div>");
+  end else begin
+    
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+global
+updating function Boolean DoFinishSuretyRegistration(record InvitationRequestVc IRr,string name,string id,string phone,string address,string passw1,string passw2)
+begin
+  record B2BLoanApplicationVc LAr,oldLAr;
+  record CUVc CUr,oldCUr;
+  record InvitationRequestVc oldIRr;
+  Integer scnt;
+  string 255 cc;
+  Boolean res;
+
+  CUr.Code = IRr.ContactCode;
+  if (ReadFirstMain(CUr,1,true)) then begin
+    RecordCopy(oldCUr,CUr);
+    CUr.Name = name;
+    CUr.RegNr1 = id;
+    CUr.Phone = CreditalFixPhone(phone,CUr.CountryCode);
+    CUr.InvAddr0 = address;
+    CUr.Password = CalcPassword(passw1,CUr.Code,0);
+    if (RecordUpdate(oldCUr,CUr,false)==0) then begin//avoid record check because of missing classifications
+      CUVcRecordUpdate(oldCUr,CUr,Rs_Update,1);
+      
+      RecordCopy(oldIRr,IRr);
+      IRr.Status = 1;
+      IRr.FillDate = CurrentDate;
+      IRr.FillTime = CUrrentTime;
+      RecordUpdate(oldIRr,IRr,true);
+
+      LAr.SerNr = IRr.LoanAppNr;
+      if (ReadFirstMain(LAr,1,true)) then begin
+        scnt = 1;
+        cc = GetFieldValueByName(LAr,"SuretyProvider" & scnt,-1);
+        while (cc!=CUr.Code and scnt<4) begin
+          scnt = scnt + 1;
+          cc = GetFieldValueByName(LAr,"SuretyProvider" & scnt,-1);
+        end;
+        if (cc==CUr.Code) then begin
+          RecordCopy(oldLAr,LAr);
+          InsertSuretyInB2BApplication(LAr,scnt);
+          if (RecordUpdate(oldLAr,LAr,true)==0) then begin
+            res = true;
+            CreateSuretyDataAgreement(CUr.Code,LAr);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  DoFinishSuretyRegistration = res;
+  return;
+end;
+
+global
+procedure FinishSuretyRegistration()
+begin
+  string 255 name,id,phone,address,passw1,passw2;
+  array string 255 err;
+  record InvitationRequestVc IRr;
+  Integer i,oldcomp;
+  
+  oldcomp = SetCompanyBasedOnCountry;
+  if (FindSuretyInvitation(WebGetArg("sess"),WebGetArg("cc"),IRr)) then begin  
+
+    name = WebGetArg("name");
+    id = WebGetArg("persid");
+    phone = WebGetArg("phone");
+    address = WebGetArg("address");
+    passw1 = WebGetArg("passw1");
+    passw2 = WebGetArg("passw2");
+
+    if (blank(name)) then begin
+      err[err.length] = "name";
+    end;
+    if (blank(id)) then begin
+      err[err.length] = "persid";
+    end;
+    if (blank(phone)) then begin
+      err[err.length] = "phone";
+    end;
+    if (blank(address)) then begin
+      err[err.length] = "address";
+    end;
+    if (blank(passw1)) then begin
+      err[err.length] = "passw1";
+    end else begin
+      if (passw1!=passw2) then begin
+        err[err.length] = "passw2";
+      end;
+    end;  
+
+    if (err.length==0) then begin
+      if (qupdating.DoFinishSuretyRegistration(IRr,name,id,phone,address,passw1,passw2)==false) then begin
+        err[err.length] = "technical";
+      end;
+    end;
+
+    WebOutString("<res stat='" & err.length & "' link='" & GetLoginPageStructLink & "'>");
+    for (i=0;i<err.length;i=i+1) begin
+      WebOutString("<err name='" & err[i] & "'></err>");
+    end;
+
+    WebOutString("</res>");
+
+  end;
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+procedure AddActrText(var record ActVc Actr,string text,var Integer rw)
+begin
+  row ActVc Actrw;
+  
+  ClearRow(Actr,Actrw,1);
+  Actrw.Text = text;
+  MatRowPut(Actr,rw,Actrw);
+  rw = rw + 1;
+
+  return;
+end;
+
+global
+updating procedure StorePopupLoanApplication()
+begin
+  Longint value;
+  string 255 email,phone,warning;
+  Integer type,rw;
+  record CreditalWebSetBlock WSb;
+  record ActVc Actr;
+  Integer oldcomp;
+
+
+  value = StringToLongint(WebGetArg("amount"));
+  type = StringToInt(WebGetArg("loantype"));
+  email = WebGetArg("email");
+  phone = WebGetArg("phone");
+  if (nonblank(email) and nonblank(phone) and type>0 and value>0) then begin
+    oldcomp = SetCompanyBasedOnCountry;
+    BlockLoad(WSb);
+    RecordNew(Actr);
+    Actr.SerNr = NextSerNr("ActVc",CurrentDate,-1,false,"");
+    Actr.TransDate = CurrentDate;
+    Actr.ActType = WSb.PopupActType;
+    PasteActTypeInAct2("",Actr,warning);
+    Actr.MainPersons = WSb.PopupPersons;
+    Actr.Comment = WSb.PopupActComment;
+    Actr.TodoFlag = kTodoFlagTodo;
+
+    rw = 0;
+    AddActrText(Actr,value & " EUR",rw);
+    AddActrText(Actr,ToolWebNGTranslateText2(70405+type),rw);
+    AddActrText(Actr,email,rw);
+    AddActrText(Actr,phone,rw);
+
+    if (RecordInsert(Actr,true)) then begin
+
+    end;
+    ResetCompanyBasedOnCountry(oldcomp);
+  end;
+
+  return;
+end;
+
+global
+updating procedure StoreExitPopupActivity()
+begin
+  Longint value;
+  string 255 email,warning;
+  Integer rw;
+  record CreditalWebSetBlock WSb;
+  record ActVc Actr;
+  Integer oldcomp;
+
+  value = StringToLongint(WebGetArg("value"));
+  email = WebGetArg("email");
+
+  if (nonblank(email) and value>0) then begin
+    oldcomp = SetCompanyBasedOnCountry;
+    BlockLoad(WSb);
+    RecordNew(Actr);
+    Actr.SerNr = NextSerNr("ActVc",CurrentDate,-1,false,"");
+    Actr.TransDate = CurrentDate;
+    Actr.ActType = WSb.PopupActType;
+    PasteActTypeInAct2("",Actr,warning);
+    Actr.MainPersons = WSb.PopupPersons;
+    Actr.Comment = WSb.PopupActComment;
+    Actr.TodoFlag = kTodoFlagTodo;
+
+    rw = 0;
+    AddActrText(Actr,value & " EUR",rw);
+    AddActrText(Actr,email,rw);
+
+    if (RecordInsert(Actr,true)) then begin
+
+    end;
+    ResetCompanyBasedOnCountry(oldcomp);
+  end;
+
+
+  return;
+end;
+
+global
+procedure ShowPopupWebStrings()
+begin
+  
+  WebOutString("<script>");
+  WebOutString("var pu_strings = {};");
+  WebOutString("pu_strings['LoanAmount'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70403)) & "';");
+  WebOutString("pu_strings['Next'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70404)) & "';");
+  WebOutString("pu_strings['LoanType'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70405)) & "';");
+  WebOutString("pu_strings['LoanType1'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70406)) & "';");
+  WebOutString("pu_strings['LoanType2'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70407)) & "';");
+  WebOutString("pu_strings['LoanType3'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70408)) & "';");
+  WebOutString("pu_strings['LoanType4'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70409)) & "';");
+  WebOutString("pu_strings['Contacts'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70410)) & "';");
+  WebOutString("pu_strings['Email'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70411)) & "';");
+  WebOutString("pu_strings['Phone'] = '" & MakeWebSafe(ToolWebNGTranslateText2(70412)) & "';");
+  WebOutString("</script>");
+
+  return;
+end;
+
+function string 255 CleanPhoneNumber(string tstr)
+begin
+  Integer i,n;
+  string 255 res,c;
+  
+  for (i=0;i<len(tstr);i=i+1) begin
+    c = mid(tstr,i,1);
+    n = asc(c);
+    if (n==43 or (n>47 and n<58)) then begin
+      res = res & c;
+    end;
+  end;
+
+  CleanPhoneNumber = res;
+  return;
+end;
+
+global
+function string 255 CreditalFixPhone(string tphone,string countrycode)
+begin
+  record PhonePrefixBlock PPb;
+  row PhonePrefixBlock PPbrw;
+  Integer i,rwcnt;
+  string 255 prefix,rprefix,res,tprefix,phone;
+  
+  phone = CleanPhoneNumber(tphone);
+  res = phone;
+  if (blank(res)) then begin
+    goto LCreditalFixPhone;
+  end;
+
+  BlockLoad(PPb);
+  rwcnt = MatRowCnt(PPb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(PPb,i,PPbrw);
+    if (blank(PPbrw.CountryCode) or PPbrw.CountryCode==countrycode) then begin
+      prefix = PPbrw.Prefix;
+      rprefix = PPbrw.ReplacePrefix;
+    end;
+  end;
+
+  if (nonblank(prefix) and left(phone,1)!="+") then begin
+    tprefix = StrReplace(prefix,"+","");
+    if (left(phone,2)=="00") then begin
+      res = "+" & right(phone,len(phone)-2);
+    end else begin
+      if (left(phone,len(tprefix))==tprefix) then begin
+        res = "+" & res; 
+      end else begin
+        if (nonblank(rprefix)) then begin
+          if (left(phone,len(rprefix))==rprefix) then begin
+            res = right(res,len(res)-len(rprefix));
+          end;
+        end;
+        res = prefix & res;
+      end;
+    end;
+  end;
+
+LCreditalFixPhone:;
+  CreditalFixPhone = res;
+  return;
+end;
+
+global
+procedure ShowNovitiLanguageSelect()
+begin
+  string 255 lang,tmp;
+  record WebNGLanguageVc WLr;
+  record WebNGCountryVc WCr;
+  Longint pos;
+  
+  lang = CurrentWebLang;
+
+  WebOutString("<div class='head-langs'>");  
+  WebOutString("<span>" & lang);  
+
+  WebOutString("<ul>");  
+  
+  WCr.Code = ToolWebNGGetCountry;
+  if (ReadFirstMain(WCr,1,true)) then begin
+    while (GetNextSubstring(WCr.AllowedLanguages,pos,",",tmp)) begin
+      WLr.Code = tmp;
+      if (ReadFirstMain(WLr,1,true)) then begin
+        if (WLr.NotInUse!=1 and lang!=WLr.Code) then begin
+          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "'>" & WLr.Code & "</a></li>")
+        end;
+      end;
+    end;
+  end;
+  WebOutString("</ul>");  
+  WebOutString("</span>");  
+  WebOutString("</div>");  
+
+  return;
+end;
+
+global
+procedure NovitiChangeCountry()
+begin
+  string 255 country,region,path;
+  
+  country = WebGetArg("country");
+  if (nonblank(country)) then begin
+    UpdateWebCountry(country);
+    ShowRedirectHtml(FormatSimpleLink(WebGetArg("path"),true),WebSecureMode);
+  end;
+
+  return;
+end;
+
+global
+procedure ShowNovitiCountrySelect()
+begin
+  record WebNGCountryVc WCr;
+  string 255 txt,path;
+
+  WebOutString("<script src='/scripts/countries.js'></script>");
+  WebOutString("<div class='country_popup_wrap'>");
+  WebOutString("<div class='country_popup'>");
+  WebOutString("<div class='country_popup_close'></div>");  
+  WebOutString("<div class='country_popup_content'>");
+  path = WebGetArg("path");
+  if (blank(path)) then begin
+    path = "/";
+  end;
+  while (LoopMain(WCr,1,true)) begin
+    if (WCr.ShowOnWeb==1) then begin
+      txt = GetTranslatedNameCountry(WCr);
+
+      WebOutString("<div class='country_item'><a href='/WebAction.hal?action=novchangecountry&country=" & WCr.Code & "&path=" & path & "' style='background-image:url(/WebShowCountryImage.hal?cc=" & WCr.Code & ");'>" & txt & "</a></div>");
+    end;
+  end;
+  WebOutString("</div>");  
+  WebOutString("</div>");  
+  WebOutString("</div>");  
+
+  return;
+end;
+
+global
+procedure ShowNovitiCountrySelect2()
+begin
+  string 255 lang,tmp,path,cc;
+  record WebNGCountryVc WCr;
+  Longint pos;
+  
+  cc = ToolWebNGGetCountry;
+
+  WebOutString("<div class='head-langs'>");  
+  WebOutString("<span style='background-image:url(/WebShowCountryImage.hal?cc=" & cc & ");'>&nbsp;");  
+
+  WebOutString("<ul>");  
+  path = WebGetArg("path");
+  if (blank(path)) then begin
+    path = "/";
+  end;
+  while (LoopMain(WCr,1,true)) begin
+    if (WCr.ShowOnWeb==1 and cc!=WCr.Code) then begin
+      WebOutString("<li><a style='background-image:url(/WebShowCountryImage.hal?cc=" & WCr.Code & ");' href='/WebAction.hal?action=novchangecountry&country=" & WCr.Code & "&path=" & path & "'>&nbsp;</a></li>");
+    end;
+  end;
+  WebOutString("</ul>");  
+  WebOutString("</span>");  
+  WebOutString("</div>");  
+
+  return;
+end;
+
+global webpublic
+procedure WebShowCountryImage()
+begin
+  record WebNGCountryVc WCr;
+  record RLinkVc RLr;
+  record Attach2Vc Attachr;
+  string 255 ext;
+  
+  WCr.Code = WebGetArg("cc");
+  if (ReadFirstMain(WCr,1,true)) then begin
+    if (ReadRecordLink(WCr,1,Attachr,RLr)) then begin
+      ext = right(Attachr.FileName,4);
+      SetContentTypeForExtension(ext);
+      WebSetContentDisposition("inline; filename=" & Attachr.FileName);
+      WebOutAttachment(Attachr.SerNr);
+    end;
+  end;
+
+  return;
+end;
+ 
+global
+procedure SetHiddenElements()
+begin
+  record CreditalWebSetBlock WSb;
+  Integer oldcomp;
+  string 255 res;
+  transaction string 255 gHiddenElements;
+  transaction string 255 gHiddenMenus;
+
+
+  oldcomp = SetCompanyBasedOnCountry;
+
+  BlockLoad(WSb);
+/*
+  res = AddObjectToObjectList(res,WSb.HideMenu1);
+  res = AddObjectToObjectList(res,WSb.HideMenu2);
+  res = AddObjectToObjectList(res,WSb.HideMenu3);
+  res = AddObjectToObjectList(res,WSb.HideMenu4);
+*/
+  gHiddenElements = WSb.HideElements;
+  gHiddenMenus = WSb.HideMenus;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+global
+function Boolean FindNodeTranslation(string node,Longint mother,var record WebNGStructVc WSr)
+begin
+  record WebNodeTransVc NTr;
+  Boolean res;
+
+  NTr.Mother = mother;
+  if (ReadFirstKey("NodeName:" & node,NTr,1,true)) then begin
+    WSr.SerNr = NTr.SerNr;
+    if (ReadFirstMain(WSr,1,true)) then begin
+      res = true;
+    end;
+  end;
+  
+  FindNodeTranslation = res;
+  return;
+end;
+
+global
+function string 255 GetTranslatedNodeName(record WebNGStructVc WSr)
+begin
+  record WebNodeTransVc NTr;
+  row WebNodeTransVc NTrw;
+  string 255 res,lang;
+  Integer i,rwcnt;
+  
+  lang = CurrentWebLang;
+  res = WSr.Name;
+  NTr.SerNr = WSr.SerNr;
+  if (ReadFirstMain(NTr,1,true)) then begin
+    rwcnt = MatRowCnt(NTr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(NTr,i,NTrw);
+      if (NTrw.LangCode==lang) then begin
+        res = NTrw.NodeName;
+        i = rwcnt;
+      end;
+    end;
+  end;
+
+  GetTranslatedNodeName = res;
+  return;
+end;

@@ -1,0 +1,514 @@
+//<halrule>server-only</halrule>
+external procedure DisplayLoanSlideBars();
+external procedure DisplayLoanPayments();
+external procedure ShowPaymentDateField(string,string,string,string,string,string,Integer);
+external inner function string 255 ToolWebNGTranslateText2(Longint);
+external inner function string 255 removenextnode(var string);
+external inner procedure SetContentTypeForExtension(string);
+external inner procedure ShowWebAppPageStart(record WebNGPageVc,string);
+external inner procedure ShowWebAppPageEnd(record WebNGPageVc);
+external inner procedure LoadWebPage(string,var record WebNGPageVc);
+external procedure ShowWebLoanStrings();
+external procedure CheckLoanCustomer(string,string,string,Boolean,var record CUVc,var record CUVc,var Integer);
+external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc);
+external function Boolean InsertManagerInB2BApplication(var record B2BLoanApplicationVc);
+external function string 255 GetAgreementType(record B2BLoanApplicationVc,Integer,string);
+external function Integer MapLoanType(string);
+external updating procedure CreateActivityForContactLinks(record CUVc,record CUVc);
+external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record CUVc,LongInt,LongInt);
+external inner procedure ShowWebElement(string);
+external function string 255 CreditalFixPhone(string,string);
+external procedure GetCustomerNameFromServer(string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,Boolean,string);
+external updating function Boolean StoreLoanCustomer(string,string,string,string,string,string,string,string,string,string,string,string,string,string,var record CUVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
+external inner procedure ResolveMailboxNumber(var row MailVc);
+external function Integer SetCompanyBasedOnCountry();
+external procedure ResetCompanyBasedOnCountry(Integer);
+external inner function string 10 CurrentWebLang();
+external inner function string 255 GetBrowserOperatingSystem();
+external function string 255 NovitiGetEmailSender();
+external updating function Boolean StoreLoanContact(string,string,string,var record CUVc);
+external function Boolean CompanyLinkedToContact(record CUVc,record CUVc);
+external inner updating function Boolean AddContactCUDsmRemote(record CUVc,string);
+
+procedure AddToArray2(Integer flag,Longint order,string label,Integer mandatory,string flname,var record SMVc SMr)
+begin
+  row SMVc SMrw;
+  
+  if (flag==1) then begin
+    ClearRow(SMr,SMrw,1);
+    SMrw.Comment = flname;
+    SMrw.DebVal = order;
+    SMrw.ExtraComment = label;
+    SMrw.RowSimStat = mandatory;
+    MatRowPut(SMr,MatRowCnt(SMr),SMrw);
+  end;
+
+  return;
+end;
+
+procedure SetSurveyDetails(record NovWebFormVc WFr,var record SMVc SMr)
+begin
+  
+  AddToArray2(WFr.RegFlag,WFr.RegOrder,WFr.RegLabel,WFr.RegMand,"RegNr",SMr);
+  AddToArray2(WFr.NameFlag,WFr.NameOrder,WFr.NameLabel,WFr.NameMand,"Name",SMr);
+  AddToArray2(WFr.PhoneFlag,WFr.PhoneOrder,WFr.PhoneLabel,WFr.PhoneMand,"Phone",SMr);
+  AddToArray2(WFr.EmailFlag,WFr.EmailOrder,WFr.EmailLabel,WFr.EmailMand,"Email",SMr);
+  AddToArray2(WFr.ContactNameFlag,WFr.ContactNameOrder,WFr.ContactNameLabel,WFr.ContactNameMand,"ContactName",SMr);
+  AddToArray2(WFr.ContactEmailFlag,WFr.ContactEmailOrder,WFr.ContactEmailLabel,WFr.ContactEmailMand,"ContactEmail",SMr);
+  AddToArray2(WFr.ContactMobileFlag,WFr.ContactMobileOrder,WFr.ContactMobileLabel,WFr.ContactMobileMand,"ContactMobile",SMr);
+  AddToArray2(WFr.ContactJobFlag,WFr.ContactJobOrder,WFr.ContactJobLabel,WFr.ContactJobMand,"ContactJob",SMr);
+  AddToArray2(WFr.VATNrFlag,WFr.VATNrOrder,WFr.VATNrLabel,WFr.VATNrMand,"VATNr",SMr);
+  AddToArray2(WFr.AddressFlag,WFr.AddressOrder,WFr.AddressLabel,WFr.AddressMand,"Address",SMr);
+  AddToArray2(WFr.PaymentDayFlag,WFr.PaymentDayOrder,WFr.PaymentDayLabel,WFr.PaymentDayMand,"PaymentDay",SMr);
+  AddToArray2(WFr.AmountFlag,WFr.AmountOrder,WFr.AmountLabel,WFr.AmountMand,"Amount",SMr);
+  AddToArray2(WFr.TermFlag,WFr.TermOrder,WFr.TermLabel,WFr.TermMand,"Term",SMr);
+  AddToArray2(WFr.MailListFlag,WFr.MailListOrder,WFr.MailListLabel,0,"MailList",SMr);
+
+  return;
+end;
+
+procedure GetSurveyDetails(record SMVc SMr,var array string aDet,var array string aDetLabel)
+begin
+  Integer i,rwcnt;
+  row SMVc SMrw;
+  
+  SortRows(SMr,"DebVal",true);
+  rwcnt = MatRowCnt(SMr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(SMr,i,SMrw);
+    aDet[aDet.length] = SMrw.Comment;
+    aDetLabel[aDetLabel.length] = SMrw.ExtraComment;
+  end;
+
+  return;
+end;
+
+procedure ShowSimpleInput(string name,string label,string type,Integer mandf)
+begin
+  string 255 mand;
+
+  if (mandf==1) then begin
+    mand = "dnam";
+  end;
+
+  WebOutString("<div class='loan_input " & name & "'><div class='loan_label'>" & label);
+  if (mandf==1) then begin
+    WebOutString("*");
+  end;
+  WebOutString("</div><div class='input'><input type='" & type & "' placeholder='" & label & "' " & mand & "  name='" & name & "'></div></div>");
+
+  return;
+end;
+
+procedure ShowSimpleCheckbox(string name,string label)
+begin
+  
+  WebOutString("<div class='loan_checkbox " & name & "'><div class='input_checkbox'><input type='checkbox' name='" & name & "'><span class='checkmark'></span></div><div class='loan_label'>" & label & "</div></div>");
+
+  return;
+end;
+
+procedure ShowScall()
+begin
+  Longint curtic;
+
+  curtic = GetCurTick;
+  PutSessionString("LoanAppVer",curtic);
+  WebOutString("<input type='hidden' class='scall' value='" & curtic & "'>");
+
+  return;
+end;  
+
+function Boolean IsMobile()
+begin
+  Boolean res;
+  string 255 tstr;
+
+  tstr = GetBrowserOperatingSystem;
+  logtext(0,"dd " & tstr);
+  if (tstr=="Android" or tstr=="iOS") then begin
+    res = true;
+  end;
+
+  IsMobile = res;
+  return;
+end;
+
+procedure ShowWebSurvey(record NovWebFormVc WFr)
+begin
+  record SMVc SMr;
+  row SMVc SMrw;
+  array string 255 aDet,aDetLabel;
+  Integer i,rwcnt;
+  Boolean showf,ismobilef;
+  
+  ismobilef = IsMobile;
+  showf = false;
+  if (WFr.ShowDesktop==1 and !ismobilef) then begin
+    showf = true;
+  end;
+  if (WFr.ShowMobile==1 and ismobilef) then begin
+    showf = true;
+  end;
+  
+  if (showf) then begin
+    WebOutString("<script src='/scripts/websurvey.js?ver=20200324'></script>");
+    WebOutString("<link rel='stylesheet' type='text/css' href='/websurvey.css?ver=20200324'>");
+    WebOutString("<div class='websurvey_wrap'><form name='websurvey'>");
+    WebOutString("<div class='websurvey_title'>" & WFr.IntroText & "</div>");
+    SetSurveyDetails(WFr,SMr);
+    SortRows(SMr,"DebVal",true);
+    rwcnt = MatRowCnt(SMr);
+    WebOutString("<div class='websurvey_fields' checkregnr='" & WFr.CheckRegNr & "'>");
+    WebOutString("<input type='hidden' name='code' value='" & WFr.Code & "'>")
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(SMr,i,SMrw);
+      switch (SMrw.Comment) begin
+        case "RegNr":         ShowSimpleInput("regnr",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "Name":          ShowSimpleInput("name",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "Phone":         ShowSimpleInput("phone",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "Email":         ShowSimpleInput("email",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "ContactName":   ShowSimpleInput("contactname",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "ContactEmail":  ShowSimpleInput("contactemail",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "ContactMobile": ShowSimpleInput("contactmobile",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "ContactJob":    ShowSimpleInput("contactjob",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "VATNr":         ShowSimpleInput("vatnr",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "Address":       ShowSimpleInput("address",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "PaymentDay":    ShowPaymentDateField("paymentday",SMrw.ExtraComment,SMrw.ExtraComment,"","","",0);
+        case "Amount":        ShowSimpleInput("amount",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "Term":          ShowSimpleInput("term",SMrw.ExtraComment,"text",SMrw.RowSimStat);
+        case "MailList":      ShowSimpleCheckbox("maillist",SMrw.ExtraComment);
+      end;
+    end;
+    WebOutString("</div>");
+    WebOutString("<div class='websurvey_submit_line'><div class='websurvey hl_button'>" & ToolWebNGTranslateText2(70420) & "</div>");
+    if (nonblank(WFr.PhoneNumber)) then begin
+      WebOutString("<div class='websurvey_call'><a href='tel:" & WFr.PhoneNumber & "'><i class='fas fa-phone'></i></a></div>");
+    end;
+    WebOutString("</div>");
+
+    WebOutString("</form></div>");//landing_survey;
+    ShowScall;
+    WebOutString("<div style='clear:both'></div>");
+  end;
+
+  return;
+end;
+
+global
+procedure ShowWebSurveyElement(record WebNGElementVc WEr)
+begin
+  record NovWebFormVc WFr;
+  Integer oldcomp;
+  
+  oldcomp = SetCompanyBasedOnCountry;
+
+  WFr.Code = WEr.HALFunc;
+  if (ReadFirstMain(WFr,1,true)) then begin
+    ShowWebSurvey(WFr);
+  end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
+
+  return;
+end;
+
+updating procedure UpdateContactRecordsWithExtraData(record CUVc CUr,record CUVc ContactCUr,string email,string phone,string contactname,string contactjob,string vatnr,string address)
+begin
+  record CUVc oldCUr;
+
+  if (ReadFirstMain(CUr,1,true)) then begin
+    RecordCopy(oldCUr,CUr);
+    CUr.eMail = email;
+    CUr.Phone = CreditalFixPhone(phone,CUr.CountryCode);
+//    CUr.InvAddr0 = address;
+    RecordUpdate(oldCUr,CUr,false);
+  end;
+  if (ReadFirstMain(ContactCUr,1,true)) then begin
+    RecordCopy(oldCUr,ContactCUr);
+    ContactCUr.JobDesc = contactjob;
+    ContactCUr.Name = contactname;
+    RecordUpdate(oldCUr,ContactCUr,false);
+    CUVcRecordUpdate(ContactCUr,oldCUr,Rs_Update,1);
+  end;
+
+  return;
+end;
+
+global
+updating function Boolean StoreWebSurveyLoanApp(record CUVc CUr,record CUVc ContactCUr,record NovWebFormVc WFr,Integer status,Longint amount,Longint term,var record B2BLoanApplicationVc LAr,string phone,string email,string contactname,string contactmobile,string contactjob,string vatnr,string address,Integer paymentday,string maillist,string interfacelang,string browseros,string source)
+begin
+  Boolean res;
+  record CredManTypeVc CMTr;
+  record CMApplicationSetBlock CMb;
+  Integer type;
+  
+  BlockLoad(CMb);
+  RecordNew(LAr);
+
+  UpdateContactRecordsWithExtraData(CUr,ContactCUr,email,phone,contactname,contactjob,vatnr,address);
+
+  LAr.SerNr = NextSerNr("B2BLoanApplicationVc",CurrentDate,-1,false,"");
+  LAr.TransDate = CurrentDate;
+  LAr.CustCode = CUr.Code;
+  InsertCustomerInB2BApplication(LAr);
+  LAr.eMail = CUr.eMail;
+  LAr.OrderClass = WFr.OrderClass;
+
+
+  LAr.PhoneNo = CreditalFixPhone(phone,CUr.CountryCode);
+  LAr.ContactName = ContactCUr.Name;
+  LAr.ContacteMail = ContactCUr.eMail;
+  LAr.ContactMobile = CreditalFixPhone(contactmobile,CUr.CountryCode);
+  LAr.Manager = WFr.Manager;
+  InsertManagerInB2BApplication(LAr);
+  LAr.Sum = amount;
+  LAr.Months = term;
+  LAr.MonthlyPaymentDay = paymentday;
+  LAr.InterfaceLanguage = interfacelang;
+  LAr.BrowserOS = browseros;
+  LAr.Source = source;
+
+  LAr.Type = GetAgreementType(LAr,WFr.CalcType,"");
+  CMTr.Code = LAr.Type;
+  if (ReadFirstMain(CMTr,1,true)) then begin
+    LAr.InterestRate = CMTr.IntRate;
+    LAr.PrincipleDelayMonths = CMTr.PrincipleDelayMonths;
+    LAr.PrincipleDelayInterest = CMTr.PrincipleDelayInterest;
+    LAr.Months = CMTr.InstalmentMonths;
+  end;
+  type = MapLoanType(LAr.Type);
+  switch (type) begin
+    case 2: LAr.Months = 6;
+    case 4: LAr.Months = 18;
+            LAr.MaxMonthlyPayment = term;
+    case 3: /*LAr.Months = 12;*/
+    case 1: LAr.Months = term/30+1;
+    otherwise LAr.Months = term;
+  end;
+  if (RecordInsert(LAr,true)) then begin
+    res = true;
+    if (maillist=="on") then begin
+      AddToMailingList(CMb,ContactCUr);
+    end;
+    if (status==2) then begin
+      //Create activity for linking contact with contactperson
+      CreateActivityForContactLinks(CUr,ContactCUr);
+    end;
+  end;
+
+  StoreWebSurveyLoanApp = res;
+  return;
+end;
+
+global
+updating procedure SendWebSurveyEmail(record SMVc SMr,record NovWebFormVc WFr,string regnr,string name,string phone,string email,string contactname,string contactemail,string contactmobile,string contactjob,string vatnr,string address,string maillist,Integer paymentday,Longint amount,Longint term)
+begin
+  Integer i,rwcnt,lcnt;
+  row SMVc SMrw;
+  string 255 value,tstr;
+  record EMailQueVc emqrp;
+  row EMailQueVc emarw;
+
+  emarw.RowTyp = 1;
+  emarw.AddrCode = NovitiGetEmailSender;
+  MatRowPut(emqrp,MatRowCnt(emqrp),emarw);
+
+  emarw.RowTyp = 0;
+  emarw.AddrCode = WFr.MailReceiver;
+  MatRowPut(emqrp,MatRowCnt(emqrp),emarw);
+  emqrp.Header = WFr.IntroText;
+  
+  emqrp.SerNr = NextSerNr("EMailQueVc",CurrentDate,-1,false,"");
+  emqrp.OrgSerNr = -1;
+  emqrp.FileName = "";
+  emqrp.TransDate = CurrentDate;
+  emqrp.TransTime = CurrentTime;
+  emqrp.HasFileAtt = 0;
+  emqrp.HasRecAtt = 0;
+  emqrp.Priority = 1;
+  emqrp.EMailSent = 0;
+  emqrp.Lifespan = 0;
+  emqrp.QueDate = CurrentDate;
+  emqrp.QueTime = CurrentTime;
+
+  rwcnt = MatRowCnt(SMr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(SMr,i,SMrw);
+    value = "";
+
+    switch (SMrw.Comment) begin
+      case "RegNr":         value = regnr;
+      case "Name":          value = name;
+      case "Phone":         value = phone;
+      case "Email":         value = email;
+      case "ContactName":   value = contactname;
+      case "ContactEmail":  value = contactemail;
+      case "ContactMobile": value = contactmobile;
+      case "ContactJob":    value = contactjob;
+      case "VATNr":         value = vatnr;
+      case "Address":       value = address;
+      case "PaymentDay":    value = paymentday;
+      case "Amount":        value = amount;
+      case "Term":          value = term;
+      case "MailList":      
+        if (maillist=="on") then begin
+          value = "ok";
+        end;
+    end;
+    lcnt = LineTextCnt(emqrp);
+    tstr = SMrw.ExtraComment & ": " & value;
+    LineTextPut(emqrp,lcnt,tstr);
+  end;
+
+  if (RecordInsert(emqrp,true)) then begin
+  end;
+
+  return;
+end;
+
+global
+updating procedure StoreWebSurveyCustomerAndContact(string regnr,string name,string contactname,string contactemail,string contactmobile,var record CUVc CUr,var record CUVc ContactCUr)
+begin
+  string 255 email,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass;
+  record CUVc tCUr;
+
+  tCUr.Name = name;
+  if (ReadFirstKey("Name",tCUr,1,true)) then begin
+    RecordCopy(Cur,tCUr);
+  end else begin
+    StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr);
+  end;
+
+  tCUr.eMail = contactemail;
+  if (ReadFirstKey("eMail",tCUr,1,true)) then begin
+    RecordCopy(ContactCUr,tCUr);
+  end else begin
+    StoreLoanContact(contactemail,contactmobile,contactname,ContactCUr);
+  end;
+
+  if (CompanyLinkedToContact(CUr,ContactCUr)==false) then begin
+    AddContactCUDsmRemote(CUr,ContactCUr.Code);
+  end;
+
+  return;
+end;
+
+global webpublic
+procedure WebSurvey()
+begin
+  record NovWebFormVc WFr;
+  record SMVc SMr;
+  row SMVc SMrw;
+  array string 255 aDet,aDetLabel;
+  Integer i,status,err,rwcnt;
+  Longint amount,term;
+  record CUVc CUr,ContactCUr;
+  string 255 errstr;
+  record B2BLoanApplicationVc LAr;
+  string 255 regnr,name,phone,email,contactname,contactemail,contactmobile,contactjob,vatnr,address,maillist;
+  Integer paymentday;
+  string 255 addr0,addr1,addr2,addr3,fax,homepage,mobile,compemail,browseros,custclass,source;
+  Integer oldcomp;
+  record CYBlock CYb;
+
+  if (WebGetArg("action")=="store") then begin
+    oldcomp = SetCompanyBasedOnCountry;
+    //get values and only then store if all the values are filled in
+    WFr.Code = WebGetArg("code");
+    if (ReadFirstMain(WFr,1,true)) then begin
+      SetSurveyDetails(WFr,SMr);
+      SortRows(SMr,"DebVal",true);
+      rwcnt = MatRowCnt(SMr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(SMr,i,SMrw);
+        if (SMrw.RowSimStat==1) then begin
+          if (blank(WebGetArg(SMrw.Comment))) then begin
+            err = err + 4;
+            i = rwcnt;
+          end;
+        end;
+        switch (SMrw.Comment) begin
+          case "RegNr":         regnr = WebGetArg("regnr");
+          case "Name":          name = WebGetArg("name");
+          case "Phone":         phone = WebGetArg("phone");
+          case "Email":         email = WebGetArg("email");
+          case "ContactName":   contactname = WebGetArg("contactname");
+          case "ContactEmail":  contactemail = WebGetArg("contactemail");
+          case "ContactMobile": contactmobile = WebGetArg("contactmobile");
+          case "ContactJob":    contactjob = WebGetArg("contactjob");
+          case "VATNr":         vatnr = WebGetArg("vatnr");
+          case "Address":       address = WebGetArg("address");
+          case "PaymentDay":    paymentday = StringToInt(WebGetArg("paymentday"));
+          case "Amount":        address = WebGetArg("amount");
+          case "Term":          address = WebGetArg("term");
+          case "MailList":      maillist = WebGetArg("maillist");
+        end;
+      end;
+      amount = StringToLongint(WebGetArg("amount"));
+      term = StringToLongint(WebGetArg("term"));
+      if (err==0) then begin
+        if (nonblank(contactemail) and WFr.CheckRegNr==1) then begin
+          CheckLoanCustomer(regnr,contactemail,contactmobile,false,CUr,ContactCUr,status);
+          switch (status) begin
+            case 0://we are logged in - all good
+            case 1://we just created a new company and new contact - all good
+            case 2://the company exists, but not linked to contact (new or existing - doesn't matter) - allow to proceed, but with different Order Class
+              
+            case 3://contact exists - require login. if they haven't set the password. we should notify
+              err = err + 128;
+            case 4://contact exists - not validated
+              err = err + 512;
+            case 5://failed to store either contact or customer
+              err = err + 1024;
+          end;
+        end else begin
+          //store the company data
+          if (nonblank(regnr) and WFr.CheckRegNr==1) then begin
+            CUr.RegNr1 = regnr;
+            if (ReadFirstKey("RegNr1",CUr,1,true)==false) then begin//should check email as well
+              BlockLoad(CYb);
+              GetCustomerNameFromServer(regnr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,true,CYb.CountryCode);
+              if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr)) then begin
+              end;
+            end;
+          end else begin  
+            qupdating.StoreWebSurveyCustomerAndContact(regnr,name,contactname,contactemail,contactmobile,CUr,ContactCUr);
+          end;
+        end;
+      end;
+      if (err==0) then begin
+        if (WFr.CreateApplication==1) then begin 
+          browseros = GetBrowserOperatingSystem; 
+          source = WebGetArg("source");       
+          if (qupdating.StoreWebSurveyLoanApp(CUr,ContactCUr,WFr,status,amount,term,LAr,phone,email,contactname,contactmobile,contactjob,vatnr,address,paymentday,maillist,CurrentWebLang,browseros,source)==false) then begin end;
+          //err?
+        end;
+        if (nonblank(WFr.MailReceiver)) then begin
+          qupdating.SendWebSurveyEmail(SMr,WFr,regnr,name,phone,email,contactname,contactemail,contactmobile,contactjob,vatnr,address,maillist,paymentday,amount,term)
+        end;
+      end else begin
+        errstr = ToolWebNGTranslateText2(70122);
+      end;
+      WebOutString("<res err='" & errstr & "' norm='" & ToolWebNGTranslateText2(70422) & "'>");
+      if (BitAnd(err,4)) then begin
+        WebOutString("<err id='missing_data'></err>");
+      end;
+      if (BitAnd(err,128)) then begin
+        WebOutString("<err id='require_login'></err>");
+      end;
+      if (BitAnd(err,512)) then begin
+        WebOutString("<err id='verify_email'></err>");
+      end;
+      if (BitAnd(err,1024)) then begin
+        WebOutString("<err id='internal_error'></err>");
+      end;
+      WebOutString("</res>");
+    end;
+    ResetCompanyBasedOnCountry(oldcomp);
+
+  end;
+
+  return;
+end;

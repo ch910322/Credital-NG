@@ -1,0 +1,878 @@
+//<halrule>server-only</halrule>
+/*
+This is a template file for using stardard functions in halcust. No need to use webng.hal file or other files to just add new functions
+This supports adding new web texts, adding new special elements, new structure types and web actions (both updating and non-updating)
+*/
+external procedure ShowSmartIDIdentification(record WebNGElementVc);
+external procedure SmartIDWebActions(string);
+external inner function string 255 removenextlistitem(var string,string);
+external procedure ShowPartnerList(record WebNGElementVc);
+external procedure ShowBannerList(record WebNGElementVc);
+external procedure ShowFAQList();
+external procedure ShowLoanApplicationOnWeb(record WebNGElementVc);
+external procedure ShowLoanApplicationOnWeb2(record WebNGElementVc);
+external procedure ShowNewsLetterSignup(record WebNGElementVc);
+external procedure ShowEmployeesOnWeb(record WebNGElementVc);
+external procedure ShowContactInfo(record WebNGElementVc);
+external procedure ShowNewsLetterForm(record WebNGElementVc);
+external procedure ShowLoanApp(record WebNGStructVc,string);
+external procedure CreditAccountApp(record WebNGStructVc,string);
+external procedure PartnerSearchForm(record WebNGStructVc);
+external procedure ShowResetPasswordElement(record WebNGElementVc);
+external procedure LoanApplicationStoreStep1();
+external updating procedure LoanApplicationStoreStep2();
+external inner function string 255 StrReplace(string,string,string);
+external inner function Boolean GetNextCustNr(var string);
+external procedure ShowNormalWebStrings();
+external procedure ShowPopupWebStrings();
+external updating procedure UpdatePasswordSession();
+external procedure FinishSuretyRegistration();
+external updating procedure PayseraActions(string);
+external procedure LoanAppSmartIDAction(string);
+external procedure ShowUpdatePasswordElement(record WebNGElementVc);
+external updating procedure SendResetPasswordMail();
+external updating procedure StorePopupLoanApplication();
+external updating procedure StoreExitPopupActivity();
+external procedure ProcessOtherVerification();
+external procedure DokobitActions(string);
+external procedure CreditAccountActions(string);
+external inner function Boolean PasteCuInAct(var record ActVc,var string);
+external inner function Boolean PasteActTypeInAct2(string,var record ActVc,var string);
+external inner procedure ShowWebElement(string);
+external updating procedure PrintMultiDocDocument(string,string,string,Integer,Boolean,string);
+external inner procedure SetContentTypeForExtension(string);
+external inner function string 255 ToolWebNGTranslateText2(Longint);
+external inner function string 255 GetMainCustomerCodeFromContact(string);
+external procedure ShowRegisterSuretyElement(record WebNGELementVc);
+external procedure CheckLoanCustomer(string,string,string,Boolean,var record CUVc,var record CUVc,var Integer);
+external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record CUVc,LongInt,LongInt);
+external procedure ShowWebSurveyElement(record WebNGElementVc);
+external updating procedure CreateActivityForContactLinks(record CUVc,record CUVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
+external function string 255 CreditalFixPhone(string,string);
+external procedure ShowNovitiCountrySelect;
+external procedure ShowNovitiCountrySelect2;
+external procedure ShowNovitiLanguageSelect;
+external procedure NovitiChangeCountry();
+
+global
+function boolean ShowSpecialWebElementInternal(record WebNGElementVc WEr)
+begin
+  boolean res;
+
+  res = true;
+  switch (WEr.Type) begin
+    case 120:
+      //ShowLoanApp(WEr);
+    case 121:
+      ShowSmartIDIdentification(WEr);
+    case 122:
+      ShowPartnerList(WEr);
+    case 123:
+      ShowBannerList(WEr);
+    case 124:
+      ShowFAQList;
+    case 125:
+      ShowLoanApplicationOnWeb(WEr);
+    case 126:
+      ShowNewsLetterSignup(WEr);
+    case 127:
+      ShowEmployeesOnWeb(WEr);
+    case 128:
+      ShowLoanApplicationOnWeb2(WEr);
+    case 129:
+      ShowContactInfo(WEr);
+    case 130:
+      PartnerSearchForm(WEr);
+    case 131:
+      ShowNormalWebStrings;
+    case 132:
+      ShowNewsLetterForm(WEr);
+    case 133:
+      ShowResetPasswordElement(WEr);
+    case 134:
+      ShowUpdatePasswordElement(WEr);
+    case 135:
+      ShowRegisterSuretyElement(WEr);
+    case 136:
+      ShowPopupWebStrings;
+    case 137:
+      ShowWebSurveyElement(WEr);
+    case 138:
+      ShowNovitiLanguageSelect;
+    case 139:
+      ShowNovitiCountrySelect;
+    case 140:
+      ShowNovitiCountrySelect2;
+    otherwise
+      res = false;
+  end;
+  ShowSpecialWebElementInternal = res;
+  return;
+end;
+
+global
+function Boolean ShowInternalWebApp(Integer lasttype,record WebNGStructVc WSr,string mpath)
+begin
+  Boolean res;
+
+  //res = true;
+  switch (lasttype) begin
+    case 200: ShowLoanApp(WSr,mpath);      res = true;
+    case 201: CreditAccountApp(WSr,mpath); res = true;
+  otherwise
+    res = false;
+  end;
+  ShowInternalWebApp = res;
+  return;
+end;
+
+global
+function Boolean InternalNodeIsApplication(Integer nodetype)
+begin
+  Boolean res;
+  
+  if (nodetype==200 or nodetype==201) then begin
+    res = true;
+  end;
+
+  InternalNodeIsApplication = res;
+  return;
+end;
+
+global
+function string 255 CheckInternalStrings(Longint strno)
+begin
+  string 255 res;
+
+  SetLangMode(LangLithuanian,"LIT",0);
+
+  switch (strno) begin
+    case 70000: res = "test";
+    case 70001: res = "J�s� �mon�s pavadinimas";
+    case 70002: res = "�veskite �mon�s pavadinim�";
+    case 70003: res = "J�s� el. pa�to adresas";
+    case 70004: res = "�veskite el. pa�to adres�";
+    case 70005: res = "Telefonas";
+    case 70006: res = "�veskite telefono numer�";
+    case 70007: res = "Finansavimo poreikis";
+    case 70008: res = "Faktoringo terminas";
+    case 70009: res = "A� sutinku, kad �ioje parai�koje pateikti mano duomenys b�t� tvarkomi �Credital verslui� (UAB �moka lengvai�) verslo paskolos sudarymo tikslais.";
+    case 70010: res = "A� sutinku, kad mano nurodytu el. pa�tu susisiektum�te su manimi tiesiogin�s rinkodaros tikslais";
+    case 70011: res = "Si�sti u�klaus�";
+    case 70012: res = "Partneriai";
+    case 70013: res = "&euro;";//uchr(128);
+    case 70014: res = "m�n.";
+    case 70015: res = "U�sisakykite naujienlai�k�!";
+    case 70016: res = "Gaukite aktualiausias verslo finansavimo naujienas, ��valgas ir specialius pasi�lymus tiesiai � el. pa�t�.";
+    case 70017: res = "Prenumeruoti";
+    case 70018: res = "Added to News Letters successfully";
+    case 70019: res = "Paie�ka";
+    case 70020: res = "Apie mus ra�o";
+    case 70021: res = "Darbo laikas: ";
+    case 70022: res = "Tel. ";
+    case 70023: res = "El. pa�to adresas: ";
+    case 70024: res = "�mon�s kodas. ";
+    case 70025: res = "Failed to add to News Letters";
+    case 70026: res = "�veskite el. pa�t�";
+    
+  /*Loan Application*/
+
+    case 70100: res = "Pasirink finansavimo tip�";
+    case 70101: res = "Paskola su grafiku";
+    case 70102: res = "Paskola su atid�tu gr��inimu";
+    case 70103: res = "Paskola su likutine verte";
+    case 70104: res = "S�skait� finansavimas (faktoringas)";
+    case 70105: res = "Mok�jimo atid�jimo garantija";
+    case 70106: res = "Pageidaujama suma";
+    case 70107: res = "Terminas";
+    case 70108: res = "Preliminari kaina";
+    case 70109: res = "paslaugos m�n. mokestis";
+    case 70110: res = "preliminari �moka";
+    case 70111: res = "pal�kan� (netaikomos)";
+    case 70112: res = "�mon�s kodas";
+    case 70113: res = "�veskite �mon�s kodas";
+    case 70114: res = "J�s� el. pa�to adresas";
+    case 70115: res = "�veskite el. pa�to adres�";
+    case 70116: res = "A� sutinku, kad �ioje parai�koje pateikti mano duomenys b�t� tvarkomi �Noviti� (UAB �moka lengvai�) verslo paskolos sudarymo tikslais.";
+    case 70117: res = "A� sutinku, kad mano nurodytu telefonu susisiektum�te su manimi tiesiogin�s rinkodaros tikslais.";
+    case 70118: res = "T�sti";
+    case 70119: res = "Parai�ka";
+    case 70120: res = "�mon�s duomenys ir laiduotojai";
+    case 70121: res = "Pasira�ymas";
+    case 70122: res = "Failed to store Application";
+    case 70123: res = "Finansavimo tipas";
+    case 70124: res = "Laiduotojai";
+    case 70125: res = "�mon�s pavadinimas";
+    case 70126: res = "�veskite �mon�s pavadinim�";
+    case 70127: res = "Adresas";
+    case 70128: res = "�veskite adres�";
+    case 70129: res = "Adresas korespondencijai";
+    case 70130: res = "Sutampa su �mon�s adresu";
+    case 70131: res = "Nesutampa su �mon�s adresu";
+    case 70132: res = "Banko s�skaitos numeris paskolai gauti";
+    case 70133: res = "�veskite banko s�s. numer�";
+    case 70134: res = "Vardas";
+    case 70135: res = "�veskite savo vard�";
+    case 70136: res = "Pavard�";
+    case 70137: res = "�veskite savo pavard�";
+    case 70138: res = "Pirmosios �mokos data";
+    case 70139: res = "�veskite pirmosios �mokos dat�";
+    case 70140: res = "Laiduotoju pra�ome b�ti �mon�s savinink� (ar kelis), turint� ne ma�iau nei 1/3 �mon�s dalies. Jei �io laiduotojo mokumas �emas, - si�lome papildomu laiduotoju taip pat �traukti �mon�s vadov� paskol� pasirengus� laiduoti asmen�.";
+    case 70141: res = "Esu �ios sutarties laiduotojas";
+    case 70142: res = "Prid�ti papildom� laiduotoj�";
+    case 70143: res = "Gr��ti";
+    case 70144: res = "Skai�iuokl�";
+    case 70145: res = "Pateik parai�k�";
+    case 70146: res = "Pateik parai�k�";
+    case 70147: res = "Finansavimo kaina";
+    case 70148: res = "Vis� �mok� suma";
+    case 70149: res = "Partneri� paie�ka";
+    case 70150: res = "Nerandate partnerio, pas kur� nor�tum�te �sigyti preki� su atsiskaitymo garantija?";
+    case 70151: res = "Susisiekite";
+    case 70152: res = "Statybin�s med�iagos";
+    case 70153: res = "Ie�koti �moni�";
+  //normal web strings
+    case 70154: res = "�veskite �mon�s pavadinim�";
+    case 70155: res = "�veskite �mon�s kodas";
+    case 70156: res = "�veskite savo vard� ir pavrd�";
+    case 70157: res = "�veskite savo el. pa�to adres�";
+    case 70158: res = "�veskite savo telefono numer�";
+    case 70159: res = "�veskite slapta�od�";
+    case 70160: res = "�veskite vard�";
+    case 70161: res = "Para�ykite komentar� ar klausim�";
+    case 70162: res = "�vesk el. pa�to adres�";
+    case 70163: res = "�vesk slapta�od�, laukas negali b�ti tu�ias";
+    case 70164: res = "�vestas slapta�odis turi sutapti";
+    
+
+  //normal web strings end at 70200
+    case 70200: res = "Foto galerija";
+    case 70201: res = "J�s� parai�ka pateikta";
+    case 70202: res = "Susisieksime su Jumis per 1 darbo dien�.";
+    case 70203: res = "Gr��ti � mano duomenis";
+    case 70204: res = "Gr��ti � prad�i�";
+    case 70205: res = "Pirmosios �mokos data";
+    case 70206: res = "Paskolos tipas";
+    case 70207: res = "Pageidaujama suma";
+    case 70208: res = "Pirmosios �mokos data";
+    case 70209: res = "Paskolos gr��inimo data";
+    case 70210: res = "J�s� pareigos �mon�je";
+    case 70211: res = "�mon�s pavadinimas";
+    case 70212: res = "�mon�s kodas";
+    case 70213: res = "Adresas";
+    case 70214: res = "Banko s�skaitos numeris paskolai gauti";
+    case 70215: res = "Laiduotojai";
+    case 70216: res = "A: Paskola su grafiku";
+    case 70217: res = "B: Paskola su atid�tu gr��inimu";
+    case 70218: res = "C: Paskola su likutine verte";
+    case 70219: res = "D: S�skait� finansavimas (faktoringas)";
+    case 70220: res = "E: Mok�jimo atid�jimo garantija";
+
+    case 70221: res = "";
+    case 70222: res = "";
+    case 70223: res = "";
+    case 70224: res = "Kita";
+    case 70225: res = "Pasira�yti e. para�u";
+    case 70226: res = "Pasira�yti bankiniu pavedimu";
+    case 70227: res = "Pasira�yti su Smart-ID";
+    case 70228: res = "Leidimas tikrinti asmens duomenis";
+    case 70229: res = "Laiduotoju pra�ome b�ti �mon�s savinink� (ar kelis), turint� ne ma�iau nei 1/3 �mon�s dalies. Jei �io laiduotojo mokumas �emas, - si�lome papildomu laiduotoju taip pat �traukti �mon�s vadov� paskol� pasirengus� laiduoti asmen�.";
+    case 70230: res = "Leidimas tikrinti asmens duomenis (GDPR)";
+    case 70231: res = "Kokiu b�d� pasira�ysite?";
+    case 70232: res = "Paskolos m�nesio kaina";
+    case 70233: res = "M�nesin� �moka";
+    case 70234: res = "�mon�s vadovo vardas ir pavard�";
+    case 70235: res = "�mon�s vadovo vardas ir pavard�";
+    case 70236: res = "�mon�s vadovo asmens kodas";
+    case 70237: res = "�mon�s vadovo asmens kodas";
+    case 70238: res = "�mon�s vadovo korespondencijos adresas ";
+    case 70239: res = "�mon�s vadovo korespondencijos adresas ";
+    case 70240: res = "Vadovo el. pa�to adresas ";
+    case 70241: res = "Vadovo el. pa�to adresas ";
+    case 70242: res = "Vadovo telefono numeris";
+    case 70243: res = "Vadovo telefono numeris";
+    case 70244: res = "Vardas, Pavard�";
+    case 70245: res = "Vardas, Pavard�";
+    case 70246: res = "Asmens kodas";
+    case 70247: res = "Asmens kodas";
+    case 70248: res = "Korespondencijos adresas";
+    case 70249: res = "Korespondencijos adresas";
+    case 70250: res = "El. pa�to adresas";
+    case 70251: res = "El. pa�to adresas";
+    case 70252: res = "Telefono numeris";
+    case 70253: res = "Telefono numeris";
+    case 70254: res = "�mon�s adresas";
+    case 70255: res = "�mon�s adresas";
+    case 70256: res = "Prid�ti papildom� laiduotoj�";
+    case 70257: res = "J�s� el. pa�to adresas";
+    case 70258: res = "�veskite el. pa�to adres�";
+    case 70259: res = "Si�sti";
+    case 70260: res = "El. lai�kas i�si�stas Tavo el. pa�to adresu";
+    case 70261: res = "El. pa�to adresas nerastas";
+    case 70262: res = "�vyko klaida, pra�ome pabandyti dar kart�";
+    case 70263: res = "Sesija nutr�ko. Pra�ome atnaujinti slapta�od�";
+    case 70264: res = "�vyko klaida atnaujinant slapta�od�";
+    case 70266: res = "Naujas slapta�odis";
+    case 70267: res = "�vesk nauj� slapta�od�";
+    case 70268: res = "Pakartok slapta�od�";
+    case 70269: res = "�vesk t� pat� slapta�od�";
+    case 70270: res = "Pateikti";
+    case 70271: res = "Slapta�od�io atnaujinimo sesija baig�si. Pra�ome prad�ti proces� i� naujo";
+    case 70272: res = "I�trinti laiduotoj�";
+    //what happened here with numbers???
+    case 70073: res = "dienos";
+    case 70074: res = "Neteisingas �mon�s kodas";
+
+    case 70075: res = "Smart ID";
+    case 70076: res = "Banko pavedimas";
+    case 70077: res = "El. para�as";
+    case 70078: res = "Paspaudus 'T�sti' bus prad�tas <a href='/WebShowLoanAppAgreement.hal' target='blank'>dokumento</a> pasira�ymas";
+    case 70079: res = "Tai rei�kia, kad j�s� parai�ka bus vertinama rankiniu b�du, tod�l procesas gali u�trukti. Ar vis tiek norite t�sti?";
+    case 70080: res = "U�daryti";
+    case 70081: res = "T�sti";
+    case 70082: res = "Paskolos pabrangimas";
+    case 70083: res = "Paskolos dydis";
+    case 70084: res = "Baigti";
+
+    case 70280: res = "Data:";
+    case 70281: res = "Suma:";
+    case 70282: res = "Paskirtis:";
+    case 70283: res = "Prepayment";
+    case 70284: res = "M�n. �mokos dydis";
+    case 70285: res = "Balance";
+    case 70286: res = "Interest";
+    case 70287: res = "Instalment";
+    case 70288: res = "The document failed to sign: ";
+    case 70289: res = "There was a problem completing the signing process. Please try again or contact us.";
+    case 70290: res = "Document was successfully signed";
+
+    case 70291: res = "paslaugos m�n. mokestis";
+    case 70292: res = "preliminari �moka";
+    case 70293: res = "pal�kan� (netaikomos)";
+
+    case 70294: res = "faktoringo kaina per termin�";
+    case 70295: res = "sutarties ir kit� mokes�i�";
+    case 70296: res = "";
+    case 70297: res = "garantijos mokestis apmokant s�skaitas per 60 dien�";
+    case 70298: res = "preliminari �moka nuo 90 dienos";
+    case 70299: res = "garantijos mokestis po 90 dien�";
+    case 70300: res = "paslaugos m�n. mokestis pirmus 4 m�nesius";
+    case 70301: res = "paslaugos m�n mokestis likusius 12 m�nesi�";
+    case 70302: res = "preliminari �moka likusius 12 m�nesi� ";
+    case 70303: res = "paslaugos m�n. mokestis";
+    case 70304: res = "preliminari �moka ";
+    case 70305: res = "paskolos likutis po 18 m�nesi� ";
+    case 70306: res = "Pasirink finansavimo sum� ir termin�";
+    case 70307: res = "Paslaugos m�n. mokestis";
+    case 70308: res = "Preliminari �moka";
+    case 70309: res = "Paskolos gr��inama dalis";
+    case 70310: res = "Paslaugos m�n. mokestis pirmus 4 m�nesius";
+    case 70311: res = "Paslaugos m�n mokestis likusius 12 m�nesi�";
+    case 70312: res = "Preliminari �moka likusius 12 m�nesi�";
+    case 70313: res = "Paslaugos m�n. mokestis";
+    case 70314: res = "Preliminari �moka";
+    case 70315: res = "Paskolos likutis po 18 m�nesi�";
+
+    case 70316: res = "Pla�iau";
+    case 70317: res = "Ma�iau";
+
+    case 70318: res = "Numeris";
+    case 70319: res = "Paskolos tipas";
+    case 70320: res = "Sutarties vert�";
+    case 70321: res = "Pirmosios �mokos data";
+    case 70322: res = "Paskolos gr��inima data";
+    case 70323: res = "Paskolos sutarties mokestis";
+    case 70324: res = "Paskolos gr��inima atid�jimas";
+    case 70325: res = "Paslaugos m�n. mokestis";
+    case 70326: res = "Sutarties mokestis";
+    case 70327: res = "Pal�kan� dydis ir suma";
+    case 70328: res = "IBAN";
+    case 70329: res = "Laiduotojai";
+    case 70330: res = "Pal�kan� dydis ir suma";
+
+    case 70331: res = "B�sena";
+    case 70332: res = "Parai�ka";
+    case 70333: res = "Sutartis";
+    case 70334: res = "Suma";
+    case 70335: res = "Gr��inimo terminas";
+
+    case 70336: res = "Jei Jums kyla sunkum� pasira�ant sutart�, pra�ome skambinkite";
+    case 70337: res = "8 630 5001";
+    case 70338: res = "Pasira�yti e. para�u";
+    case 70339: res = "M�s� vadovas";
+
+    case 70340: res = "A:";
+    case 70341: res = "D:";
+    case 70342: res = "E:";
+    case 70343: res = "B:";
+    case 70344: res = "C:";
+    case 70344: res = "F:";
+    case 70344: res = "G:";
+
+    case 70350: res = "Asmens kodas";
+    case 70351: res = "Atstovaujama �mon�";
+    case 70352: res = "Telefono numeris";
+    case 70353: res = "Adresas";
+    case 70354: res = "I�saugoti";
+    case 70355: res = "Slapta�od�io keitimas";
+    case 70356: res = "Dabartinis slapta�odis";
+    case 70357: res = "�veskite dabartin� slapta�od�";
+    case 70358: res = "Slapta�odis";
+    case 70359: res = "�veskite slapta�od�";
+    case 70360: res = "Slapta�od�io pakartojimas";
+    case 70361: res = "Pakartokite slapta�od�";
+    case 70362: res = "Slapta�od� turi sudaryti ne ma�iau nei 8 simboliai, jame turi b�ti naudojama bent viena did�ioji raid� ir bent vienas skai�ius.";
+    case 70363: res = "I�saugoti";
+    case 70364: res = "Apsilankyti";
+    case 70365: res = "Old Password is wrong";
+    case 70366: res = "New Passwords don't match";
+    case 70367: res = "There was a problem updating profile";
+
+    case 70368: res = "Paskolos suma";
+    case 70369: res = "Enter Valid Company Registration Number";
+    case 70370: res = "Pasirink finansavimo sum�";
+    case 70371: res = "Pasirink finansavimo sum� ir �mok�";
+    case 70372: res = "Pageidaujama �moka";
+    case 70373: res = "Pateikti parai�ka";
+    case 70374: res = "Paskolos gr��inama dalis";
+    case 70375: res = "Paskolos terminas";
+    case 70376: res = "Gr��inama paskolos dalis";
+    case 70376: res = "Gr��inama paskolos dalis";
+    case 70377: res = "Laukas negali b�ti tu�ias";//can't be blank
+    case 70378: res = "�veskite vard� pavard�";//can't be blank
+    case 70379: res = "�veskite teising� el. pa�to adres�";//can't be blank
+    case 70380: res = "�veskite teising� �mon�s kod�";
+    case 70381: res = "Privaloma pa�ym�ti";
+    case 70382: res = "Vartotojas nepriskirtas �monei, pra�ome susisiekti";
+    case 70384: res = "SingleFee";
+    case 70385: res = "Monthly Fee ";
+    case 70386: res = "Principle Delay Months";
+    case 70387: res = "Agreement";
+    case 70388: res = "Schedule";
+    case 70389: res = "Surety Agreement";
+    case 70390: res = "Vekselis";
+    case 70391: res = "Download";
+    case 70392: res = "Delspiningiai";
+    case 70393: res = "Data Usage Agreement";
+    case 70394: res = "J�s� telefono numeris";
+    case 70395: res = "�veskite telefono numer�";
+    case 70396: res = "Your mobile phone number";
+    case 70397: res = "Enter Your mobile phone number";
+    case 70398: res = "Passwords don't match";
+    case 70399: res = "Pageidaujam suma";
+    case 70400: res = "Pateik parai�k�";
+    case 70401: res = "A�i�, Tavo u�klausa s�kmingai i�si�sta. Jau artimiausiu metu su Tavimi susisieksime";
+    case 70402: res = "";
+    case 70403: res = "Kokios sumos reikia?";
+    case 70404: res = "T�sti";
+    case 70405: res = "Kokios paslaugos Tave domina?";
+    case 70406: res = "Verslo paskola";
+    case 70407: res = "Faktoringas";
+    case 70408: res = "Atsiskaitymo garantija";
+    case 70409: res = "Noriu j�s� konsultacijos";
+    case 70410: res = "Susisiekime";
+    case 70411: res = "El. pa�to adresas";
+    case 70412: res = "Telefono nr.";
+    case 70413: res = "Komentaras";
+    case 70414: res = "�veskite komentar�";
+
+    case 70420: res = "Pateikti";
+    case 70421: res = "�mon�s duomenys";
+    case 70422: res = "J�s� u�klausa gauta";
+    
+  end;
+
+  CheckInternalStrings = res;
+  return;
+end;
+
+
+global
+updating function Boolean InternalUpdatingActions(string action)
+begin
+  Boolean res;
+  string 255 naction,app,fn;
+
+  if (InString(action,".")>0) then begin
+    naction = action;
+    app = removenextlistitem(naction,".");
+    switch (app) begin
+      case "paysera":
+        PayseraActions(naction);
+        res = true;
+    end;
+  end;
+  if (res==false) then begin
+    switch (action) begin
+      case "StoreStep2":
+        LoanApplicationStoreStep2;
+        res = true;
+      case "updatepasssess":
+        UpdatePasswordSession;
+        res = true;
+      case "createnewpasssess":
+        SendResetPasswordMail;
+        res = true;
+      case "textprint":
+        fn = "doc.pdf";
+        PrintMultiDocDocument(WebGetArg("DocName"),fn,-2,0,false,"");
+        SetContentTypeForExtension("pdf");
+        WebSetContentDisposition("inline; filename=" & fn);
+        WebOutFile(fn);
+        Delete_File(fn);
+
+        res = true;
+      case "finishsurety":
+        FinishSuretyRegistration;
+        res = true;
+      case "StorePopupApplication":
+        StorePopupLoanApplication;
+        res = true;
+      case "registerexitpopup":
+        StoreExitPopupActivity;
+        res = true;
+    end;
+  end;
+
+  InternalUpdatingActions = res;
+  return;
+end;
+
+global updating
+procedure DoWebLogout()
+begin
+  
+  WebLogout;
+
+  return;
+end;
+
+global
+function Boolean DoOuterWebActions(string action)
+begin
+  string 255 app,naction;
+  Boolean res;
+  Longint curtic;
+
+  //split
+  naction = action;
+  app = removenextlistitem(naction,".");
+
+  switch (app) begin
+    case "smartid":
+      SmartIDWebActions(naction);
+      res = true;
+    case "loansmartid":
+      LoanAppSmartIDAction(naction);
+      res = true;
+    case "StoreStep1":
+      LoanApplicationStoreStep1;
+      res = true;
+    case "proceedotherver":
+      ProcessOtherVerification;
+      res = true;
+    case "dokobit":
+      DokobitActions(naction);
+      res = true;
+    case "creditaccount":
+      CreditAccountActions(naction);
+      res = true;
+    case "getscall":
+      curtic = GetCurTick;
+      PutSessionString("LoanAppVer",curtic);
+      WebOutString("<res scall='" & curtic & "'></res>");
+    case "getloginscreen":
+      ShowWebElement("LOGIN_BOX");
+      res = true;
+    case "failedlogin":
+      WebOutString("<res stat='FAILED' err='" & ToolWebNGTranslateText2(20081) & "'></res>");
+      res = true;
+    case "successlogin":
+      if (blank(GetMainCustomerCodeFromContact(CurrentCust))) then begin
+        qupdating.DoWebLogout;
+        WebOutString("<res stat='FAILED' err='" & ToolWebNGTranslateText2(70382) & "'></res>");
+      end else begin
+        WebOutString("<res stat='SUCCESS'></res>");
+      end;
+      res = true;
+    case "setexitpopup":
+      SetDetailedCookie("exitpopup","true","Exit popup","","/",15552000); //180days
+      res = true;
+    case "novchangecountry":
+      NovitiChangeCountry;
+      res = true;
+  end;
+
+  DoOuterWebActions = res;
+  return;
+end;
+
+function string 255 GetFieldName(Integer i)
+begin
+
+  GetFieldName = "field" & i;
+  return;
+end;
+
+function string 255 GetFormValue(string code,Integer i)
+begin
+  string 255 res;
+
+  res = GetSessionString("cu_form_" & code & "_" & i);
+
+  GetFormValue = res;
+  return;
+end;
+
+procedure ShowRadioField(record WebNGContactFormFieldVc CFFr,Integer i)
+begin
+  string 255 label,tstr;
+  Longint pos;
+
+  label = CFFr.Comment;
+  while (GetNextSubstring(label,pos,",",tstr)) begin
+    WebOutString("<div class='cu_row field" & i & " radio'><div class='cu_field'><input type='radio' name='" & GetFieldName(i) & "' value='" & tstr & "'><div class='checkmark'></div></div><div class='cu_label'>" & tstr & "</div></div>");
+  end;
+
+  return;
+end;
+
+procedure ShowCheckboxField(record WebNGContactFormFieldVc CFFr,Integer i)
+begin
+  string 255 label;
+
+  label = CFFr.Comment;
+  WebOutString("<div class='cu_row field" & i & " checkbox'><div class='cu_field'><input type='checkbox' name='" & GetFieldName(i) & "'><div class='checkmark'></div></div><div class='cu_label'>" & label & "</div></div>");
+
+  return;
+end;
+
+
+global
+procedure OuterShowSingleContactUsField(record WebNGContactFormFieldVc CFFr,Integer i)
+begin
+  
+  switch (CFFr.FieldType) begin
+    case 2:
+      ShowRadioField(CFFr,i);
+    case 3:
+      ShowCheckboxField(CFFr,i);
+  end;
+
+  return;
+end;
+
+procedure AddRadioFieldToMail(var record MailVc Mailr,record WebNGContactFormFieldVc CFFr,Integer i,string value)
+begin
+  Integer lcnt;
+  string 255 tstr;
+
+  lcnt = LineTextCnt(Mailr);
+  tstr = StrReplace(CFFr.Comment,",","/") & ": " & value;
+  LineTextPut(Mailr,lcnt,tstr);
+
+  return;
+end;
+
+procedure AddCheckboxFieldToMail(var record MailVc Mailr,record WebNGContactFormFieldVc CFFr,Integer i,string value)
+begin
+  Integer lcnt;
+  string 255 tstr;
+
+  lcnt = LineTextCnt(Mailr);
+  if (value=="on") then begin
+    tstr = CFFr.Comment & ": " & USetStr(20175);
+  end else begin
+    tstr = CFFr.Comment & ": " & USetStr(20176);
+  end;
+  LineTextPut(Mailr,lcnt,tstr);
+
+  return;
+end;
+
+global
+procedure OuterAddFieldToMail(record MailVc Mailr,record WebNGContactFormFieldVc CFFr,Integer i,string fn,string value)
+begin
+
+  switch (CFFr.FieldType) begin
+    case 2:
+      AddRadioFieldToMail(Mailr,CFFr,i,value);
+    case 3:
+      AddCheckboxFieldToMail(Mailr,CFFr,i,value);
+  end;
+
+  return;
+end;
+
+procedure AddTextAreaToMail(var record MailVc Mailr,record WebNGContactFormFieldVc CFFr,Integer i,string fieldname)
+begin
+  record NotePadVc Noter;
+  Integer j,lcnt;
+  string 255 tstr;
+
+  WebGetText(fieldname,Noter);
+
+  lcnt = LineTextCnt(Mailr);
+  for (j=0;j<LineTextCnt(Noter);j=j+1) begin
+    tstr = LineTextGet(Noter,j);
+    LineTextPut(Mailr,lcnt,tstr);
+    lcnt = lcnt + 1;
+  end;
+
+  return;
+end;
+
+global
+updating procedure OuterSetupAndSendContactUsEmail(record MailVc Mailr,record WebNGContactFormVc CFr)
+begin
+  record WebNGContactFormFieldVc CFFr;
+  Boolean TrHs,mailinglistf;
+  string 255 fn,tstr,mail;
+  record CUVc CUr,ContactCUr,oldCUr;
+  Integer i,lcnt,status;
+  string 255 warning,regnr,name,personname,email,phone;
+  record CreditalWebSetBlock WSb;
+  record ActVc Actr;
+  row ActVc Actrw;
+  record MailVc oldMailr;
+  array string 255 value;
+  record CMApplicationSetBlock CMb;
+
+  if (CFr.Code=="INVGUARANTEE") then begin
+    CFFr.Code = CFr.Code;
+    TrHs = true;
+    RecordNew(CUr);
+    while (LoopKey("Sorting",CFFr,1,TrHs)) begin
+      if (CFFr.Code!=CFr.Code) then begin
+        TrHs = false;
+      end else begin
+        fn = GetFieldName(i);
+        tstr = WebGetArg(fn);
+        if (CFFr.FieldType==kContactUsFieldTypeText) then begin
+          switch (i) begin
+            case 0:
+              regnr = tstr;
+            case 1:
+              name = tstr;
+            case 2:
+              personname = tstr;
+            case 3:
+              phone = tstr;
+            case 4:
+              email = tstr;
+          end;            
+        end;
+        i = i + 1;
+      end;
+    end;
+    if (nonblank(name) and nonblank(regnr)) then begin
+      tstr = "";
+      CheckLoanCustomer(regnr,email,phone,true,CUr,ContactCUr,status);
+/*
+      GetNextCustNr(tstr);
+      CUr.Code = tstr;
+      if (RecordInsert(CUr,true)) then begin
+*/
+      RecordCopy(oldCUr,ContactCUr);
+      ContactCUr.Name = personname;
+      if (RecordUpdate(oldCUr,ContactCUr,false)==0) then begin
+        CUVcRecordUpdate(ContactCUr,oldCUr,Rs_Update,1);
+        if (status==2) then begin
+          CreateActivityForContactLinks(CUr,ContactCUr);
+        end;
+        BlockLoad(WSb);
+        RecordNew(Actr);
+        Actr.SerNr = NextSerNr("ActVc",CurrentDate,-1,false,"");
+        Actr.TransDate = CurrentDate;
+        Actr.CUCode = CUr.Code;
+        PasteCuInAct(Actr,warning);
+        Actr.ActType = WSb.ContactActType;
+        PasteActTypeInAct2("",Actr,warning);
+        Actr.MainPersons = WSb.ContactPersons;
+        Actr.Comment = WSb.ContactActComment;
+        Actr.TodoFlag = kTodoFlagTodo;
+
+        lcnt = LineTextCnt(Mailr);
+        for (i=0;i<lcnt;i=i+1) begin
+          tstr = LineTextGet(Mailr,i);
+          ClearRow(Actr,Actrw,1);
+          Actrw.Text = tstr;
+          MatRowPut(Actr,i,Actrw);
+        end;
+        if (RecordInsert(Actr,true)) then begin
+          RecordDelete(Mailr);
+        end;
+      end;
+      //CreateRecordLink(Mailr,CurrentCompany,CUr,CUrrentCompany);
+    end;
+  end else begin
+    RecordCopy(oldMailr,Mailr);
+    SetTextField(Mailr,"");
+    CFFr.Code = CFr.Code;
+    TrHs = true;
+    i = 0;
+    while (LoopKey("Sorting",CFFr,1,TrHs)) begin
+      if (CFFr.Code!=CFr.Code) then begin
+        TrHs = false;
+      end else begin
+        fn = GetFieldName(i);
+        tstr = WebGetArg(fn);
+        if (i==3 and CFr.Code=="CONTACT") then begin
+          AddTextAreaToMail(Mailr,CFFr,i,fn);
+        end else begin
+          if (CFFr.FieldType==kContactUsFieldTypeText) then begin
+            switch (i) begin
+              case 0:
+                value[2] = tstr;
+              case 1:
+                value[1] = tstr;
+              case 2:
+                value[3] = tstr;
+              otherwise
+                value[value.length] = tstr;
+            end;            
+          end;
+          if (CFr.Code=="LANDING" and CFFr.Sorting=="6") then begin
+            if (tstr=="on") then begin
+              mailinglistf = true;
+              mail = value[3];
+            end;
+          end;
+        end;
+        i = i + 1;
+      end;
+    end;
+    lcnt = LineTextCnt(Mailr);
+    LineTextPut(Mailr,lcnt,"");lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,"");lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,value[1]);lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,"");lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,value[2]);lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,"");lcnt = lcnt + 1;
+    LineTextPut(Mailr,lcnt,value[3]);lcnt = lcnt + 1;
+    for (i=4;i<value.length;i=i+1) begin
+      LineTextPut(Mailr,lcnt,"");lcnt = lcnt + 1;
+      LineTextPut(Mailr,lcnt,value[i]);lcnt = lcnt + 1;  
+    end;
+    Mailr.SendFlag = 1;
+    RecordUpdate(oldMailr,Mailr,true);
+    if (mailinglistf) then begin
+      BlockLoad(CMb);
+      ContactCUr.eMail = mail;
+      if (ReadFirstKey("eMail",ContactCUr,1,true)==false) then begin
+        RecordNew(ContactCUr);
+        if (GetNextCustNr(tstr)) then begin end;
+        ContactCUr.Code = tstr;
+        ContactCUr.eMail = mail;
+        ContactCUr.Phone = CreditalFixPhone(value[4],ContactCUr.CountryCode);
+        ContactCUr.Name = value[2];
+        RecordStore(ContactCUr,true);
+      end;
+      AddToMailingList(CMb,ContactCUr);
+    end;
+  end;
+
+
+  return;
+end;

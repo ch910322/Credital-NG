@@ -1,0 +1,813 @@
+external function string 60 UserDefined(string,string);
+external function Boolean HasCustomerSearchKey();
+external function Boolean HasCategories();
+external function Boolean HasDepartments();
+external function Boolean HasStandardCommunicator();
+external function Boolean CUVATNrColumn;
+external function Boolean HasLimitedAccess();
+external function Boolean HasCustomerStatusReport();
+
+event DefineWindows
+begin
+  real v,vs,h,h2,h3,t,tilenr,vm,pos;
+  vs = 20;
+ 
+  SetLangMode(LangEnglish,"ENG",0);
+
+
+  WindowBegin("Campaigns",WebCampaignLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,600,298);
+  SpawnClass(WebCampaignDClass);
+  UseView(WebCampaignVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Ser. No.",SerNr,false,SerNr);
+  RlCol   (101,101,"Type",Type,false);
+  RlCol   (201,201,"Name",Comment,false);
+  RlCol   (-160,-160,"Start Date",StartDate,false);
+  RlCol   (-80,-80,"End Date",EndDate,false);
+  EndWindow;
+
+  WindowBegin("Campaign",WebCampaignDClass,CGview,-);
+  SetWRect(20,80,760,380);
+  h = 120; h2 = 300; h3 = 440; v = 6; vs=20;
+  UseView(WebCampaignVc);
+  EditField(h,v,80,"Ser. No.",Normal,SerNr,false,0);
+  EditField(h,v+=vs,250,"Name",Normal,Comment,false,0);
+  EditField(h,v+=vs,120,"Type",Normal,Type,false,SetSClass);
+  EditField(h,v+=vs,120,"Start Date",Normal,StartDate,false,PasteCurDate);
+  EditField(h,v+=vs,120,"End Date",Normal,EndDate,false,PasteCurDate);
+  EditField(h,v+=vs,120,"Image",Normal,Image,false,WebCampaignImageSClass);
+  EditField(h,v+=vs,-40,"Text 1",Normal,Text1,false,0);
+  EditField(h,v+=vs,-40,"Text 2",Normal,Text2,false,0);
+  EditField(h,v+=vs,-40,"Style",Normal,Style,false,0);
+  EditField(h,v+=vs,-40,"Link",Normal,Link,false,0);
+  
+
+  EndWindow;
+
+  WindowBegin("Paste Image",WebCampaignImageSClass,CGother,HBlRecType);
+  SetWRect(240,80,600,348);
+  StringList(9,9,-19,-19);
+  EndWindow;
+
+  WindowBegin("Partners",WebPartnerTClass,CGHBl,-);
+  SetWRect(80,80,400,280);
+  SetBlid(WebPartnerBlock);
+  MatrixBegin(10,20,-30,-10,-,10);
+  MatCol(1,25,"Classification",0,Classification,false,CClassSClass);
+  MatCol(1,70,"Type",0,Type,false,SetSClass);
+  EndMatrix;
+  EndWindow;
+
+  return;
+end;
+
+
+window WebFAQLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("FAQ",WebFAQLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,600,298);
+  SpawnClass(WebFAQDClass);
+  UseView(WebFAQVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Ser. No.",SerNr,false,SerNr);
+  RlCol   (101,101,"Name",Question,false);
+  RlCol   (-180,-180,"Language",LangCode,false);
+  RlCol   (-90,-90,"Class.",Class,false);
+  EndWindow;
+end;
+
+window WebFAQDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real f,h,hs,hw,v,vs;
+  WindowBegin("FAQ",WebFAQDClass,CGview,-);
+  SetWRect(20,80,760,380);
+  h = 120; v = 6; vs=20;
+  UseView(WebFAQVc);
+  EditField(h,v,80,"Ser. No.",Normal,SerNr,false,0);
+  EditField(h+200,v,100,"Language",Normal,LangCode,false,WebNGLanguageSClass);
+  EditField(h,v+=vs,120,"Class",Normal,Class,false,WebFAQCategorySClass);
+  EditField(h,v+=vs,-40,"Question",Normal,Question,false,0);
+  v = v + 30;
+  TextField(0,v,-1,-1,Answer,0);
+
+  EndWindow;
+end;
+window HtmlWebFAQDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real f,h,hs,hw,v,vs;
+  WindowBegin("FAQ",HtmlWebFAQDClass,CGview,-);
+  SetWRect(20,80,760,380);
+  h = 120; v = 6; vs=20;
+  UseView(WebFAQVc);
+  EditField(h,v,80,"Ser. No.",Normal,SerNr,false,0);
+  EditField(h+200,v,100,"Language",Normal,LangCode,false,WebNGLanguageSClass);
+  EditField(h,v+=vs,120,"Class",Normal,Class,false,WebFAQCategorySClass);
+  EditField(h,v+=vs,-40,"Question",Normal,Question,false,0);
+
+  v = v + 30;
+  if (GuiType==kGuiCocoa or GuiType==kGuiWPF) then begin
+    v = v + 2 + 2;
+    hs = 0;
+    hw = 30;
+    h = 20;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditBold,"Bold",kButtonStyleTest,1070);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditItalic,"Italic",kButtonStyleTest,1078);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditUndeline,"Underline",kButtonStyleTest,1087);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditStrikeThrough,"Strikethrough",kButtonStyleTest,1085);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditUnorderedList,"U.L.",kButtonStyleTest,1081);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditOrderedList,"O.L.",kButtonStyleTest,1080);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditLeft,"Left",kButtonStyleTest,1088);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditCenter,"#Centre#",kButtonStyleTest,1071);
+    // fill??
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditRight,"Right",kButtonStyleTest,1089);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditCopy,"Copy",kButtonStyleTest,1072);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditCut,"Cut",kButtonStyleTest,1073);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditPaste,"Paste",kButtonStyleTest,1074);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditFontColor,"Font Color",kButtonStyleTest,1075);
+    if (GuiType==kGuiWPF) then begin
+      PushButton2(h+=hs,v,h+=hw,22,ToolEditTextBg,"Text Bg.",kButtonStyleTest,1086);
+    end;
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditLink,"Link",kButtonStyleTest,1076);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditImage,"Image",kButtonStyleTest,1077);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditOutdent,"Outdent",kButtonStyleTest,1082);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditIndent,"Indent",kButtonStyleTest,1079);
+    h = h + 8;
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditUndo,"Undo",kButtonStyleTest,1084);
+    PushButton2(h+=hs,v,h+=hw,22,ToolEditRedo,"Redo",kButtonStyleTest,1083);
+    v = v + 10 + vs;
+    h = 20;
+  end;
+
+  TextField(0,v,-1,-1,Answer,0);
+
+  EndWindow;
+end;
+
+window WebFAQCategoryLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("FAQ Categories",WebFAQCategoryLClass,CGmlist,-);
+  SetWRect(20,80,660,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(WebFAQCategoryDClass);
+  UseView(WebFAQCategoryVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Code",Code,false,Code);
+  RlCol(134,134,"Comment",Comment,false);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window WebFAQCategorySClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Paste FAQ Category",WebFAQCategorySClass,CGslist,-);
+  SetWRect(20,80,660,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(WebFAQCategoryDClass);
+  UseView(WebFAQCategoryVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Code",Code,false,Code);
+  RlCol(134,134,"Comment",Comment,false);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window WebFAQCategoryDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("FAQ Category",WebFAQCategoryDClass,CGview,-);
+  SetWRect(20,80,400,239);
+  UseView(WebFAQCategoryVc);
+  vs=20; h=120; vs2=16; hm=-100;
+  EditField(h,v=6,100,"Code",Normal,Code,false,);
+  EditField(h,v+=vs,-40,"Comment",Normal,Comment,false,0);
+  MatrixBegin(10,v+=vs+40,-40,-20,-,99);
+  MatCol(1,24,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,104,"Text",0,Text,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window WebLoanCalcLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Loan Calculators",WebLoanCalcLClass,CGmlist,-);
+  SetWRect(20,80,660,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(WebLoanCalcDClass);
+  UseView(WebLoanCalcVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Type",Type,false,Type);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window WebLoanCalcSClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Paste Loan Calculator",WebLoanCalcSClass,CGslist,-);
+  SetWRect(20,80,660,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(WebLoanCalcDClass);
+  UseView(WebLoanCalcVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Type",Type,false,Type);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window WebLoanCalcDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Loan Calculator",WebLoanCalcDClass,CGview,-);
+  SetWRect(20,80,500,339);
+  Sizeable(-1,-1,0,0);
+  UseView(WebLoanCalcVc);
+  vs=20; h=150; vs2=16; hm=-100;
+  EditField(h,v=6,150,"Type",Normal,Type,false,SetSClass);
+  EditField(h,v+=vs,-40,"Text on Web",Normal,WebText,false,0);
+  EditField(h,v+=vs,100,"Credit Agr. Type",Normal,CredManType,false,CredManTypeSClass);
+  EditField(h,v+=vs,100,"Manager",Normal,Manager,false,UserSClass);
+  EditField(h,v+=vs,100,"Amount Min",Normal,AmountMin,false,0);
+  EditField(h,v+=vs,100,"Amount Max",Normal,AmountMax,false,0);
+  EditField(h,v+=vs,100,"Amount Step",Normal,AmountStep,false,0);
+  EditField(h,v+=vs,100,"Term Min",Normal,TermMin,false,0);
+  EditField(h,v+=vs,100,"Term Max",Normal,TermMax,false,0);
+  EditField(h,v+=vs,100,"Term Step",Normal,TermStep,false,0);
+  EditField(h,v+=vs,100,"Residual Calc. Prc From",Normal,PrcFrom,false,0);
+  EditField(h,v+=vs,100,"Residual Calc. Prc To",Normal,PrcTo,false,0);
+
+  
+  ButtonFrame(h,v+=40,150,2,"Term Type");
+  RadioButton(h,v,0,0,"Months",TermType);
+  RadioButton(h,v+=16,1,0,"Days",TermType);  
+
+  MatrixBegin(10,v+=vs+40,-40,-20,-,99);
+  MatCol(1,24,"Months",0,Months,false,0);
+  MatCol(1,74,"Rate",0,Rate,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window WebInvoicingPartnerTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Search Partner Settings",WebInvoicingPartnerTClass,CGSbl,-);
+  SetBlid(WebInvoicingPartnerBlock);
+  SetWRect(20,80,500,298);
+  vs=20; h=160; vs2=16; hm=-100;
+  EditField(h,v=6,100,"Classification List",Normal,PartnerClass,false,CClassSClass);
+  EndWindow;
+end;
+
+window PassSessLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Password Sessions",PassSessLClass,CGmlist,-);
+  SetWRect(20,80,660,298);
+  Sizeable(-1,-1,0,0);
+  SpawnClass(PassSessDClass);
+  UseView(PassSessVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"UUID",UUID,false,MainKey);
+  RlCol(74,74,"TransDate",TransDate,false);
+  RlCol(130,130,"TransTime",TransTime,false);
+  RlCol(130,130,"CustCode",CustCode,false);
+  RlCol(-60,-60,"UsedFlag",UsedFlag,false);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window PassSessDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Password Session",PassSessDClass,CGview,-);
+  SetWRect(20,80,600,339);
+  Sizeable(-1,-1,0,0);
+  UseView(PassSessVc);
+  vs=20; h=120; vs2=16; hm=-100;
+  EditField(h,v=6,50,"TransDate",Normal,TransDate,false,);
+  EditField(h,v+=vs,50,"TransTime",Normal,TransTime,false,0);
+  EditField(h,v+=vs,50,"CustCode",Normal,CustCode,false,0);
+  EditField(h,v+=vs,50,"UsedFlag",Normal,UsedFlag,false,0);
+  EndWindow;
+end;
+
+window WebLoanAppTypeTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Agreement Type Links",WebLoanAppTypeTClass,CGHbl,HBlRecType);
+  SetBlid(WebLoanAppTypeBlock);
+  SetWRect(20,80,700,351);
+  Sizeable(-1,-1,0,0);
+  MatrixBegin(h,v,-31,-20,-,199);
+  MatCol(1,24,"Product",0,Type,false,SetSClass);
+  MatCol(1,-470,"Term from",0,TermFrom,false,0);
+  MatCol(1,-390,"Term to",0,TermTo,false,0);
+  MatCol(1,-310,"Amount from",0,AmountFrom,false,0);
+  MatCol(1,-230,"Amount to",0,AmountTo,false,0);
+  MatCol(1,-150,"Cust. Type",0,CustomerType,false,SetSClass);
+  MatCol(1,-70,"Type",0,CredManType,false,CredManTypeSClass);
+  EndMatrix;
+  EndWindow;
+end;
+
+window CreditalWebSetTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm,tilenr,h2,h3;
+  vs = 20; h2 = 350; h3 = 500;
+  WindowBegin("Credital Web Settings",CreditalWebSetTClass,CGSbl,SRType);
+  SetBlid(CreditalWebSetBlock);
+  SetWRect(20,80,600,298);
+  Sizeable(-1,-1,0,0);
+  Tile(0,20,false,"",ContactActComment);
+  tilenr = 1;
+  TileButton(tilenr,"General"); tilenr = tilenr + 1;  
+  TileButton(tilenr,"Loans"); tilenr = tilenr + 1;  
+
+  Tile(1,95,false,"1",ContactActComment);
+  ButtonFrame(h=180,v=40,300,4,"Invoice Guarantee Form");
+  EditField(h+100,v+=5,150,"Activity Comment",Normal,ContactActComment,false,0);
+  EditField(h+100,v+=vs,100,"Activity Type",Normal,ContactActType,false,ActTypeSClass);
+  EditField(h+100,v+=vs,100,"Activity Person",Normal,ContactPersons,false,UserSClass);
+
+  ButtonFrame(h,v+=60,300,4,"Loan Application Contact Link Confirm");
+  EditField(h+100,v+=5,150,"Activity Comment",Normal,LinkContactActComment,false,0);
+  EditField(h+100,v+=vs,100,"Activity Type",Normal,LinkContactActType,false,ActTypeSClass);
+  EditField(h+100,v+=vs,100,"Activity Person",Normal,LinkContactPersons,false,UserSClass);
+
+  ButtonFrame(h,v+=60,300,4,"Loan Application from Popup");
+  EditField(h+100,v+=5,150,"Activity Comment",Normal,PopupActComment,false,0);
+  EditField(h+100,v+=vs,100,"Activity Type",Normal,PopupActType,false,ActTypeSClass);
+  EditField(h+100,v+=vs,100,"Activity Person",Normal,PopupPersons,false,UserSClass);
+
+  EditField(h+=100,v+=40,100,"News letter",Normal,NewsLetterMail,false,0);
+  EditField(h,v+=vs,100,"One Time Fee Item",Normal,OneFeeItem,false,INSClass);
+  EditField(h,v+=vs,100,"Monthly Fee Item",Normal,MonthlyFeeItem,false,INSClass);
+
+  EditField(h,v+=40,100,"Canonical Base Link",Normal,CanonicalBase,false,0)
+  EditField(h,v+=40,100,"Payment Days",Normal,WebPaymentDays,false,0)
+  Tile(2,95,false,"2",LoanType1);
+  v = 6;
+  h = 50;
+  ButtonFrame(h,v+=60,540,6,"Loan Application Types");
+  EditField(h+50,v+=5,180,"Type A",Normal,LoanType1,false,SetSClass);
+  EditField(h2,v,90,"Color",Normal,LoanType1Color,false,StrSetSClass);
+  CheckBox(h3,v,0,"Enable",LoanType1Show);
+  EditField(h+50,v+=vs,180,"Type B",Normal,LoanType2,false,SetSClass);
+  EditField(h2,v,90,"Color",Normal,LoanType2Color,false,StrSetSClass);
+  CheckBox(h3,v,0,"Enable",LoanType2Show);
+  EditField(h+50,v+=vs,180,"Type C",Normal,LoanType3,false,SetSClass);
+  EditField(h2,v,90,"Color",Normal,LoanType3Color,false,StrSetSClass);
+  CheckBox(h3,v,0,"Enable",LoanType3Show);
+  EditField(h+50,v+=vs,180,"Type D",Normal,LoanType4,false,SetSClass);
+  EditField(h2,v,90,"Color",Normal,LoanType4Color,false,StrSetSClass);
+  CheckBox(h3,v,0,"Enable",LoanType4Show);
+  EditField(h+50,v+=vs,180,"Type E",Normal,LoanType5,false,SetSClass);
+  EditField(h2,v,90,"Color",Normal,LoanType5Color,false,StrSetSClass);
+  CheckBox(h3,v,0,"Enable",LoanType5Show);
+
+/*
+  ButtonFrame(h,v+=60,200,5,"Hide Menu Item");
+  EditField(h+50,v+=5,100,"Menu 1",Normal,HideMenu1,false,WebNGMenuSClass);
+  EditField(h+50,v+=vs,100,"Menu 2",Normal,HideMenu2,false,WebNGMenuSClass);
+  EditField(h+50,v+=vs,100,"Menu 3",Normal,HideMenu3,false,WebNGMenuSClass);
+  EditField(h+50,v+=vs,100,"Menu 4",Normal,HideMenu4,false,WebNGMenuSClass);
+*/
+  v = v + 30;
+
+  EditField(h+50,v+=vs,150,"Loan Structure",Normal,LoanStruct,false,WebNGStructSClass);
+  EditField(h+50,v+=vs,150,"Default Type",Normal,DefaultType,false,SetSClass);
+  EditField(h+50,v+=vs,-40,"Hide Elements",Normal,HideElements,false,WebNGElementSClass);
+  EditField(h+50,v+=vs,-40,"Hide Menus",Normal,HideMenus,false,WebNGMenuSClass);
+
+  EndWindow;
+end;
+
+window WebMetaTagLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Meta Tags",WebMetaTagLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,300,298);
+  SpawnClass(WebMetaTagDClass);
+  UseView(WebMetaTagVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(32,32,"Structure",StructNr,false,StructNr);
+  RlColKey(200,200,"Content",ContentNr,false,ContentNr);
+  RlColKey(-40,-40,"SerNr",SerNr,false,SerNr);
+  EndWindow;
+end;
+
+window WebMetaTagDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  vs = 20;
+  WindowBegin("Meta Tag",WebMetaTagDClass,CGView,-);
+  UseView(WebMetaTagVc);
+  SetWRect(20,80,570,258);
+  EditField(h=120,v=6,100,"Structure",Normal,StructNr,false,WebNGStructSClass);
+
+  HalPushButton(-120,v,-20,v+=20,"WebMetaTagDClassAdd","Add Translation");
+
+  if (GuiType==kGuiCocoa) then begin
+    RecordList2(4,v+=vs,-21,-1,"WebMetaTagTransVc");
+  end else begin
+    RecordList2(4,v+=vs,-21,-35,"WebMetaTagTransVc");    
+  end;
+  RlColKey(4,4,"Language",LangCode,false,LangCode);
+  RlCol(70,70,"Title",Title,false);
+  RlCol(200,200,"Keywords",KeyWords,false);
+  RlCol(-200,-200,"Descriptions",Description,false);
+  EditField(h=300,v=6,100,"Content",Normal,ContentNr,false,WebNGContentSClass);
+  EndWindow;
+end;
+
+window WebMetaTagTransLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Meta Tags Translations",WebMetaTagTransLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,300,298);
+  SpawnClass(WebMetaTagTransDClass);
+  UseView(WebMetaTagTransVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(32,32,"SerNr",SerNr,false,SerNr);
+  EndWindow;
+end;
+
+window WebMetaTagTransDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  vs = 20;
+  WindowBegin("Meta Tag Translation",WebMetaTagTransDClass,CGView,-);
+  UseView(WebMetaTagTransVc);
+  SetWRect(20,80,570,298);
+  EditField(h=120,v=6,100,"Language",Normal,LangCode,false,WebNGLanguageSClass);
+  EditField(h,v+=vs,-40,"Title",Normal,Title,false,0);
+  EditField(h,v+=vs,-40,"KeyWords",Normal,KeyWords,false,0);
+  EditField(h,v+=vs,-40,"Description",Normal,Description,false,0)
+  EndWindow;
+end;
+
+window WebNGContentSClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Web Contents",WebNGContentSClass,CGslist,-);
+  SetWRect(10,80,800,291);
+  UseView(WebNGContentVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(6,6,"Ser. No.",SerNr,false,SerNr);
+  RlColKey(75,75,"Style",ContentStyle,false,ContentStyle);
+  RlColKey(185,185,"Country",Country,false,Country);
+  RlCol(255,255,"Category",ContentCategory,false);
+  RlColKey(390,390,"Comment",Comment,false,Comment);
+  SearchField("Search");
+  EndWindow;
+end;
+
+
+window CredManExtTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Agreement/Application Extensions",CredManExtTClass,CGHbl,HBlRecType);
+  SetBlid(CredManExtBlock);
+  SetWRect(20,80,500,351);
+  Sizeable(-1,-1,0,0);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Order Class",0,OrderClass,false,OrderClassSClass);
+  MatCol(1,130,"Action",0,ShowFlag,false,SetSClass);
+  EndMatrix;
+  EndWindow;
+end;
+
+window ExitPopupLinksTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Exit Popup Links",ExitPopupLinksTClass,CGHbl,HBlRecType);
+  SetBlid(ExitPopupLinksBlock);
+  SetWRect(20,80,500,351);
+  Sizeable(-1,-1,0,0);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Link",0,Link,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window PhonePrefixTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Telephone Prefixes",PhonePrefixTClass,CGHbl,HBlRecType);
+  SetBlid(PhonePrefixBlock);
+  SetWRect(20,80,330,351);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Country",0,CountryCode,false,CountrySClass);
+  MatCol(1,130,"Prefix",0,Prefix,false,0);
+  MatCol(1,210,"Repl. Prefix",0,ReplacePrefix,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window RegNrPatternTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Registration Number Patterns",RegNrPatternTClass,CGHbl,HBlRecType);
+  SetBlid(RegNrPatternBlock);
+  SetWRect(20,80,530,351);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Country",0,CountryCode,false,CountrySClass);
+  MatCol(1,130,"Pattern",0,Pattern,false,0);
+  MatCol(1,-100,"Action",0,Action,false,SetSClass);
+  EndMatrix;
+  EndWindow;
+end;
+
+
+window LangCompanyMapTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Contact Page Companies",LangCompanyMapTClass,CGHbl,HBlRecType);
+  SetBlid(LangCompanyMapBlock);
+  SetWRect(20,80,240,351);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,130,"Company",0,CompanyNr,false,Companies2SClass);
+  EndMatrix;
+  EndWindow;
+end;
+
+window WebBankConnTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Bank - Account Connections",WebBankConnTClass,CGHbl,HBlRecType);
+  SetBlid(WebBankConnBlock);
+  SetWRect(20,80,400,351);
+  if (GuiType==kGuiCocoa) then begin
+    MatrixBegin(h,v,-31,-20,-,199);
+  end else begin
+    MatrixBegin(h,v+16,-18,-20,-,199);    
+  end;
+  MatCol(1,24,"Mask",0,Pattern,false,0);
+  MatCol(1,-120,"Bank",0,BankCode,false,BankSClass);
+  EndMatrix;
+  EndWindow;
+end;
+
+window NovWebFormLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Mobile Survey",NovWebFormLClass,CGmlist,-);
+  SetWRect(20,80,660,298);
+  //Sizeable(-1,-1,0,0);
+  SpawnClass(NovWebFormDClass);
+  UseView(NovWebFormVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Code",Code,false,Code);
+  RlCol   (120,4,"Email Receiver",MailReceiver,false);
+  SearchField("Search");
+  EndWindow;
+ 
+  return;
+end;
+
+
+window NovWebFormDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,h3,h4,t,v,vm,vs,ord,label;
+
+  WindowBegin("Mobile Survey",NovWebFormDClass,CGview,-);
+  SetWRect(20,80,750,500);
+  UseView(NovWebFormVc);
+
+  h = 120; h2 = 360; h4 = 600; vs = 20; ord = 50;
+  h3 = 480;
+  Tile(0,230,false,"",Code);
+  EditField(h,v=6,150,"Code",Normal,Code,false,0);
+  EditField(h,v+=vs,150,"Intro Text",Normal,IntroText,false,0);
+  EditField(h,v+=vs,150,"Email Receiver",Normal,MailReceiver,false,0);
+  EditField(h,v+=vs,150,"Phone Number",Normal,PhoneNumber,false,0);
+ CheckBox(h,v+=vs,0,"Check Registration Number",CheckRegNr);
+
+  CheckBox(h3,v=6,0,"Create Application",CreateApplication);
+  EditField(h3,v+=vs,150,"Order Class",Normal,OrderClass,false,OrderClassSClass);
+  EditField(h3,v+=vs,150,"Manager",Normal,Manager,false,UserSClass);
+  EditField(h3,v+=vs,150,"Type",Normal,CalcType,false,SetSClass);
+  CheckBox(h3,v+=vs,0,"Show on Mobile Devices",ShowMobile);
+  CheckBox(h3,v+=vs,0,"Show on Desktop Browser",ShowDesktop);
+  
+//  EditField(h,v+=vs,82,"Credit Agr. Type",Normal,CredManType,false,CredManTypeSClass);//??
+
+  v = v + 40;
+  CheckBox(h,v,0,"Request Reg. No.",RegFlag);
+  EditField(h2,v,ord,"Order",Normal,RegOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,RegLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",RegMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Name",NameFlag);
+  EditField(h2,v,ord,"Order",Normal,NameOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,NameLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",NameMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Telephone",PhoneFlag);
+  EditField(h2,v,ord,"Order",Normal,PhoneOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,PhoneLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",PhoneMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Email",EmailFlag);
+  EditField(h2,v,ord,"Order",Normal,EmailOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,EmailLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",EmailMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Contact Person",ContactNameFlag);
+  EditField(h2,v,ord,"Order",Normal,ContactNameOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,ContactNameLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",ContactNameMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Contact Person's Email",ContactEmailFlag);
+  EditField(h2,v,ord,"Order",Normal,ContactEmailOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,ContactEmailLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",ContactEmailMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Contact Person's Mobile",ContactMobileFlag);
+  EditField(h2,v,ord,"Order",Normal,ContactMobileOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,ContactMobileLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",ContactMobileMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Contact Person's Job Title",ContactJobFlag);
+  EditField(h2,v,ord,"Order",Normal,ContactJobOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,ContactJobLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",ContactJobMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request VAT Nr.",VATNrFlag);
+  EditField(h2,v,ord,"Order",Normal,VATNrOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,VATNrLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",VATNrMand);
+
+  v = v + vs;  
+  CheckBox(h,v,0,"Request Address",AddressFlag);
+  EditField(h2,v,ord,"Order",Normal,AddressOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,AddressLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",AddressMand);
+
+  v = v + vs;  
+  CheckBox(h,v,0,"Request Amount",AmountFlag);
+  EditField(h2,v,ord,"Order",Normal,AmountOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,AmountLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",AmountMand);
+
+  v = v + vs;
+  CheckBox(h,v,0,"Request Term",TermFlag);
+  EditField(h2,v,ord,"Order",Normal,TermOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,TermLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",TermMand);
+ 
+  v = v + vs;  
+  CheckBox(h,v,0,"Request Payment Day",PaymentDayFlag);
+  EditField(h2,v,ord,"Order",Normal,PaymentDayOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,PaymentDayLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",PaymentDayMand);
+  
+  v = v + vs;  
+  CheckBox(h,v,0,"Add to Mailing List",MailListFlag);
+  EditField(h2,v,ord,"Order",Normal,MailListOrder,false,0);
+  EditField(h3,v,100,"Label",Normal,MailListLabel,false,0);
+  
+  EndWindow;
+  return;
+end;
+
+window WebNodeTransLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("URL Translations",WebNodeTransLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,600,298);
+  SpawnClass(WebNodeTransDClass);
+  UseView(WebNodeTransVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Structure",SerNr,false,SerNr);
+  RlCol   (100,100,"Name",Name,false);
+  EndWindow;
+end;
+
+window WebNodeTransDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("URL Translation",WebNodeTransDClass,CGview,-);
+  SetWRect(20,80,600,339);
+  UseView(WebNodeTransVc);
+  vs=20; h=120; vs2=16; hm=-100;
+  EditField(h,v=6,150,"Structure",Normal,SerNr,false,WebNGStructSClass);
+  EditField(h,v+=vs,150,"Node",ViewOnly,Name,false,0);
+  EditField(h,v+=vs,150,"Mother",ViewOnly,Mother,false,0);
+
+  MatrixBegin(10,v+=vs+20,-40,-20,-,99);
+  MatCol(1,24,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,140,"Name",0,NodeName,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window OrderClassTransLClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Order Classes on Web",OrderClassTransLClass,CGmList,-);
+  Sizeable(-1,-1,0,0);
+  SetWRect(64,80,600,298);
+  SpawnClass(OrderClassTransDClass);
+  UseView(OrderClassTransVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Order Class",OrderClass,false,OrderClass);
+  RlCol   (100,100,"Name",Name,false);
+  EndWindow;
+end;
+
+
+window OrderClassTransDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,h2,vs;
+  WindowBegin("Order Classes on Web",OrderClassTransDClass,CGView,-);
+  SetWRect(20,80,450,250);
+  AutoSizeWindow(false);  
+  vs = 20;
+  UseView(OrderClassTransVc);
+  EditField(h=100,v+=vs,90,"Order Class",Normal,OrderClass,false,OrderClassSClass);
+  EditField(h=280,v,-40,"Name",Normal,Name,false,0);
+  MatrixBegin(10,v+=vs+20,-40,-20,-,99);
+  MatCol(1,25,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,100,"Name",0,Comment,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+window RekvizitaiClassTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Rekvizitai.lt Classifications",RekvizitaiClassTClass,CGHBl,-);
+  SetWRect(80,80,580,280);
+  SetBlid(RekvizitaiClassBlock);
+  MatrixBegin(10,20,-30,-10,-,200);
+  MatCol(1,25,"Categroy",0,Category,false,0);
+  MatCol(1,200,"Nace Code",0,NACECode,false,0);
+  MatCol(1,320,"Class",0,Class,false,CClassSClass);
+  EndMatrix;
+  EndWindow;
+end;
