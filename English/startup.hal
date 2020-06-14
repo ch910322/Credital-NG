@@ -4,6 +4,11 @@ begin
   SetLangMode(LangEnglish,"ENG",0);
 
   Setting("Telephone Prefixes",PhonePrefixTClass,modCredMan);
+  Setting("Evaluation Constants",EvalConstTClass,modCredMan);
+  Setting("Evaluation Risk Classes",EvalRiskClassTClass,modCredMan);
+  Setting("Multi Page Documents",MultiDocLClass,modCredMan);
+  Setting("Font Widths",FontWidthLClass,modCredMan);
+
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);
@@ -23,6 +28,7 @@ begin
   Setting("URL Translations",WebNodeTransLClass,modWebShopNG);
   Setting("Registration Number Patterns",RegNrPatternTClass,modWebShopNG);
   Setting("Order Classes on Web",OrderClassTransLClass,modWebShopNG);
+
 
 /* Sales ledger */
 	Report("Income Analysis",EBSIncomeAnalysisRClass,EBSIncomeAnalysisRn,0,modSL);

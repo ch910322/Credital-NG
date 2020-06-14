@@ -1,0 +1,31 @@
+
+function Boolean MultiDocDClassLoanTypeStrEFAfter(Integer wn,Integer changed)
+begin
+  Boolean res;
+  record MultiDocVc MDr;
+  
+  GetWindowRecord(wn,MDr);
+
+  MDr.LoanType = SetFromString(2001,MDr.LoanTypeStr);
+  PutWindowRecord(wn,MDr);
+
+  MultiDocDClassLoanTypeStrEFAfter = res;
+  return;
+end;
+
+global
+function Boolean MultiDocDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+
+  if (changed) then begin
+    switch (fieldname) begin
+      case "LoanTypeStr": 
+        res = MultiDocDClassLoanTypeStrEFAfter(wn,changed);
+
+    end;
+  end;
+
+  MultiDocDClassAfterEditField = res;
+  return;
+end;
