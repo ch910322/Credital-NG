@@ -468,16 +468,19 @@ begin
   EndRecord;
 
 
+  Exec_File("halcust\\LoanApp\\datadef.hal");
+
   SourceFile("halcust\\English", 0);
   SourceFile("halcust\\Lithuanian", 0);
   SourceFile("halcust\\Latvian", 0);
   SourceFile("halcust\\Level0\\WActions", 0);
   SourceFile("halcust\\Level0\\WebNG", 0);
+  SourceFile("halcust\\Documents", 3);
   SourceFile("halcust\\RActions", 3);
+  SourceFile("halcust\\Reports", 3);
   SourceFile("halcust\\WActions", 3);
   SourceFile("halcust\\Tools", 3);
   SourceFile("halcust\\WebNG", 3);
 
-  Exec_File("halcust\\LoanApp\\datadef.hal");
 
 end;

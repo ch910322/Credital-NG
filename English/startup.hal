@@ -9,6 +9,8 @@ begin
   Setting("Multi Page Documents",MultiDocLClass,modCredMan);
   Setting("Font Widths",FontWidthLClass,modCredMan);
 
+  Report("B2B Application Evaluation",B2BLoanEvalRClass,B2BLoanEvalRn,0,modCredMan);
+
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);
