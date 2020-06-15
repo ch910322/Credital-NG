@@ -208,10 +208,18 @@ begin
 end;
 
 global
-updating procedure PrintCredManDocument(string docname,string fn,record CredManVc CredManr,Integer type,Boolean maxmonthlyf,string langcode)
+updating procedure PrintCredManDocument(string docname,string fn,record CredManVc CredManr,Integer scnt,Boolean maxmonthlyf,string langcode)
 begin
   
-  PrintMultiDocDocument(docname,fn,CredManr.SerNr,type,maxmonthlyf,langcode);
-
+  switch (docname) begin
+    case "CredManForm":
+      PrintMultiDocDocument("CredManLongForm",fn,CredManr.SerNr,CredManr.InstalmentType,maxmonthlyf,langcode);
+    case "VekselisForm":
+      PrintMultiDocDocument("VekselisForm" & scnt,fn,CredManr.SerNr,CredManr.InstalmentType,maxmonthlyf,langcode);
+    case "SuretyAgreementForm":
+      PrintMultiDocDocument("SuretyAgreementForm" & scnt,fn,CredManr.SerNr,CredManr.InstalmentType,maxmonthlyf,langcode);
+    otherwise
+      PrintMultiDocDocument(docname,fn,CredManr.SerNr,CredManr.InstalmentType,maxmonthlyf,langcode);
+  end;
   return;
 end;
