@@ -209,8 +209,9 @@ end;
 
 global
 updating procedure PrintCredManDocument(string docname,string fn,record CredManVc CredManr,Integer type,Boolean maxmonthlyf,string langcode)
-
-  PrintMultiDocDocument(docname,fn,CredManr.SerNr,type,maxmonthlyf,langcode)
+begin
+  
+  PrintMultiDocDocument(docname,fn,CredManr.SerNr,type,maxmonthlyf,langcode);
 
   return;
 end;

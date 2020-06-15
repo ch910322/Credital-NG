@@ -39,6 +39,7 @@ external inner function string 10 CurrentWebLang();
 external inner function string 255 GetBrowserOperatingSystem();
 external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
 external function Boolean GetLoanAppContact(string,string,var record CUVc);
+external inner function Boolean ExternalDocumentEnabled(string);
 
 global
 function string 255 GetLinkToLoanApp()
@@ -1727,7 +1728,6 @@ begin
   record RLinkVc RLr;
   record RcVc RepSpec;
   string 255 fn;
-  record ExternalFormBlock EFb;
   
   RecordNew(ADr);
   ADr.SerNr = NextSerNr("AgreementDocVc",CurrentDate,-1,false,"");
@@ -1740,9 +1740,8 @@ begin
 
   if (RecordInsert(ADr,true)) then begin
     fn = "Agreement.pdf";
-    BlockLoad(EFb);
     RepSpec.f10 = custcode;
-    if (EFb.ExtLoanAppForm==1) then begin
+    if (ExternalDocumentEnabled("LoanAppForm")) then begin
       PrintEBSDocument("LoanAppForm",fn,RepSpec,LAr.SerNr,"");
     end else begin
       PrintMultiDocDocument2("LoanAppForm",fn,LAr.SerNr,0,false,"",RepSpec);

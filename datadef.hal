@@ -469,6 +469,7 @@ begin
 
 
   Exec_File("halcust\\LoanApp\\datadef.hal");
+  SourceFile("halcust\\LoanApp\\",0);
 
   SourceFile("halcust\\English", 0);
   SourceFile("halcust\\Lithuanian", 0);
