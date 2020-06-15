@@ -38,6 +38,7 @@ external procedure ResetCompanyBasedOnCountry(Integer);
 external inner function string 10 CurrentWebLang();
 external inner function string 255 GetBrowserOperatingSystem();
 external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
+external function Boolean GetLoanAppContact(string,string,var record CUVc);
 
 global
 function string 255 GetLinkToLoanApp()
@@ -1598,26 +1599,6 @@ begin
   end;
   LAr.SuretyCnt = surcnt;
 
-  return;
-end;
-
-
-global
-function Boolean GetLoanAppContact(string name,string custcode,var record CUVc CUr)
-begin
-  Boolean res;
-  record ContactRelVc CRr;
-
-  CRr.ContactName = name;
-  CRr.CustCode = custcode;
-  if (ReadFirstKey("Contact",CRr,2,true)) then begin
-    CUr.Code = CRr.ContactCode;
-    if (ReadFirstMain(CUr,1,true)) then begin
-      res = true;
-    end;
-  end;
-
-  GetLoanAppContact = res;
   return;
 end;
 
