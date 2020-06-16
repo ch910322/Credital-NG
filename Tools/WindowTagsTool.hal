@@ -1,0 +1,13 @@
+global
+function Boolean HasMoneyTransferDate()
+begin
+  HasMoneyTransferDate = true;
+  return;
+end;
+
+global
+function Boolean HasB2BCreateOffer()
+begin
+  HasB2BCreateOffer = true;
+  return;
+end;

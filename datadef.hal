@@ -483,5 +483,10 @@ begin
   SourceFile("halcust\\Tools", 3);
   SourceFile("halcust\\WebNG", 3);
 
+/*Landing Pages*/
+  Exec_file("halcust\\Integrations\\LandingPages\\datadef.hal");
+  SourceFile("halcust\\Integrations\\LandingPages", 3);
+
+
 
 end;
