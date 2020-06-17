@@ -32,7 +32,7 @@ external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record
 external function Boolean AllSuretyApplicationsSigned(Longint,record AgreementDocVc);
 remote procedure DocumentSigningClientDone(string,record AgreementDocVc);
 external function string 255 CreditalFixPhone(string,string);
-external procedure PrintEBSDocument(string,string,record RcVc,string,string);
+external inner procedure PrintEBSDocument(string,string,record RcVc,string,string,var area);
 external function Integer SetCompanyBasedOnCountry();
 external procedure ResetCompanyBasedOnCountry(Integer);
 external inner function string 10 CurrentWebLang();
@@ -1728,6 +1728,7 @@ begin
   record RLinkVc RLr;
   record RcVc RepSpec;
   string 255 fn;
+  area filearea;
   
   RecordNew(ADr);
   ADr.SerNr = NextSerNr("AgreementDocVc",CurrentDate,-1,false,"");
@@ -1742,7 +1743,7 @@ begin
     fn = "Agreement.pdf";
     RepSpec.f10 = custcode;
     if (ExternalDocumentEnabled("LoanAppForm")) then begin
-      PrintEBSDocument("LoanAppForm",fn,RepSpec,LAr.SerNr,"");
+      PrintEBSDocument("LoanAppForm",fn,RepSpec,LAr.SerNr,"",filearea);
     end else begin
       PrintMultiDocDocument2("LoanAppForm",fn,LAr.SerNr,0,false,"",RepSpec);
     end;
