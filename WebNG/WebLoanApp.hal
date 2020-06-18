@@ -3,7 +3,7 @@ external inner function string 255 ToolWebNGTranslateText2(Longint);
 external inner procedure LoadWebPage(string,var record WebNGPageVc);
 external inner procedure ShowWebAppPageStart(record WebNGPageVc,string);
 external inner procedure ShowWebAppPageEnd(record WebNGPageVc);
-external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc);
+external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc,var string);
 external function Boolean InsertManagerInB2BApplication(var record B2BLoanApplicationVc);
 external inner function string 255 removenextnode(var string);
 external inner function string 255 GetLinkToStruct(LongInt,boolean);
@@ -14,7 +14,7 @@ external inner function string 255 GetLinkToMyAccount();
 external procedure GetCustomerNameFromServer(string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,Boolean,string);
 external function Boolean InsertContactName(var record B2BLoanApplicationVc);
 external inner updating function Boolean AddContactCUDsmRemote(record CUVc,string);
-external remote function Boolean InsertSuretyInB2BApplication(var record B2BLoanApplicationVc,Integer);
+external remote function Boolean InsertSuretyInB2BApplication(var record B2BLoanApplicationVc,Integer,var string);
 external inner updating procedure SendCustomerLetterWithDetails(record RCVc,string,string,string);
 external function Integer CheckSmartIDStatus(record CUVc,string);
 external function Boolean InitSmartIDAuthentication(record CUVc,var string,var string);
@@ -1314,6 +1314,7 @@ begin
   record CMApplicationSetBlock CMb;
   record CMOrderClassBlock OCb;
   Integer type;
+  string 255 warning
   
   BlockLoad(CMb);
   BlockLoad(OCb);
@@ -1321,7 +1322,7 @@ begin
   LAr.SerNr = NextSerNr("B2BLoanApplicationVc",CurrentDate,-1,false,"");
   LAr.TransDate = CurrentDate;
   LAr.CustCode = CUr.Code;
-  InsertCustomerInB2BApplication(LAr);
+  InsertCustomerInB2BApplication(LAr,warning);
   LAr.eMail = CUr.eMail;
 logtext(0,"status " & status);
   if (status==2) then begin
@@ -1378,10 +1379,11 @@ updating procedure UpdateLoanAppFirstStep(record B2BLoanApplicationVc LAr,record
 begin
   record B2BLoanApplicationVc oldLAr;
   record CredManTypeVc CMTr;
-  
+  string 255 warning;
+
   RecordCopy(oldLAr,LAr);
   LAr.CustCode = CUr.Code;
-  InsertCustomerInB2BApplication(LAr);
+  InsertCustomerInB2BApplication(LAr,warning);
   LAr.eMail = CUr.eMail;
 
   LAr.Manager = WLCr.Manager;
@@ -1572,6 +1574,7 @@ updating procedure AddManagerAndSurety(var record B2BLoanApplicationVc LAr,Boole
 begin
   Integer i,scnt,surcnt;
   record CUVc CUr;
+  string 255 warning;
   
   GetContactDetails("man",CUr,LAr,true);
   LAr.ContactName = CUr.Name;
@@ -1588,14 +1591,14 @@ begin
   scnt = StringToInt(WebGetArg("scnt"));
   if (mansurf) then begin
     LAr.SuretyProvider1 = CUr.Code;
-    InsertSuretyInB2BApplication(LAr,1);
+    InsertSuretyInB2BApplication(LAr,1,warning);
     surcnt = 1;
   end;
 
   for (i=0;i<scnt and surcnt<3;i=i+1) begin
     GetContactDetails(i & "sur_",CUr,LAr,false);
     SetFieldValueByName(LAr,"SuretyProvider" & (surcnt+1),CUr.Code,-1);
-    InsertSuretyInB2BApplication(LAr,surcnt+1);
+    InsertSuretyInB2BApplication(LAr,surcnt+1,warning);
     surcnt = surcnt + 1;
   end;
   LAr.SuretyCnt = surcnt;

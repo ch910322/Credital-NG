@@ -17,7 +17,7 @@ external inner function string 255 removenextnode(var string);
 external inner function string 10 CurrentWebLang();
 external inner procedure ShowRedirectHtml(string,boolean);
 external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record CUVc,LongInt,LongInt);
-external function Boolean InsertSuretyInB2BApplication(var record B2BLoanApplicationVc,Integer);
+external function Boolean InsertSuretyInB2BApplication(var record B2BLoanApplicationVc,Integer,var string);
 external inner function string 255 GetLoginPageStructLink();
 external updating procedure CreateSuretyDataAgreement(string,record B2BLoanApplicationVc);
 external inner function Boolean PasteActTypeInAct2(string,var record ActVc,var string);
@@ -1679,7 +1679,7 @@ begin
   record CUVc CUr,oldCUr;
   record InvitationRequestVc oldIRr;
   Integer scnt;
-  string 255 cc;
+  string 255 cc,warning;
   Boolean res;
 
   CUr.Code = IRr.ContactCode;
@@ -1709,7 +1709,7 @@ begin
         end;
         if (cc==CUr.Code) then begin
           RecordCopy(oldLAr,LAr);
-          InsertSuretyInB2BApplication(LAr,scnt);
+          InsertSuretyInB2BApplication(LAr,scnt,warning);
           if (RecordUpdate(oldLAr,LAr,true)==0) then begin
             res = true;
             CreateSuretyDataAgreement(CUr.Code,LAr);

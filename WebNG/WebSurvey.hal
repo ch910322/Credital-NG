@@ -10,7 +10,7 @@ external inner procedure ShowWebAppPageEnd(record WebNGPageVc);
 external inner procedure LoadWebPage(string,var record WebNGPageVc);
 external procedure ShowWebLoanStrings();
 external procedure CheckLoanCustomer(string,string,string,Boolean,var record CUVc,var record CUVc,var Integer);
-external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc);
+external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc,var string);
 external function Boolean InsertManagerInB2BApplication(var record B2BLoanApplicationVc);
 external function string 255 GetAgreementType(record B2BLoanApplicationVc,Integer,string);
 external function Integer MapLoanType(string);
@@ -243,6 +243,7 @@ begin
   record CredManTypeVc CMTr;
   record CMApplicationSetBlock CMb;
   Integer type;
+  string 255 warning;
   
   BlockLoad(CMb);
   RecordNew(LAr);
@@ -252,7 +253,7 @@ begin
   LAr.SerNr = NextSerNr("B2BLoanApplicationVc",CurrentDate,-1,false,"");
   LAr.TransDate = CurrentDate;
   LAr.CustCode = CUr.Code;
-  InsertCustomerInB2BApplication(LAr);
+  InsertCustomerInB2BApplication(LAr,warning);
   LAr.eMail = CUr.eMail;
   LAr.OrderClass = WFr.OrderClass;
 
