@@ -38,6 +38,7 @@ begin
 /* System */
 	Setting("Rekvizitai.lt Classifications",RekvizitaiClassTClass,modSY);
 
+  SString(1808,"Noviti Nr. ");
 
   return;
 end;
