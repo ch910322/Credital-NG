@@ -86,6 +86,9 @@ external updating procedure StoreCURegInvoiceMonthsForm();
 external function string 255 GetLinkToMyAccount();
 external updating procedure StoreContactUsFormDetails();
 external outer updating function Boolean InternalUpdatingActions(string);
+//CUST-BEGIN
+external outer updating procedure CMRecalculateOpenSchedules(string);
+//CUST-END
 
 global
 updating procedure DoLogout()
@@ -128,6 +131,9 @@ begin
           link = GetLinkToMyAccount();
           PutSessionString("requesturl",link);
         end;
+//CUST-BEGIN
+        CMRecalculateOpenSchedules(GetMainCustomerCodeFromContact(CurrentCust));
+//CUST-END
         RedirectToRequestedPage;
       end;
     end else begin
