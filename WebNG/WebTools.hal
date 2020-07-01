@@ -234,7 +234,7 @@ begin
   end;
 LShowSingleBanner:;
 
-  WebOutString("<div class='web-campaign'>");
+  WebOutString("<div class='web-campaign'><div class='web_campaign_inner'>");
   if (nonblank(WCr.Link)) then begin
     WebOutString("<a href='" & WCr.Link & "' target='blank'>");
   end;
@@ -242,12 +242,12 @@ LShowSingleBanner:;
     WebOutString("<div class='campaign_img'><img src='/WebShowCampaignImage.hal?id=" & WCr.SerNr & "' alt='" & WCr.Text1 & "'></div>");
   end;
 
-  WebOutString("<div class='banner_text'><div class='banner_text1'>" & WCr.Text1 & "</div><div class='banner_text2'>" & WCr.Text2 & "</div></div>");
+  WebOutString("<div class='banner_text'><div class='banner_bg'></div><div class='banner_text_wrap'><div class='banner_text1'>" & WCr.Text1 & "</div><div class='banner_text2'>" & WCr.Text2 & "</div></div></div>");
   if (nonblank(WCr.Link)) then begin
     WebOutString("</a>");
   end;
 
-  WebOutString("</div>");
+  WebOutString("</div></div>");
   if (nonblank(WCr.Style)) then begin
     WebOutString("<style>" & WCr.Style & "</style>");
   end;
