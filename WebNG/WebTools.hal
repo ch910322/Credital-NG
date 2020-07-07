@@ -33,6 +33,8 @@ external inner procedure StripTrailingSpaces(var string);
 external inner procedure StripLeadingSpaces(var string);
 external inner function string 255 GetLinkToStruct(LongInt,boolean);
 external inner function string 255 GetBrowserOperatingSystem();
+external  procedure CredManSetDatesCust(var record CredManVc);
+external function Boolean GetAgreementDoc(record CredManVc,Integer,var record AgreementDocVc);
 
 global
 function Integer SetCompanyBasedOnCountry()
@@ -2152,5 +2154,80 @@ begin
   end;
 
   GetTranslatedNodeName = res;
+  return;
+end;
+
+function Boolean DocumentHasOneSignature(record AgreeemtDocVc ADr)
+begin
+  Integer i,rwcnt;
+  Boolean res;
+  row AgreementDocVc ADrw;
+
+  res = false;
+  rwcnt = MatRowCnt(ADr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(ADr,i,ADrw);
+    if (ADrw.Status==1) then begin
+      res = true; 
+      i = rwcnt;
+    end;
+  end;    
+
+  DocumentHasOneSignature = res;
+  return;
+end;
+
+function Boolean ScheduleIsNotSigned(record CredManVc CredManr,var record AgreementDocVc ADr)
+begin
+  record AgreementDocVc tADr;
+  Boolean res;
+
+  res = true;
+  if (CredManr.SignSchedule==0) then begin
+    tADr.RecordNr = CredManr.SerNr;
+    tADr.RecordType = 0;
+    tADr.Type = 2;
+    if (ReadFirstKey("RecordNr",tADr,3,true)) then begin
+      RecordCopy(ADr,tADr);
+      if (DocumentHasOneSignature(tADr)) then begin
+        res = false;
+      end;
+    end;
+  end;
+
+  ScheduleIsNotSigned = res;
+  return;
+end;
+
+global
+updating procedure CMRecalculateOpenSchedules(string custcode)
+begin
+  record AgreementDocVc ADr,AD2r;
+  record CredManVc CredManr,oldCredManr;
+  Boolean TrHs;
+
+  TrHs = true;
+  CredManr.CustCode = custcode;
+  while (LoopKey("CustCode",CredManr,1,TrHs)) begin
+    if (CredManr.CustCode!=custcode) then begin
+      TrHs = false;
+    end else begin
+      if (CredManr.startDate<CurrentDate) then begin
+        if (ScheduleIsNotSigned(CredManr,ADr)) then begin
+          RecordCopy(oldCredManr,CredManr);
+          CredManr.startDate = CurrentDate;
+          CredManSetDatesCust(CredManr);
+          if (RecordUpdate(oldCredManr,CredManr,true)==0) then begin
+            if (ADr.SerNr>-1) then begin
+              RecordRemove(ADr);
+            end;
+            //click sign button
+            GetAgreementDoc(CredManr,2,AD2r);
+          end;
+        end;
+      end;
+    end;
+  end;
+
   return;
 end;
