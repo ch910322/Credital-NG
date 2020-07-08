@@ -42,10 +42,19 @@ function string 255 GetFirstCustCode(string contact)
 begin
   record ContactRelVc CRr;
   string 255 res;
+  Boolean TrHs;
   
   CRr.ContactCode = contact;
-  if (ReadFirstKey("ContactCode",CRr,1,true)) then begin
-    res = CRr.CustCode;
+  TrHs = true;
+  while (LoopKey("ContactCode",CRr,1,TrHs)) begin
+    if (CRr.ContactCode!=contact) then begin
+      TrHs = false;
+    end else begin
+      if (CRr.Invalid==0) then begin
+        res = CRr.CustCode;
+        TrHs = false;
+      end;
+    end;
   end;
 
   GetFirstCustCode = res;
@@ -63,9 +72,11 @@ begin
     if (CRr.ContactCode!=contact) then begin
       TrHs = false;
     end else begin
-      if (CRr.CustCode==custcode) then begin
-        res = true;
-        TrHs = false;
+      if (CRr.Invalid==0) then begin
+        if (CRr.CustCode==custcode) then begin
+          res = true;
+          TrHs = false;
+        end;
       end;
     end;
   end;
@@ -479,10 +490,12 @@ begin
       if (CRr.ContactCode!=CUr.Code) then begin
         TrHs = false;
       end else begin
-        if (curcust==CRr.CustCode) then begin
-          WebOutString("<option value='" & CRr.CustCode & "' SELECTED>" & CRr.CustName & "</option>");  
-        end else begin
-          WebOutString("<option value='" & CRr.CustCode & "'>" & CRr.CustName & "</option>");  
+        if (CRr.Invalid==0) then begin
+          if (curcust==CRr.CustCode) then begin
+            WebOutString("<option value='" & CRr.CustCode & "' SELECTED>" & CRr.CustName & "</option>");  
+          end else begin
+            WebOutString("<option value='" & CRr.CustCode & "'>" & CRr.CustName & "</option>");  
+          end;
         end;
       end;
     end;
