@@ -10,6 +10,7 @@ begin
   Setting("Font Widths",FontWidthLClass,modCredMan);
 
   Report("B2B Application Evaluation",B2BLoanEvalRClass,B2BLoanEvalRn,0,modCredMan);
+  Report("Overdue Invoices",OverdueFeesRClass,OverdueFeesRn,0,modSL);
 
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);

@@ -1,0 +1,134 @@
+//<halrule>server-only</halrule>
+external procedure CheckOverdueInvoicesForItem(record CredManVc,record CredManSetBlock,val,Date,Date,var Integer,var val,string,Date,var array string);
+
+function Boolean InvoiceHasOverdueFees(record IVVc IVr,var val invoiced)
+begin
+  Integer i,rwcnt;
+  row IVVc IVrw;
+  Boolean res;
+
+  invoiced = 0;
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (IVrw.ChargeType==9) then begin
+      res = true;
+      invoiced = IVrw.Sum;
+      i = rwcnt;
+    end;
+  end;
+
+  InvoiceHasOverdueFees = res;
+  return;
+end;
+
+function Date GetLastOverdueInvoiceDateWithDate(Longint sernr,string item,Date maxdate)
+begin
+  record CredHistVc CredHistr;
+  Boolean TrHs;
+  Date res;
+
+  TrHs = true;
+  CredHistr.ArtCode = item;
+  CredHistr.CredManNr = sernr;
+  while (LoopKey("ArtCode",CredHistr,2,TrHs)) begin
+    if (CredHistr.ArtCode!=item or CredHistr.CredManNr!=sernr) then begin
+      TrHs = false;
+    end else begin
+      if (CredHistr.TransDate>res and CredHistr.TransDate<maxdate) then begin
+        res = CredHistr.TransDate;
+      end;
+    end;
+  end;
+
+  GetLastOverdueInvoiceDateWithDate = res;
+  return;
+end;
+
+
+procedure GetRealOverDueFees(record IVVc IVr,record CMInvoicingBlock CIb,record CredManSetBlock CMb,var val res)
+begin
+  Integer latedays;
+  val lateamount;
+  array string 255 lateformula;
+  Date overduetd;
+  record CredManVc CredManr;
+  record INVc INr;
+
+  CredManr.SerNr = IVr.CustCredManNr;
+  if (ReadFirstMain(CredManr,1,true)) then begin
+    latedays = 0;
+    lateamount = 0;
+    overduetd = GetLastOverdueInvoiceDateWithDate(CredManr.SerNr,CMb.LateFeeItem,AddDay(IVr.InvDate,-1));
+    //we should go through the history and check for late payments
+    if (nonblank(CIb.OverdueItemClass)) then begin
+      while (LoopKey("DICode:" & CIb.OverdueItemClass,INr,1,true)) begin
+        CheckOverdueInvoicesForItem(CredManr,CMb,CIb.OverdueMonths,IVr.InvDate,AddMonth(IVr.InvDate,-1),latedays,lateamount,INr.Code,overduetd,lateformula);
+      end;
+    end;
+  end;
+  res = lateamount;
+
+  return;
+end;
+
+global
+procedure OverdueFeesRn(record RcVc RepSpec)
+begin
+  record IVVc IVr;
+  val invoiced,actual;
+  Boolean TrHs,testf;
+  record CMInvoicingBlock CIb;
+  record CredManSetBlock CMb;
+  
+  StartReportJob("Overdue Fees");
+  BlockLoad(CIb);
+  BlocKLoad(CMb);
+  EndHeader;
+  StartFormat(15);
+  OutString(0,0,"Invoice",false);
+  OutString(60,0,"Customer",false);
+  OutString(120,0,"Name",false);
+  OutString(300,0,"Invoiced",true);
+  OutString(350,0,"Correct",true);
+  OutString(400,0,"Difference",true);
+
+  EndFormat;
+
+  IVr.InvDate = RepSpec.sStartDate;
+  TrHs = true;
+  while (LoopKey("InvDate",IVr,1,TrHs)) begin
+    if (IVr.InvDate>RepSpec.sEndDate) then begin
+      TrHs = false;
+    end else begin
+      testf = true;
+      if (nonblank(RepSpec.f1) and RepSpec.f1!=IVr.CustCode) then begin
+        testf = false;
+      end;
+
+      if (testf) then begin
+        logtext(0,"inv " & IVr.SerNr);
+        if (InvoiceHasOverdueFees(IVr,invoiced)) then begin
+        logtext(0,"inv2 " & IVr.SerNr);
+          GetRealOverdueFees(IVr,CIb,CMb,actual);
+          if (RepSpec.vals0==0 or (invoiced-actual>RepSpec.vals0)) then begin
+            StartFormat(15);
+            OutString(0,"DblIVVc",IVr.SerNr,false);
+            OutString(60,"DblCUVc",IVr.CustCode,false);
+            OutString(120,0,IVr.Addr0,false);
+            OutString(300,0,invoiced,true);
+            OutString(350,0,actual,true);
+            OutString(400,0,invoiced-actual,true);
+
+            EndFormat;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+
+  EndJob;
+
+  return;
+end;
