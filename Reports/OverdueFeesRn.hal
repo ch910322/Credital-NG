@@ -1,5 +1,5 @@
 //<halrule>server-only</halrule>
-external procedure CheckOverdueInvoicesForItem(record CredManVc,record CredManSetBlock,val,Date,Date,var Integer,var val,string,Date,var array string);
+external procedure CheckOverdueInvoicesForItem(record CredManVc,record CredManSetBlock,val,Date,Date,var Integer,var val,string,Date);
 
 function Boolean InvoiceHasOverdueFees(record IVVc IVr,var val invoiced)
 begin
@@ -63,7 +63,7 @@ begin
     //we should go through the history and check for late payments
     if (nonblank(CIb.OverdueItemClass)) then begin
       while (LoopKey("DICode:" & CIb.OverdueItemClass,INr,1,true)) begin
-        CheckOverdueInvoicesForItem(CredManr,CMb,CIb.OverdueMonths,IVr.InvDate,AddMonth(IVr.InvDate,-1),latedays,lateamount,INr.Code,overduetd,lateformula);
+        CheckOverdueInvoicesForItem(CredManr,CMb,CIb.OverdueMonths,IVr.InvDate,AddMonth(IVr.InvDate,-1),latedays,lateamount,INr.Code,overduetd);
       end;
     end;
   end;
