@@ -549,12 +549,15 @@ begin
   record B2BLoanApplicationVc LAr;
   record CUVc CUr,ContactCUr;
   string 255 readonly;
-  Integer loantype;
+  Integer loantype,oldcomp;
   
   LoadLoanSession(vSess);
   if (blank(CurrentCust) and vSess["LoanNewCust"]!="true") then begin
     goto LShowLoanAppStepTwo;
   end;
+
+  oldcomp = SetCompanyBasedOnCountry;
+
   LAr.SerNr = vSess["WebLoanNr"];
   if (ReadFirstMain(LAr,1,true)) then begin
 
@@ -668,6 +671,7 @@ begin
     WebOutString("</div>");
   end;
 
+  ResetCompanyBasedOnCountry(oldcomp);
 
 LShowLoanAppStepTwo:;
   return;
@@ -793,12 +797,14 @@ procedure ShowLoanAppStepThree()
 begin
   vector string 255 vSess;
   record B2BLoanApplicationVc LAr;
-  Integer type;
+  Integer type,oldcomp;
   
   LoadLoanSession(vSess);
   if (blank(CurrentCust) and vSess["LoanNewCust"]!="true") then begin
     goto LShowLoanAppStepThree;
   end;
+  oldcomp = SetCompanyBasedOnCountry;
+
   LAr.SerNr = vSess["WebLoanNr"];
   if (ReadFirstMain(LAr,1,true)) then begin
     type = MapLoanType(LAr.Type);
@@ -823,6 +829,8 @@ begin
   end else begin
     //display error message?
   end;
+
+  ResetCompanyBasedOnCountry(oldcomp);
 LShowLoanAppStepThree:;
   return;
 end;
