@@ -40,6 +40,7 @@ external inner function string 255 GetBrowserOperatingSystem();
 external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
 external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
+external inner function string 10 ToolWebNGGetCountry();
 
 global
 function string 255 GetLinkToLoanApp()
@@ -553,10 +554,9 @@ begin
   
   LoadLoanSession(vSess);
   if (blank(CurrentCust) and vSess["LoanNewCust"]!="true") then begin
+    logtext(0,"ShowLoanAppStepTwo failed. blank customer and no new customer " & CurrentCompany & ":" & vSess["WebLoanNr"] & ":" & ToolWebNGGetCountry);
     goto LShowLoanAppStepTwo;
   end;
-
-  oldcomp = SetCompanyBasedOnCountry;
 
   LAr.SerNr = vSess["WebLoanNr"];
   if (ReadFirstMain(LAr,1,true)) then begin
@@ -669,9 +669,10 @@ begin
     WebOutString("</div>");
     WebOutString("</div>");
     WebOutString("</div>");
-  end;
+  end else begin
+    logtext(0,"ShowLoanAppStepTwo failed. Can't find loan application " & CurrentCompany & ":" & vSess["WebLoanNr"] & ":" & ToolWebNGGetCountry);
 
-  ResetCompanyBasedOnCountry(oldcomp);
+  end;
 
 LShowLoanAppStepTwo:;
   return;
