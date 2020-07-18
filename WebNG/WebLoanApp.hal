@@ -558,6 +558,8 @@ begin
     goto LShowLoanAppStepTwo;
   end;
 
+  oldcomp = SetCompanyBasedOnCountry;
+
   LAr.SerNr = vSess["WebLoanNr"];
   if (ReadFirstMain(LAr,1,true)) then begin
 
@@ -673,6 +675,7 @@ begin
     logtext(0,"ShowLoanAppStepTwo failed. Can't find loan application " & CurrentCompany & ":" & vSess["WebLoanNr"] & ":" & ToolWebNGGetCountry);
 
   end;
+  ResetCompanyBasedOnCountry(oldcomp);
 
 LShowLoanAppStepTwo:;
   return;
