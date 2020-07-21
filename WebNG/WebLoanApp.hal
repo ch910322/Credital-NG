@@ -1532,6 +1532,23 @@ begin
   return;
 end;
 
+global
+procedure LoanAppStatus()
+begin
+  record B2BLoanApplicationVc LAr,oldLAr;
+  vector string 255 vSess;
+  Boolean res;
+  
+  LoadLoanSession(vSess);
+  LAr.SerNr = StringToLongint(vSess["WebLoanNr"]);
+  if (ReadFirstMain(LAr,1,true)) then begin
+    res = true;
+  end;
+
+  WebOutString("<res stat='" & res & "'></res>");
+  return;
+end;
+
 updating procedure GetContactDetails(string ind,var record CUVc tCUr,record B2BLoanApplicationVc LAr,Boolean manf)
 begin
   string 255 tstr;
