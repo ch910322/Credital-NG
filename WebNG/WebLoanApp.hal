@@ -40,6 +40,7 @@ external inner function string 255 GetBrowserOperatingSystem();
 external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
 external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
+external updating function Boolean ArchiveExistingDocument(record AgreementDocVc);
 
 global
 function string 255 GetLinkToLoanApp()
@@ -2118,32 +2119,6 @@ begin
   end;
 
   MarkCustomerAgreementDocSigned = res;
-  return;
-end;
-
-global
-updating function Boolean ArchiveExistingDocument(record AgreementDocVc ADr)
-begin
-  record RLinkVc RLr,RL2r;
-  record Attach2Vc Attachr;
-  record ArchiveVc Archiver;
-  Boolean res;
-  
-  if (ReadRecordLink(ADr,1,Attachr,RLr)) then begin
-    if (ReadRecordLink(ADr,1,Archiver,RL2r)==false) then begin
-      RecordNew(Archiver);
-      Archiver.SerNr = NextSerNr("ArchiveVc",CurrentDate,-1,false,"");
-      Archiver.FolderName = "OLD";
-      if (RecordStore(Archiver,true)) then begin
-        CreateRecordLink(ADr,CurrentCompany,Archiver,CurrentCompany);
-      end;
-    end;
-    res = true;
-    CreateRecordLink(Archiver,CurrentCompany,Attachr,CurrentCompany);
-    RecordRemove(RLr);
-  end;
-
-  ArchiveExistingDocument = res;
   return;
 end;
 
