@@ -80,6 +80,7 @@ begin
   Boolean TrHs,testf;
   record CMInvoicingBlock CIb;
   record CredManSetBlock CMb;
+  record CredManVc CredManr;
   
   StartReportJob("Overdue Fees");
   BlockLoad(CIb);
@@ -87,11 +88,12 @@ begin
   EndHeader;
   StartFormat(15);
   OutString(0,0,"Invoice",false);
-  OutString(60,0,"Customer",false);
-  OutString(120,0,"Name",false);
-  OutString(300,0,"Invoiced",true);
-  OutString(350,0,"Correct",true);
-  OutString(400,0,"Difference",true);
+  OutString(60,0,"Payment Day",false);
+  OutString(120,0,"Customer",false);
+  OutString(180,0,"Name",false);
+  OutString(360,0,"Invoiced",true);
+  OutString(410,0,"Correct",true);
+  OutString(470,0,"Difference",true);
 
   EndFormat;
 
@@ -107,20 +109,22 @@ begin
       end;
 
       if (testf) then begin
-        logtext(0,"inv " & IVr.SerNr);
         if (InvoiceHasOverdueFees(IVr,invoiced)) then begin
-        logtext(0,"inv2 " & IVr.SerNr);
           GetRealOverdueFees(IVr,CIb,CMb,actual);
           if (RepSpec.vals0==0 or (invoiced-actual>RepSpec.vals0)) then begin
-            StartFormat(15);
-            OutString(0,"DblIVVc",IVr.SerNr,false);
-            OutString(60,"DblCUVc",IVr.CustCode,false);
-            OutString(120,0,IVr.Addr0,false);
-            OutString(300,0,invoiced,true);
-            OutString(350,0,actual,true);
-            OutString(400,0,invoiced-actual,true);
+            CredManr.SerNr = IVr.CustCredManNr;
+            if (ReadFirstMain(CredManr,1,true)) then begin
+              StartFormat(15);
+              OutString(0,"DblIVVc",IVr.SerNr,false);
+              OutString(60,0,CredManr.MonthlyPaymentDay,false);
+              OutString(120,"DblCUVc",IVr.CustCode,false);
+              OutString(180,0,IVr.Addr0,false);
+              OutString(360,0,invoiced,true);
+              OutString(410,0,actual,true);
+              OutString(470,0,invoiced-actual,true);
 
-            EndFormat;
+              EndFormat;
+            end;
           end;
         end;
       end;
