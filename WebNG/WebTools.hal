@@ -2212,7 +2212,7 @@ begin
     if (CredManr.CustCode!=custcode) then begin
       TrHs = false;
     end else begin
-      if (CredManr.startDate<CurrentDate) then begin
+      if (CredManr.startDate<CurrentDate and CredManr.OKFlag==0) then begin
         if (ScheduleIsNotSigned(CredManr,ADr)) then begin
           RecordCopy(oldCredManr,CredManr);
           CredManr.startDate = CurrentDate;
