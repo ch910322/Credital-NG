@@ -1,0 +1,60 @@
+external  procedure CredManSetDatesCust(var record CredManVc);
+
+global
+updating procedure FixListOfCredManRecords(vector Date vCredManr)
+begin
+  array string 255 aCredManr;
+  Integer i;
+  record CredManVc CredManr,oldCredManr;  
+  string 255 list;
+  
+  list = "2000597,2000609,2000631,2000611,2000410,2000615,2000646,2000441,2000623,2000619,2000553,2000529,200210,2000627,2000373,2000604,2000633,2000576,2000632,2000612,2000656,2000644,2000618,2000625,2000589,2000549,2000577,2000657,2000645";
+
+  GetVectorTags(vCredManr,aCredManr);
+  for (i=0;i<aCredManr.length;i=i+1) begin
+    if (SetInSet(aCredManr[i],list)==false) then begin
+      CredManr.SerNr = StringToLongint(aCredManr[i]);
+      if (ReadFirstMain(CredManr,1,true)) then begin
+        RecordCopy(oldCredManr,CredManr);
+        CredManr.startDate = vCredManr[aCredManr[i]];
+        CredManSetDatesCust(CredManr);
+        RecordUpdate(oldCredManr,CredManr,true);
+      end;
+    end;
+  end;
+
+  return;
+end;
+
+global
+procedure CredManHistFixMn(record RcVc RepSpec)
+begin
+  vector Date vCredManr;
+  Integer i,compno;
+  string 255 vcname;
+  record RHistVc RHistr;
+  record CUVc CUr;
+  record CredManVc CredManr,tCredManr;
+  area a_blob;  
+
+  while (LoopMain(RHistr,1,true)) begin
+    compno = GetRecordLinkFields(RHistr.RecidStr,vcname);
+    if (compno==CurrentCompany and vcname=="CredManVc") then begin
+      if (RHistr.accode==kRecordHistoryActionUpdated) then begin
+        CUr.Code = RHistr.User;
+        if (ReadFirstMain(CUr,1,true)) then begin
+          UnpackRecordLink(RHistr.RecidStr,CredManr);
+          if (blankdate(vCredManr[CredManr.SerNr])) then begin
+            if (ReadOriginalRecord(RHistr,tCredManr)) then begin
+              vCredManr[CredManr.SerNr] = tCredManr.startDate;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+  
+  qupdating.FixListOfCredManRecords(vCredManr);
+
+  return;
+end;

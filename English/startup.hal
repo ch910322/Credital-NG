@@ -13,6 +13,7 @@ begin
   Report("Overdue Invoices",OverdueFeesRClass,OverdueFeesRn,0,modSL);
   Report("Credit Agreement History",CredManHistRClass,CredManHistRn,0,modCredMan);
 
+  Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);

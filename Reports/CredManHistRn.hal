@@ -3,13 +3,14 @@
 global
 procedure CredManHistRn(record RcVc RepSpec)
 begin
-  vector Boolean vCredManr;
+  vector Date vCredManr;
   array string 255 aCredManr;
   Integer i,compno;
   string 255 vcname;
   record RHistVc RHistr;
   record CUVc CUr;
-  record CredManVc CredManr;
+  record CredManVc CredManr,tCredManr;
+  area a_blob,a_blob2;
   
   StartReportJob("Agreement History");
 
@@ -22,7 +23,11 @@ begin
         CUr.Code = RHistr.User;
         if (ReadFirstMain(CUr,1,true)) then begin
           UnpackRecordLink(RHistr.RecidStr,CredManr);
-          vCredManr[CredManr.SerNr] = true;
+          if (blankdate(vCredManr[CredManr.SerNr])) then begin
+            if (ReadOriginalRecord(RHistr,tCredManr)) then begin
+              vCredManr[CredManr.SerNr] = tCredManr.startDate;
+            end;
+          end;
         end;
       end;
     end;
@@ -30,8 +35,12 @@ begin
 
   GetVectorTags(vCredManr,aCredManr);
   for (i=0;i<aCredManr.length;i=i+1) begin
+    CredManr.SerNr = StringToLongint(aCredManr[i]);
+    if (ReadFirstMain(CredManr,1,true)) then begin end;
     StartFormat(15);
     OutString(0,"DblCredManVc",aCredManr[i],false);
+    OutString(100,0,CredManr.startDate,false);
+    OutString(200,0,vCredManr[aCredManr[i]],false);
     EndFormat;
   end;
 

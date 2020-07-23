@@ -1018,4 +1018,12 @@ begin
 
 end;
 
+window CredManHistFixVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+
+  WindowBegin("Specify Agreement History Fix",CredManHistFixVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EndWindow;
+end;
 
