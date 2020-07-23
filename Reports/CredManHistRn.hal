@@ -1,0 +1,50 @@
+
+
+global
+procedure CredManHistRn(record RcVc RepSpec)
+begin
+  vector Date vCredManr;
+  array string 255 aCredManr;
+  Integer i,compno;
+  string 255 vcname;
+  record RHistVc RHistr;
+  record CUVc CUr;
+  record CredManVc CredManr,tCredManr;
+  area a_blob,a_blob2;
+  
+  StartReportJob("Agreement History");
+
+  EndHeader;
+
+  while (LoopMain(RHistr,1,true)) begin
+    compno = GetRecordLinkFields(RHistr.RecidStr,vcname);
+    if (compno==CurrentCompany and vcname=="CredManVc") then begin
+      if (RHistr.accode==kRecordHistoryActionUpdated) then begin
+        CUr.Code = RHistr.User;
+        if (ReadFirstMain(CUr,1,true)) then begin
+          UnpackRecordLink(RHistr.RecidStr,CredManr);
+          if (blankdate(vCredManr[CredManr.SerNr])) then begin
+            if (ReadOriginalRecord(RHistr,tCredManr)) then begin
+              vCredManr[CredManr.SerNr] = tCredManr.startDate;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  GetVectorTags(vCredManr,aCredManr);
+  for (i=0;i<aCredManr.length;i=i+1) begin
+    CredManr.SerNr = StringToLongint(aCredManr[i]);
+    if (ReadFirstMain(CredManr,1,true)) then begin end;
+    StartFormat(15);
+    OutString(0,"DblCredManVc",aCredManr[i],false);
+    OutString(100,0,CredManr.startDate,false);
+    OutString(200,0,vCredManr[aCredManr[i]],false);
+    EndFormat;
+  end;
+
+  EndJob;
+
+  return;
+end;

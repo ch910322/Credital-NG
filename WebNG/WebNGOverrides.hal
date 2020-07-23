@@ -54,6 +54,7 @@ external procedure ShowNovitiCountrySelect;
 external procedure ShowNovitiCountrySelect2;
 external procedure ShowNovitiLanguageSelect;
 external procedure NovitiChangeCountry();
+external procedure LoanAppStatus();
 
 global
 function boolean ShowSpecialWebElementInternal(record WebNGElementVc WEr)
@@ -601,6 +602,9 @@ begin
       res = true;
     case "novchangecountry":
       NovitiChangeCountry;
+      res = true;
+    case "loanappstat":
+      LoanAppStatus;
       res = true;
   end;
 

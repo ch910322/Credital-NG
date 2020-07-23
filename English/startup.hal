@@ -11,7 +11,9 @@ begin
 
   Report("B2B Application Evaluation",B2BLoanEvalRClass,B2BLoanEvalRn,0,modCredMan);
   Report("Overdue Invoices",OverdueFeesRClass,OverdueFeesRn,0,modSL);
+  Report("Credit Agreement History",CredManHistRClass,CredManHistRn,0,modCredMan);
 
+  Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);
