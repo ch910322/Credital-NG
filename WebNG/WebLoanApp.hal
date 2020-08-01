@@ -2149,7 +2149,16 @@ LAgreementDoc:;
       if (ReadFirstMain(ADr,1,true)) then begin
         if (GetAreaLength(reply)>0) then begin
           if (ArchiveExistingDocument(ADr)) then begin
-            fn = "Agreement_signed.pdf";
+            switch (ADr.Type) begin
+              case 1://agreement
+                fn = "Agreement" & ADr.RecordNr & "_signed.pdf";
+              case 2://schedule
+                fn = "Schedule" & ADr.RecordNr & "_signed.pdf";
+              case 3://surety
+                fn = "Surety" & ADr.RecordNr & "_signed.pdf";
+              case 6://vekselis
+                fn = "Bill" & ADr.RecordNr & "_signed.pdf";
+            end;
             WriteAreaToFile(reply,fn,0);
             RecordLinkFile(fn,0,ADr,CurrentCompany);
             Delete_File(fn);
