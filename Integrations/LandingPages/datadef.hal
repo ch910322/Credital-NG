@@ -178,7 +178,7 @@ begin
 
   RecordField(AfterSubmitFlag,M4Int,0,0);
   RecordField(AfterSubmitName,M4Str,255,0);
-
+  RecordField(LangCode,M4Code,20,0);
 
   ArrayBegin(Math,-,1);
   ArrayField(Months,M4Val,0,0);
@@ -186,6 +186,7 @@ begin
   EndArray;
   MainKeyBegin(Link,0);
   KeySegment(Link);
+  KeySegment(LangCode);
   EndRecord;
 
   BlockBegin(WebLandingPageBlock,-,"");

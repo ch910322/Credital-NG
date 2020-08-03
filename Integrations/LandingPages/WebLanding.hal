@@ -419,6 +419,28 @@ begin
   return;
 end;
 
+function Boolean FindLandingPage(string link,var record WebLandingPageVc LPr)
+begin
+  Boolean res;
+
+  res = false;
+  
+  LPr.Link = link;
+  LPr.LangCode = CurrentWebLang;
+  if (ReadFirstMain(LPr,2,true)==false) then begin
+    LPr.Link = link;
+    LPr.LangCode = "";
+    if (ReadFirstMain(LPr,2,true)) then begin
+      res = true;
+    end;
+  end else begin
+    res = true;
+  end;
+
+  FindLandingPage = res;
+  return;
+end;
+
 global
 procedure ShowLandingPage(string link,string path)
 begin
@@ -435,8 +457,7 @@ begin
   
   oldcomp = SetCompanyBasedOnCountry;
 
-  LPr.Link = link;
-  if (ReadFirstMain(LPr,1,true)) then begin
+  if (FindLandingPage(link,LPr)) then begin
     mpath = path;
     node = removenextnode(mpath);
     switch (node) begin
@@ -644,9 +665,8 @@ begin
 
   if (WebGetArg("action")=="store") then begin
     oldcomp = SetCompanyBasedOnCountry;
-    //get values and only then store if all the values are filled in
-    LPr.Link = WebGetArg("link");
-    if (ReadFirstMain(LPr,1,true)) then begin
+    //get values and only then store if all the values are filled in    
+    if (FindLandingPage(WebGetArg("link"),LPr)) then begin
       SetSurveyDetails(LPr,SMr);
       SortRows(SMr,"DebVal",true);
       rwcnt = MatRowCnt(SMr);
