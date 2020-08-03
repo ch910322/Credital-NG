@@ -41,7 +41,7 @@ external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
 external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
 external inner function string 10 ToolWebNGGetCountry();
-external updating function Boolean ArchiveExistingDocument(record AgreementDocVc);
+external updating function Boolean ArchiveExistingDocument(record AgreementDocVc,var string);
 
 global
 function string 255 GetLinkToLoanApp()
@@ -2143,12 +2143,30 @@ begin
   return;
 end;
 
+function string 255 GetDocumentUpdateName(string fn)
+begin
+  string 255 res;
+
+  res = fn;
+
+  if (InString(res,"_signed")==0) then begin
+    if (InString(res,"_new")>0) then begin
+      res = StrReplace(res,"_new","_signed");
+    end else begin
+      res = StrReplace(res,".pdf","_signed.pdf");
+    end;
+  end;
+
+  GetDocumentUpdateName = res;
+  return;
+end;
+
 global
 updating procedure FinishDocumentSigning(string vcname,Longint sernr,string custcode,area reply)
 begin
   record AgreementDocVc ADr,oldADr;
   record B2BLoanApplicationVc LAr;
-  string 255 fn;
+  string 255 fn,oldname;
   Integer oldcomp;
 
   switch (vcname) begin
@@ -2169,8 +2187,8 @@ LAgreementDoc:;
       ADr.SerNr = sernr;
       if (ReadFirstMain(ADr,1,true)) then begin
         if (GetAreaLength(reply)>0) then begin
-          if (ArchiveExistingDocument(ADr)) then begin
-            fn = "Agreement_signed.pdf";
+          if (ArchiveExistingDocument(ADr,oldname)) then begin
+            fn = GetDocumentUpdateName(oldname);
             WriteAreaToFile(reply,fn,0);
             RecordLinkFile(fn,0,ADr,CurrentCompany);
             Delete_File(fn);
