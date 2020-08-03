@@ -35,8 +35,8 @@ begin
   
 //Calculator
   RecordField(CalcType,M4Set,2013,0);
-  RecordField(CalcAmountMin,M4Int,0,0);
-  RecordField(CalcAmountMax,M4Int,0,0);
+  RecordField(CalcAmountMin,M4Long,0,0);
+  RecordField(CalcAmountMax,M4Long,0,0);
   RecordField(CalcAmountStep,M4Int,0,0);
   RecordField(CalcTermMin,M4Int,0,0);
   RecordField(CalcTermMax,M4Int,0,0);
