@@ -816,6 +816,7 @@ window EvalConstTClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real h,v,vs,tilenr,h2;
+  vs = 20;
   WindowBegin("Evaluation Constants",EvalConstTClass,CGSbl,-);
   SetBlid(EvalConstBlock);
   h = 200;
@@ -1005,5 +1006,3 @@ begin
   EndWindow;
 
 end;
-
-

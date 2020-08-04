@@ -483,7 +483,14 @@ begin
     SetActTypeValues(Actr);
     //CUST-BEGIN
     //Actr.MainPersons = user;
-    Actr.MainPersons = PBXQr.MissedUser;
+    begin
+      string 255 tuser;
+      tuser = PBXQr.MissedUser;
+      if (blank(tuser)) then begin
+        //tuser = ASTb.MissedAsteriskCallUser;
+      end;
+      Actr.MainPersons = tuser;
+    end;
     //CUST-END
     Actr.CCPersons = "";
     Actr.AutoGenCallFlag = 1;
