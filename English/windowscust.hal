@@ -816,6 +816,7 @@ window EvalConstTClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real h,v,vs,tilenr,h2;
+  vs = 20;
   WindowBegin("Evaluation Constants",EvalConstTClass,CGSbl,-);
   SetBlid(EvalConstBlock);
   h = 200;
@@ -1011,7 +1012,7 @@ window CredManHistRClass:1
 begin
   real h,v,vs,v2,vs2,hm;
 
-  WindowBegin("Credit Agreement History",OverdueFeesRClass,CGRcW,RcType);
+  WindowBegin("Credit Agreement History",CredManHistRClass,CGRcW,RcType);
   SetWRect(20,80,400,200);
   h = 150; v=6; vs=20;
   EndWindow;
@@ -1026,4 +1027,3 @@ begin
   SetWRect(64,80,445,95);
   EndWindow;
 end;
-
