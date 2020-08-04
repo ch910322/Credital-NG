@@ -37,3 +37,34 @@ begin
   EndWindow;
 end;
 
+window PBXQueueDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,h3,h4,v,vs;
+  WindowBegin("Queue",PBXQueueDClass,CGview,-);
+  SetWRect(20,80,520,430);
+  h = 120; h2 = -60; vs = 20; v = 6; h3 = -100;
+  UseView(PBXQueueVc);
+  CheckBox(h3,6,0,"Closed",Closed);
+  EditField(h,v,95,"Code",Normal,Code,false,0);
+  EditField(h,v+=vs,30,"Queue ID",Normal,QueueID,false,0);
+  EditField(h,v+=vs,95,"SIP Trunk",Normal,SipTrunk,false,SipTrunk2SClass);
+  EditField(h,v+=vs,200,"Description",Normal,Comment,false,0);
+  EditField(h,v+=vs,200,"Phone Numbers",Normal,Extension,false,0);
+//  EditField(h,v+=vs,95,"Default Contact",Normal,DefaultContact,false,CUSClass);
+  EditField(h,v+=vs,95,"Fallback number",Normal,FallBackNumber,false,0);
+  Checkbox(h-22,v+=vs,0,"Only fallback to fallback number",NoGeneralSIPFallback);
+  EditField(h,v+=vs,80,"Company",Normal,CRMCompany,false,Companies2SClass);
+  Checkbox(h-22,v+=vs,0,"Always Closed",AlwaysClosedf);
+  EditField(h,v+=vs,65,"Open from",Normal,OpenTime,false,PasteCurTime);
+  EditField(h,v+=vs,65,"Open until",Normal,CloseTime,false,PasteCurTime);
+  EditField(h,v+=vs,65,"Open from",Normal,OpenTime2,false,PasteCurTime);
+  EditField(h,v+=vs,65,"Open until",Normal,CloseTime2,false,PasteCurTime);
+  Checkbox(h-22,v+=vs,0,"Closed on Bank Holidays",ExcludeBankHolidaysf);
+  EditField(h,v+=vs,95,"Act. for calls",Normal,ActReached,false,ActTypeSClass);
+  CheckBox(h3,v,0,"Done",ActReachedDone);
+  EditField(h,v+=vs,95,"Act. when open",Normal,ActOpen,false,ActTypeSClass);
+  CheckBox(h3,v,0,"Done",ActOpenDone);
+  EditField(h,v+=vs,95,"User for Missed Calls",Normal,MissedUser,false,UserSClass);
+  EndWindow;
+end;
