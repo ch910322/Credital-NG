@@ -1,0 +1,22 @@
+
+global
+function Boolean IPSuggestionVClassOnOKWindow(Integer wn)
+begin
+  Integer mwn;
+  record RcVc RepSpec;
+  Boolean res;
+
+  res = true;
+  DeselectWindow(wn,true);
+  GetWindowRecord(wn,RepSpec);
+  if (blank(RepSpec.FirstAcc)) then begin
+    MessageBox(1058,"");
+    WindowFieldGoto(wn,RepSpec,-1,"FirstAcc",true);
+    res = false;
+  end;
+
+  
+  IPSuggestionVClassOnOKWindow = res;
+  return;
+end;
+
