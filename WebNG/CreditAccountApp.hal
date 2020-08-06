@@ -111,7 +111,7 @@ end;
 
 procedure ShowCreditAccountReceipts()
 begin
-  string 255 custcode,tstr;
+  string 255 custcode,tstr,ivnr;
   Boolean TrHs;
   record IPrsVc IPrsr;
   record IPVc IPr;
@@ -139,6 +139,7 @@ begin
             rwcnt = MatRowCnt(IPr);
             tval = 0;
             tstr = "";
+            ivnr = "";
             for (i=0;i<rwcnt;i=i+1) begin
               MatRowGet(IPr,i,IPrw);
               if (IPrw.CustCode==custcode) then begin
@@ -147,6 +148,7 @@ begin
                   if (ReadFirstMain(IVr,1,true)) then begin
                     if (IVr.CustCredManNr>0) then begin
                       tstr = AddObjectToObjectList(tstr,IVr.CustCredManNr);
+                      ivnr = IVr.SerNr;
                       tval = tval + IPrw.RecVal;
                     end;
                   end;
@@ -160,7 +162,11 @@ begin
               WebOutString("<div class='acc-item-line'><div class='item-cnt'>" & j & "</div>");
               DisplayAccDataField("date",ToolWebNGTranslateText2(70280),IPr.TransDate);
               DisplayAccDataField("amount",ToolWebNGTranslateText2(70281),tval);
-              DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),tstr);
+              if (nonblank(ivnr)) then begin
+                DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),"<a href='/WebUpdatingAction.hal?action=download_invoice&sernr=" & ivnr & "' target='_blank'>" & tstr & "</a>");
+              end else begin
+                DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),tstr);
+              end;
               WebOutString("</div>");
               j = j + 1;
             end;
@@ -198,7 +204,7 @@ begin
         WebOutString("<div class='acc-item-line'><div class='item-cnt'>" & i & "</div>");
         DisplayAccDataField("date",ToolWebNGTranslateText2(70280),IVr.InvDate);
         DisplayAccDataField("amount",ToolWebNGTranslateText2(70281),IVr.Sum4);
-        DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),tstr);
+        DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),"<a href='/WebUpdatingAction.hal?action=download_invoice&sernr=" & IVr.SerNr & "' target='_blank'>" & tstr & "</a>");
         WebOutString("</div>");
         i = i + 1;
       end;
