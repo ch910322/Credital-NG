@@ -132,7 +132,12 @@ begin
           PutSessionString("requesturl",link);
         end;
 //CUST-BEGIN
-        CMRecalculateOpenSchedules(GetMainCustomerCodeFromContact(CurrentCust));
+        begin
+          string 255 tstr;
+          tstr = GetMainCustomerCodeFromContact(CurrentCust);
+          
+          NewTimedTask("UpdateSchedule" & tstr,"UpdateSchedule" & tstr,"CMRecalculateOpenSchedules",tstr,CurrentDate,AddSeconds(CurrentTime,1),"","");
+        end;
 //CUST-END
         RedirectToRequestedPage;
       end;

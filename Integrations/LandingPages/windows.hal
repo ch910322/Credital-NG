@@ -43,6 +43,7 @@ begin
   h3 = 480; h6 = 420;
   Tile(0,230,false,"",Link);
   EditField(h,v=6, 150,"Link",St_i,Link,false,0);
+  EditField(h,v+=vs,150,"Language",Normal,LangCode,false,WebNGLanguageSClass);
   EditField(h,v+=vs,150,"Name",Normal,Name,false,0);
   EditField(h,v+=vs,82,"Manager",Normal,Manager,false,UserSClass);
   EditField(h,v+=vs,82,"Order Class",Normal,OrderClass,false,OrderClassSClass);
