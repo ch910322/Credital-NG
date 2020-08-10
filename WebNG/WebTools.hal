@@ -2205,7 +2205,7 @@ begin
   Boolean res;
 
   res = true;
-  CredHistr.CredManNr;
+  CredHistr.CredManNr = CredManr.SerNr;
   if (ReadFirstKey("CredManTypeDate",CredHistr,1,true)) then begin
     res = false;
   end;
