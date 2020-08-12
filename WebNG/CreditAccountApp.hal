@@ -855,6 +855,7 @@ end;
 procedure SendAgreementData(record CredManVc CredManr,record B2BLoanApplicationVc LAr)
 begin
   record CMApplicationSetBlock CMSb;
+  record CMOrderClassBlock OCb;
   record CredManPayPlanVc CredManPayPlanr;
   record CreditalWebSetBlock WSb;
   record AgreementDocVc ADr;  
@@ -865,6 +866,7 @@ begin
   BlockLoad(CMb);
   BlockLoad(WSb);
   BlockLoad(CMSb);
+  BlockLoad(OCb);
   BuildCredManPayPlanCust(CredManr,CredManPayPlanr,CMb,true,false);
   FillOrderClassData(vColor,vClass,vLoad);
   WebOutString("<res ");
@@ -887,7 +889,7 @@ begin
   WebOutString("overdueprc='" & CredManr.OverduePercentage & "%' ");
   WebOutString("sernr='" & CredManr.SerNr & "'>");
 
-  if (nonblank(CredManr.OrderClass) and (SetInSet(CredManr.OrderClass,CMSb.ActiveCredOrderClass) or SetInSet(CredManr.OrderClass,CMSb.FinishCredOrderClass))) then begin
+  if (nonblank(CredManr.OrderClass) and (SetInSet(CredManr.OrderClass,CMSb.ActiveCredOrderClass) or SetInSet(CredManr.OrderClass,OCb.FinishCredOrderClass))) then begin
     TrHs = true;
     ADr.RecordNr = CredManr.SerNr;
     ADr.RecordType = 0;
