@@ -887,7 +887,7 @@ begin
   WebOutString("overdueprc='" & CredManr.OverduePercentage & "%' ");
   WebOutString("sernr='" & CredManr.SerNr & "'>");
 
-  if (nonblank(CredManr.OrderClass) and SetInSet(CredManr.OrderClass,CMSb.ActiveCredOrderClass)) then begin
+  if (nonblank(CredManr.OrderClass) and (SetInSet(CredManr.OrderClass,CMSb.ActiveCredOrderClass) or SetInSet(CredManr.OrderClass,CMSb.FinishCredOrderClass))) then begin
     TrHs = true;
     ADr.RecordNr = CredManr.SerNr;
     ADr.RecordType = 0;
@@ -928,7 +928,11 @@ begin
   WebOutString("fee='-' ");
   WebOutString("monthlyfee='-' ");
   WebOutString("months='" & LAr.Months & "' ");
-  WebOutString("delaymonths='" & ValToString(LAr.PrincipleDelayMonths,M4Val,"",",",1) & " " & ToolWebNGTranslateText2(70014) & "' ");
+  if (LAr.PrincipleDelayMonths>0) then begin
+    WebOutString("delaymonths='" & ValToString(LAr.PrincipleDelayMonths,M4Val,"",",",1) & " " & ToolWebNGTranslateText2(70014) & "' ");
+  end else begin
+    WebOutString("delaymonths='-' ");
+  end;
   WebOutString("rate='" & LAr.InterestRate & "%' ");
   WebOutString("suretylist='" & ShowSuretyApp(LAr) & "' ");
   WebOutString("bankacc='" & LAr.BankAccount & "' ");
