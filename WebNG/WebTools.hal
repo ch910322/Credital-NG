@@ -33,7 +33,7 @@ external inner procedure StripTrailingSpaces(var string);
 external inner procedure StripLeadingSpaces(var string);
 external inner function string 255 GetLinkToStruct(LongInt,boolean);
 external inner function string 255 GetBrowserOperatingSystem();
-external  procedure CredManSetDatesCust(var record CredManVc);
+external  procedure CredManSetDatesCust(var record CredManVc,Boolean);
 external function Boolean GetAgreementDoc(record CredManVc,Integer,var record AgreementDocVc);
 
 global
@@ -2231,7 +2231,7 @@ begin
         if (NoInvoicesCreated(CredManr) and ScheduleIsNotSigned(CredManr,ADr)) then begin
           RecordCopy(oldCredManr,CredManr);
           CredManr.startDate = CurrentDate;
-          CredManSetDatesCust(CredManr);
+          CredManSetDatesCust(CredManr,true);
           if (RecordUpdate(oldCredManr,CredManr,true)==0) then begin
             if (ADr.SerNr>-1) then begin
               RecordRemove(ADr);

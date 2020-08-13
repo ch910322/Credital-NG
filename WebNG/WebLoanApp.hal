@@ -24,7 +24,7 @@ external inner function Boolean PasteCuInAct(var record ActVc,var string);
 external inner function Boolean PasteActTypeInAct2(string,var record ActVc,var string);
 external updating procedure PrintMultiDocDocument2(string,string,string,Integer,Boolean,string,record RcVc);
 external function string 255 ShowSuretyApp(record B2BLoanApplicationVc);
-external procedure CredManSetDatesCust(var record CredManVc);
+external procedure CredManSetDatesCust(var record CredManVc,Boolean);
 external updating procedure AddContactToMailingList(record PersColVc,record CUVc);
 external function Boolean FindSuretyApplicationDoc(record B2BLoanApplicationVc,record CUVc,record AgreementDocVc);
 external function string 255 GetLinkToCreditAccount();
@@ -726,7 +726,7 @@ begin
   CredManr.startDate = CurrentDate;
   CredManr.InstalmentMonths = LAr.Months;
   CredManr.MonthlyPaymentDay = LAr.MonthlyPaymentDay;
-  CredManSetDatesCust(CredManr);
+  CredManSetDatesCust(CredManr,true);
 
   WebOutString("<div class='loan_back top'><div class='hl_button'>" & ToolWebNGTranslateText2(70143) & "</div></div>");
 
