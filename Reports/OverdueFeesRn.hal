@@ -1,5 +1,6 @@
 //<halrule>server-only</halrule>
-external procedure CheckOverdueInvoicesForItem(record CredManVc,record CredManSetBlock,val,Date,Date,var Integer,var val,string,Date,var array string);
+external procedure CheckOverdueInvoicesForItem(record CredManVc,record CredManSetBlock,val,Date,Date,var Integer,var val,string,Date,var array string,Integer);
+external function Integer GetRateType(record CredManVc);
 
 function Boolean InvoiceHasOverdueFees(record IVVc IVr,var val invoiced)
 begin
@@ -54,6 +55,7 @@ begin
   Date overduetd;
   record CredManVc CredManr;
   record INVc INr;
+  Integer ratetype;
 
   CredManr.SerNr = IVr.CustCredManNr;
   if (ReadFirstMain(CredManr,1,true)) then begin
@@ -62,9 +64,10 @@ begin
     overduetd = GetLastOverdueInvoiceDateWithDate(CredManr.SerNr,CMb.LateFeeItem,AddDay(IVr.InvDate,-1));
     //we should go through the history and check for late payments
     if (nonblank(CIb.OverdueItemClass)) then begin
+      ratetype = GetRateType(CredManr);
       while (LoopKey("DICode:" & CIb.OverdueItemClass,INr,1,true)) begin
-        CheckOverdueInvoicesForItem(CredManr,CMb,CIb.OverdueMonths,IVr.InvDate,AddMonth(IVr.InvDate,-1),latedays,lateamount,INr.Code,overduetd,lateformula);
-      end;
+        CheckOverdueInvoicesForItem(CredManr,CMb,CIb.OverdueMonths,IVr.InvDate,AddMonth(IVr.InvDate,-1),latedays,lateamount,INr.Code,overduetd,lateformula,ratetype);
+     end;
     end;
   end;
   res = lateamount;
