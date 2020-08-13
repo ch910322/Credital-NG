@@ -990,14 +990,14 @@ begin
   h = 150; v=6; vs=20;
   EditFieldTL(h,v=6,-40,"B2B Loan Application No.",M4Long,Normal,20,long1,false,B2BLoanApplicationSClass);
   EndWindow;
-
 end;
+
 window OverdueFeesRClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real h,v,vs,v2,vs2,hm;
 
-  WindowBegin("B2B Application Evaluation",OverdueFeesRClass,CGRcW,RcType);
+  WindowBegin("Overdue Fees",OverdueFeesRClass,CGRcW,RcType);
   SetWRect(20,80,400,200);
   h = 150; v=6; vs=20;
   PeriodField(h=160,v=6,"Period");
@@ -1005,4 +1005,25 @@ begin
   EditFieldTL(h,v+=20 ,82,"Min. Difference",M4Val,Normal,0,vals0,true,0);
   EndWindow;
 
+end;
+
+window CredManHistRClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+
+  WindowBegin("Credit Agreement History",CredManHistRClass,CGRcW,RcType);
+  SetWRect(20,80,400,200);
+  h = 150; v=6; vs=20;
+  EndWindow;
+
+end;
+
+window CredManHistFixVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+
+  WindowBegin("Specify Agreement History Fix",CredManHistFixVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EndWindow;
 end;

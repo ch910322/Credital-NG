@@ -481,6 +481,7 @@ begin
   SourceFile("halcust\\Level0\\WActions", 0);
   SourceFile("halcust\\Level0\\WebNG", 0);
   SourceFile("halcust\\Documents", 3);
+  SourceFile("halcust\\Maint", 3);
   SourceFile("halcust\\RActions", 3);
   SourceFile("halcust\\Reports", 3);
   SourceFile("halcust\\WActions", 3);

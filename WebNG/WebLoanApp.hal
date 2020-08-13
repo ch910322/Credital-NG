@@ -40,6 +40,7 @@ external inner function string 255 GetBrowserOperatingSystem();
 external inner procedure CUVc_PasteCountryCode(var record CUVc,string);
 external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
+external inner function string 10 ToolWebNGGetCountry();
 external updating function Boolean ArchiveExistingDocument(record AgreementDocVc,var string);
 
 global
@@ -554,6 +555,7 @@ begin
   
   LoadLoanSession(vSess);
   if (blank(CurrentCust) and vSess["LoanNewCust"]!="true") then begin
+    logtext(0,"ShowLoanAppStepTwo failed. blank customer and no new customer " & CurrentCompany & ":" & vSess["WebLoanNr"] & ":" & ToolWebNGGetCountry);
     goto LShowLoanAppStepTwo;
   end;
 
@@ -670,8 +672,10 @@ begin
     WebOutString("</div>");
     WebOutString("</div>");
     WebOutString("</div>");
-  end;
+  end else begin
+    logtext(0,"ShowLoanAppStepTwo failed. Can't find loan application " & CurrentCompany & ":" & vSess["WebLoanNr"] & ":" & ToolWebNGGetCountry);
 
+  end;
   ResetCompanyBasedOnCountry(oldcomp);
 
 LShowLoanAppStepTwo:;
@@ -1526,6 +1530,23 @@ begin
   
   CUr.InvAddr0 = addr;//fix this later
 
+  return;
+end;
+
+global
+procedure LoanAppStatus()
+begin
+  record B2BLoanApplicationVc LAr,oldLAr;
+  vector string 255 vSess;
+  Boolean res;
+  
+  LoadLoanSession(vSess);
+  LAr.SerNr = StringToLongint(vSess["WebLoanNr"]);
+  if (ReadFirstMain(LAr,1,true)) then begin
+    res = true;
+  end;
+
+  WebOutString("<res stat='" & res & "'></res>");
   return;
 end;
 

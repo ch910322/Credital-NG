@@ -2193,6 +2193,8 @@ begin
         res = false;
       end;
     end;
+  end else begin
+    res = false;
   end;
 
   ScheduleIsNotSigned = res;
