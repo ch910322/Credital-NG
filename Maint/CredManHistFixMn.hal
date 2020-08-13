@@ -1,4 +1,4 @@
-external  procedure CredManSetDatesCust(var record CredManVc);
+external  procedure CredManSetDatesCust(var record CredManVc,Boolean);
 
 global
 updating procedure FixListOfCredManRecords(vector Date vCredManr)
@@ -17,7 +17,7 @@ begin
       if (ReadFirstMain(CredManr,1,true)) then begin
         RecordCopy(oldCredManr,CredManr);
         CredManr.startDate = vCredManr[aCredManr[i]];
-        CredManSetDatesCust(CredManr);
+        CredManSetDatesCust(CredManr,true);
         RecordUpdate(oldCredManr,CredManr,true);
       end;
     end;
