@@ -1981,7 +1981,7 @@ begin
       WLr.Code = tmp;
       if (ReadFirstMain(WLr,1,true)) then begin
         if (WLr.NotInUse!=1 and lang!=WLr.Code) then begin
-          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & WebGetArg("path") & "'>" & WLr.Code & "</a></li>")
+          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & WebGetArg("path") & "'>" & WLr.Comment & "</a></li>")
         end;
       end;
     end;
