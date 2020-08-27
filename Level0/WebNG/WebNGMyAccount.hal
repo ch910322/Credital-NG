@@ -1128,7 +1128,7 @@ begin
   end;
   
   //CUST-BEGIN
-  if (ExternalDocumentEnabled("InvForm")==false) then begin//CUST
+  if (ExternalDocumentEnabled("InvForm")) then begin//CUST
     begin
       area farea;
       record RcVc fRepSpec;
