@@ -50,6 +50,7 @@ external function string 255 GetMarketplaceCustomerPayMethod(record CUVc);
 external function Boolean ExternalDocumentEnabled(string);
 external procedure PrintEBSDocument(string,string,record RcVc,string,string,var area);
 external outer function Boolean Ext_GetPDFInvoiceName(record IVVc,var string);
+external function string 255 GetMainCustomerCodeFromContact(string);
 //CUST-END
 
 global
@@ -1123,7 +1124,8 @@ begin
   if (!ReadFirstMain(IVr,1,true)) then begin
     goto LExit;
   end;
-  if (IVr.CustCode!=CurrentCust) then begin
+  //CUST
+  if (IVr.CustCode!=GetMainCustomerCodeFromContact(CurrentCust)) then begin
     goto LExit;
   end;
   
@@ -1151,7 +1153,7 @@ begin
       end;
     end;
   
-    LExit:;
+    goto LExit;
   end;
   //CUST-END
   switch (IVr.InvType) begin
