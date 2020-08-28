@@ -175,6 +175,9 @@ begin
   if (country=="global") then begin
     country = "";
   end;
+  if (FindCountryByHostname!=country) then begin
+    country = "";
+  end;
 //CUST-END
   if (blank(country)) then begin
     country = WebGetArg("cc");

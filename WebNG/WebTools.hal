@@ -33,7 +33,7 @@ external inner procedure StripTrailingSpaces(var string);
 external inner procedure StripLeadingSpaces(var string);
 external inner function string 255 GetLinkToStruct(LongInt,boolean);
 external inner function string 255 GetBrowserOperatingSystem();
-external  procedure CredManSetDatesCust(var record CredManVc);
+external  procedure CredManSetDatesCust(var record CredManVc,Boolean);
 external function Boolean GetAgreementDoc(record CredManVc,Integer,var record AgreementDocVc);
 
 global
@@ -1981,7 +1981,7 @@ begin
       WLr.Code = tmp;
       if (ReadFirstMain(WLr,1,true)) then begin
         if (WLr.NotInUse!=1 and lang!=WLr.Code) then begin
-          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & WebGetArg("path") & "'>" & WLr.Code & "</a></li>")
+          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & WebGetArg("path") & "'>" & WLr.Comment & "</a></li>")
         end;
       end;
     end;
@@ -2201,6 +2201,21 @@ begin
   return;
 end;
 
+function Boolean NoInvoicesCreated(record CredManVc CredManr)
+begin
+  record CredHistVc CredHistr;
+  Boolean res;
+
+  res = true;
+  CredHistr.CredManNr = CredManr.SerNr;
+  if (ReadFirstKey("CredManTypeDate",CredHistr,1,true)) then begin
+    res = false;
+  end;
+
+  NoInvoicesCreated = res;
+  return;
+end;
+
 global
 updating procedure CMRecalculateOpenSchedules(string custcode)
 begin
@@ -2214,11 +2229,11 @@ begin
     if (CredManr.CustCode!=custcode) then begin
       TrHs = false;
     end else begin
-      if (CredManr.startDate<CurrentDate and CredManr.OKFlag==0) then begin
-        if (ScheduleIsNotSigned(CredManr,ADr)) then begin
+      if (CredManr.startDate<CurrentDate) then begin
+        if (NoInvoicesCreated(CredManr) and ScheduleIsNotSigned(CredManr,ADr)) then begin
           RecordCopy(oldCredManr,CredManr);
           CredManr.startDate = CurrentDate;
-          CredManSetDatesCust(CredManr);
+          CredManSetDatesCust(CredManr,true);
           if (RecordUpdate(oldCredManr,CredManr,true)==0) then begin
             if (ADr.SerNr>-1) then begin
               RecordRemove(ADr);
