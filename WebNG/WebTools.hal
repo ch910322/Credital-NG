@@ -1964,14 +1964,16 @@ global
 procedure ShowNovitiLanguageSelect()
 begin
   string 255 lang,tmp;
-  record WebNGLanguageVc WLr;
+  record WebNGLanguageVc WLr,tWLr;
   record WebNGCountryVc WCr;
   Longint pos;
   
   lang = CurrentWebLang;
 
+  tWLr.Code = lang;
+  ReadFirstMain(tWLr,1,true);
   WebOutString("<div class='head-langs'>");  
-  WebOutString("<span>" & lang);  
+  WebOutString("<span>" & tWLr.Comment);  
 
   WebOutString("<ul>");  
   
