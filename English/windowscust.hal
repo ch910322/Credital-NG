@@ -6,6 +6,7 @@ external function Boolean HasStandardCommunicator();
 external function Boolean CUVATNrColumn;
 external function Boolean HasLimitedAccess();
 external function Boolean HasCustomerStatusReport();
+external outer function Boolean HasB2BCreateOffer();
 
 event DefineWindows
 begin

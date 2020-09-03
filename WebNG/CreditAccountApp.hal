@@ -258,6 +258,69 @@ begin
   return;
 end;
 
+procedure AddCredManToOrder(var record ORVc ORr,record CredManVc CredManr)
+begin
+  Integer i,rwcnt;
+  row ORVc ORrw;
+  Boolean foundf;
+  record B2BLoanApplicationVc LAr; 
+  record RLinkVc RLr;
+
+  rwcnt = MatRowCnt(ORr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(ORr,i,ORrw);
+    if (ORrw.GroupOrdRow==CredManr.SerNr) then begin
+      foundf = true;
+      i = rwcnt;
+    end;
+  end;
+
+  if (!foundf) then begin
+    ClearRow(ORr,ORrw,2);
+    ORrw.GroupOrdRow = CredManr.SerNr;
+    ORrw.PickingDate = CredManr.TransDate;
+    ORrw.InloadingDate = CredManr.endDate;
+    ORrw.Location = CredManr.OrderClass;
+    ORrw.Sum = CredManr.InvSum4;
+    foundf = false;
+    if (ReadRecordLink(CredManr,1,LAr,RLr)) then begin
+      foundf = true;
+    end else begin
+      if (CredManr.LoanApplication>0) then begin
+        LAr.SerNr = CredManr.LoanApplication;
+        if (ReadFirstMain(LAr,1,true)) then begin
+          foundf = true;
+        end;
+      end;
+    end;
+    if (foundf) then begin
+      ORrw.ServiceDelDate = LAr.TransDate;
+    end;
+    MatRowPut(ORr,rwcnt,ORrw);
+  end;
+
+  return;
+end;
+
+procedure GetSuretyAgreements(Integer num,string custcode,var record ORVc ORr)
+begin
+  record CredManVc CredManr;
+  Boolean TrHs;
+  
+  TrHs = true;
+  SetFieldValueByName(CredManr,"SuretyProvider" & num,custcode,-1);
+  while (LoopKey("SuretyProvider" & num,CredManr,1,TrHs)) begin
+    if (GetFieldValueByName(CredManr,"SuretyProvider" & num,-1)!=custcode) then begin
+      TrHs = false;
+    end else begin
+      AddCredManToOrder(ORr,CredManr);
+    end;
+  end;
+
+
+  return;
+end;
+
 procedure GetLoanAgreements(var record ORVc ORr)
 begin
   Integer rw;
@@ -275,29 +338,13 @@ begin
     if (CredManr.CustCode!=GetSelectedCustomerCode) then begin
       TrHs = false;
     end else begin
-      ClearRow(ORr,ORrw,2);
-      ORrw.GroupOrdRow = CredManr.SerNr;
-      ORrw.PickingDate = CredManr.TransDate;
-      ORrw.InloadingDate = CredManr.endDate;
-      ORrw.Location = CredManr.OrderClass;
-      ORrw.Sum = CredManr.InvSum4;
-      if (ReadRecordLink(CredManr,1,LAr,RLr)) then begin
-        foundf = true;
-      end else begin
-        if (CredManr.LoanApplication>0) then begin
-          LAr.SerNr = CredManr.LoanApplication;
-          if (ReadFirstMain(LAr,1,true)) then begin
-            foundf = true;
-          end;
-        end;
-      end;
-      if (foundf) then begin
-        ORrw.ServiceDelDate = LAr.TransDate;
-      end;
-      MatRowPut(ORr,rw,ORrw);
-      rw = rw + 1;
+      AddCredManToOrder(ORr,CredManr);
     end;
   end;
+
+  GetSuretyAgreements(1,CurrentCust,ORr);
+  GetSuretyAgreements(2,CurrentCust,ORr);
+  GetSuretyAgreements(3,CurrentCust,ORr);
   
   return;
 end;

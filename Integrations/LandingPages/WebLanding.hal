@@ -33,6 +33,7 @@ external inner function string 10 CurrentWebLang();
 external inner function string 255 GetBrowserOperatingSystem();
 external inner function string 255 StrReplace(string,string,string);
 external updating procedure SendEmailWithStdText(string,record RCVc,string);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
 
 global
 function Boolean CheckIfLandingPage(string node)
@@ -182,6 +183,7 @@ begin
   AddToArray2(LPr.SurveyEmailFlag,LPr.SurveyEmailOrder,LPr.SurveyEmailOrderMobile,LPr.SurveyEmailLabel,LPr.SurveyEmailMand,"Email",SMr);
   AddToArray2(LPr.SurveyContactNameFlag,LPr.SurveyContactNameOrder,LPr.SurveyContactNameOrderMobile,LPr.SurveyContactNameLabel,LPr.SurveyContactNameMand,"ContactName",SMr);
   AddToArray2(LPr.SurveyBankAccFlag,LPr.SurveyBankAccOrder,LPr.SurveyBankAccOrderMobile,LPr.SurveyBankAccLabel,LPr.SurveyBankAccMand,"BankAcc",SMr);
+  AddToArray2(LPr.SurveyNewsLetterFlag,LPr.SurveyNewsLetterOrder,LPr.SurveyNewsLetterOrderMobile,LPr.SurveyNewsLetterLabel,LPr.SurveyNewsLetterMand,"NewsLetter",SMr);
   AddToArray2(LPr.SurveyContactEmailFlag,LPr.SurveyContactEmailOrder,LPr.SurveyContactEmailOrderMobile,LPr.SurveyContactEmailLabel,LPr.SurveyContactEmailMand,"ContactEmail",SMr);
   AddToArray2(LPr.SurveyContactMobileFlag,LPr.SurveyContactMobileOrder,LPr.SurveyContactMobileOrderMobile,LPr.SurveyContactMobileLabel,LPr.SurveyContactMobileMand,"ContactMobile",SMr);
   AddToArray2(LPr.SurveyContactJobFlag,LPr.SurveyContactJobOrder,LPr.SurveyContactJobOrderMobile,LPr.SurveyContactJobLabel,LPr.SurveyContactJobMand,"ContactJob",SMr);
@@ -239,6 +241,29 @@ begin
   end;
   WebOutString("</div><div class='input'><input type='" & type & "' placeholder='" & label & "' " & mand & " " & extra & "></div></div>");
 
+  return;
+end;
+
+procedure ShowSimpleCheckBox(string name,string label,Integer mandf,string order)
+begin
+  string 255 mand,extra;
+
+  if (mandf==1) then begin
+    mand = "dnam";
+  end;
+
+  WebOutString("<div class='loan_input " & name & " checkbox'");
+  if (nonblank(order)) then begin
+    WebOutString(" field-order='" & order & "'");
+  end;
+  WebOutString(">");
+  WebOutString("<div class='input_checkbox'><input type='checkbox' " & mand & " " & extra & "><span class='checkmark'></span></div>");
+  WebOutString("<div class='loan_label'>" & label);
+  if (mandf==1) then begin
+    WebOutString("*");
+  end;
+  WebOutString("</div>");  
+  WebOutString("</div>");
   return;
 end;
 
@@ -301,6 +326,7 @@ begin
       case "ContactJob":    ShowSimpleInput("contactjob",SMrw.ExtraComment,"text",SMrw.RowSimStat,SMrw.VATCode);
       case "ContactID":     ShowSimpleInput("contactid",SMrw.ExtraComment,"text",SMrw.RowSimStat,SMrw.VATCode);
       case "BankAcc":       ShowSimpleInput("bankacc",SMrw.ExtraComment,"text",SMrw.RowSimStat,SMrw.VATCode);
+      case "NewsLetter":    ShowSimpleCheckBox("newsletter",SMrw.ExtraComment,SMrw.RowSimStat,SMrw.VATCode);
       case "VATNr":         ShowSimpleInput("vatnr",SMrw.ExtraComment,"text",SMrw.RowSimStat,SMrw.VATCode);
       case "Address":       ShowSimpleInput("address",SMrw.ExtraComment,"text",SMrw.RowSimStat,SMrw.VATCode);
       case "PaymentDay":    ShowPaymentDateField("paymentday",SMrw.ExtraComment,SMrw.ExtraComment,SMrw.VATCode,"","",0);
@@ -539,7 +565,7 @@ begin
 end;
 
 global
-updating function Boolean StoreLandingLoanApp(record CUVc CUr,record CUVc ContactCUr,record WebLandingPageVc LPr,Integer status,Longint amount,Longint term,var record B2BLoanApplicationVc LAr,string phone,string email,string contactname,string contactmobile,string contactjob,string vatnr,string address,Integer paymentday,string interfacelang,string browseros,string source,string comment,var Longint loannr,record NotePadVc Noter,string contactid,string bankacc)
+updating function Boolean StoreLandingLoanApp(record CUVc CUr,record CUVc ContactCUr,record WebLandingPageVc LPr,Integer status,Longint amount,Longint term,var record B2BLoanApplicationVc LAr,string phone,string email,string contactname,string contactmobile,string contactjob,string vatnr,string address,Integer paymentday,string interfacelang,string browseros,string source,string comment,var Longint loannr,record NotePadVc Noter,string contactid,string bankacc,string newsletter)
 begin
   Boolean res;
   record CredManTypeVc CMTr;
@@ -610,6 +636,9 @@ begin
     otherwise LAr.Months = term;
   end;
   if (RecordInsert(LAr,true)) then begin
+    if (newsletter=="1") then begin
+      AddToMailingList(CMb,ContactCUr);
+    end;
     loannr = LAr.SerNr;
     if (LPr.SendEmail==1 and nonblank(LPr.StdText)) then begin
       RepSpec.f1 = CUr.Code;
@@ -662,6 +691,7 @@ begin
   record CYBlock CYb;
   record NotePadVc Noter;
   record RLinkVc RLr;
+  string 255 newsletter;
 
   if (WebGetArg("action")=="store") then begin
     oldcomp = SetCompanyBasedOnCountry;
@@ -689,6 +719,7 @@ begin
           case "ContactJob":    contactjob = WebGetArg("contactjob");
           case "ContactID":     contactid = WebGetArg("contactid");
           case "BankAcc":       bankacc = WebGetArg("bankacc");
+          case "NewsLetter":    newsletter = WebGetArg("newsletter");
           case "VATNr":         vatnr = WebGetArg("vatnr");
           case "Address":       address = WebGetArg("address");
           case "PaymentDay":    paymentday = StringToInt(WebGetArg("paymentday"));
@@ -733,7 +764,7 @@ begin
       if (err==0) then begin
         browseros = GetBrowserOperatingSystem;
         source = WebGetArg("source");       
-        if (qupdating.StoreLandingLoanApp(CUr,ContactCUr,LPr,status,amount,term,LAr,phone,email,contactname,contactmobile,contactjob,vatnr,address,paymentday,CurrentWebLang,browseros,source,comment,loannr,Noter,contactid,bankacc)==false) then begin
+        if (qupdating.StoreLandingLoanApp(CUr,ContactCUr,LPr,status,amount,term,LAr,phone,email,contactname,contactmobile,contactjob,vatnr,address,paymentday,CurrentWebLang,browseros,source,comment,loannr,Noter,contactid,bankacc,newsletter)==false) then begin
           //err?
         end;
       end else begin
