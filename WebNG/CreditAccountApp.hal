@@ -14,6 +14,7 @@ external procedure ShowWebLoanStrings();
 external function Integer MapLoanType(string);
 external function string 255 CreditalFixPhone(string,string);
 external inner function string 10 CurrentWebLang();
+external function Boolean CustIsSurety(string,record CredManVc);
 
 procedure DisplayAccDataField(string cls,string label,string value) 
 begin
@@ -1017,7 +1018,7 @@ begin
   end else begin
     CredManr.SerNr = StringToLongint(agreement);
     if (ReadFirstMain(CredManr,1,true)) then begin
-      if (CredManr.CustCode==GetSelectedCustomerCode) then begin
+      if (CredManr.CustCode==GetSelectedCustomerCode or CustIsSurety(CurrentCust,CredManr)) then begin
         SendAgreementData(CredManr,bLAr);
       end;
     end;
