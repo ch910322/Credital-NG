@@ -492,6 +492,6 @@ begin
   Exec_file("halcust\\Integrations\\LandingPages\\datadef.hal");
   SourceFile("halcust\\Integrations\\LandingPages", 3);
 
-
+  SourceFile("halcust\\LoanApp\\Stubs",3);
 
 end;
