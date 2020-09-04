@@ -1,0 +1,21 @@
+global
+procedure OverdueAgreementsRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  Date sd,ed;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"OverdueAgreementsRClass");  
+  RepSpec.Scaling = 0;
+  RepSpec.BaseWidth = 1200;
+  sd = AddMonth(CurrentDate,-1);
+  sd.Day = 1;
+  ed = AddDay(AddMonth(sd,1),-1);
+  RepSpec.Period2Str = sd & ":" & ed;
+  RepSpec.sStartDate = sd;
+  RepSpec.sEndDate = ed;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  RETURN;
+END;
