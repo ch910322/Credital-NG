@@ -33,7 +33,7 @@ external inner function string 10 CurrentWebLang();
 external inner function string 255 GetBrowserOperatingSystem();
 external inner function string 255 StrReplace(string,string,string);
 external updating procedure SendEmailWithStdText(string,record RCVc,string);
-external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc,Integer);
 
 global
 function Boolean CheckIfLandingPage(string node)
@@ -637,7 +637,7 @@ begin
   end;
   if (RecordInsert(LAr,true)) then begin
     if (newsletter=="1") then begin
-      AddToMailingList(CMb,ContactCUr);
+      AddToMailingList(CMb,ContactCUr,2);
     end;
     loannr = LAr.SerNr;
     if (LPr.SendEmail==1 and nonblank(LPr.StdText)) then begin

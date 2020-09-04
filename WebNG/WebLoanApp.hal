@@ -1307,11 +1307,15 @@ begin
 end;
 
 global
-updating procedure AddToMailingList(record CMApplicationSetBlock CMb,record CUVc CUr)
+updating procedure AddToMailingList(record CMApplicationSetBlock CMb,record CUVc CUr,Integer num)
 begin
   record PersColVc PersColr;
   
-  PersColr.Code = CMb.MailingList;
+  if (num==1) then begin
+    PersColr.Code = CMb.MailingList;
+  end else begin    
+    PersColr.Code = CMb.MailingList2;
+  end;
   if (ReadFirstMain(PersColr,1,true)) then begin
     AddContactToMailingList(PersColr,CUr);
   end;
@@ -1375,7 +1379,7 @@ logtext(0,"status " & status);
   if (RecordInsert(LAr,true)) then begin
     res = true;
     if (datause=="1") then begin
-      AddToMailingList(CMb,ContactCUr);
+      AddToMailingList(CMb,ContactCUr,2);
     end;
     if (status==2) then begin
       //Create activity for linking contact with contactperson

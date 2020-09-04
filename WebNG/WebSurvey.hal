@@ -20,7 +20,7 @@ external inner procedure ShowWebElement(string);
 external function string 255 CreditalFixPhone(string,string);
 external procedure GetCustomerNameFromServer(string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,var string,Boolean,string);
 external updating function Boolean StoreLoanCustomer(string,string,string,string,string,string,string,string,string,string,string,string,string,string,var record CUVc);
-external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc,Integer);
 external inner procedure ResolveMailboxNumber(var row MailVc);
 external function Integer SetCompanyBasedOnCountry();
 external procedure ResetCompanyBasedOnCountry(Integer);
@@ -291,7 +291,7 @@ begin
   if (RecordInsert(LAr,true)) then begin
     res = true;
     if (maillist=="on") then begin
-      AddToMailingList(CMb,ContactCUr);
+      AddToMailingList(CMb,ContactCUr,2);
     end;
     if (status==2) then begin
       //Create activity for linking contact with contactperson
