@@ -12,6 +12,7 @@ begin
   Report("B2B Application Evaluation",B2BLoanEvalRClass,B2BLoanEvalRn,0,modCredMan);
   Report("Overdue Invoices",OverdueFeesRClass,OverdueFeesRn,0,modSL);
   Report("Credit Agreement History",CredManHistRClass,CredManHistRn,0,modCredMan);
+  Report("Overdues/Delayed Invoices",OverdueAgreementsRClass,OverdueAgreementsRn,0,modSL);
 
   Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
 
@@ -42,6 +43,26 @@ begin
 	Setting("Rekvizitai.lt Classifications",RekvizitaiClassTClass,modSY);
 
   SString(1808,"Noviti Nr. ");
+
+/*OverdueAgreementsNr*/
+  SString(2000000,"Overdues/Delayed Invoices");
+  SString(2000001,"Agr. No.");
+  SString(2000002,"Agr. Type");
+  SString(2000003,"Customer ID");
+  SString(2000004,"Comp. Code");
+  SString(2000005,"Name");
+  SString(2000006,"Start Date");
+  SString(2000007,"End Date");
+  SString(2000008,"Amount");
+  SString(2000009,"Dur.");
+  SString(2000010,"Int. Rate");
+  SString(2000011,"Month. Pmt.");
+  SString(2000012,"Balance");
+  SString(2000013,"Tot. Due");
+  SString(2000014,"Accum. P.");
+  SString(2000015,"Inv. No.");
+  SString(2000016,"Del. Amount");
+  SString(2000017,"Del. Days");
 
   return;
 end;
