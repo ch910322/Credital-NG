@@ -106,7 +106,7 @@ global
 procedure OverdueAgreementsRn(record RcVc RepSpec)
 begin
   record CredManVc CredManr;
-  Boolean TrHs,TrHs2,showf;
+  Boolean TrHs,TrHs2,showf,testf;
   record IVVc IVr;
   array Integer p;
   val lateamount;
@@ -163,26 +163,33 @@ begin
       TrHs = false;
     end else begin
       if (CredManr.OKFlag==1 and CredManr.endDate>CurrentDate) then begin
-        showf = false;
-        TrHs2 = true;
-        ResetLoop(IVr);
-        RecordClear(IVr);
-        IVr.CustCode = CredManr.CustCode;
-        //IVr.InvDate = RepSpec.sStartDate;
-        while (LoopKey("CustDate",IVr,1,TrHs2)) begin
-          if (IVr.CustCode!=CredManr.CustCode or IVr.InvDate>RepSpec.sEndDate) then begin
-            TrHs2 = false;
-          end else begin
-            if (IVr.CustCredManNr==CredManr.SerNr) then begin
-              if (InvoiceIsOverdue(IVr,RepSpec,lateamount,latedays)) then begin
-                ShowSingleAgreementWithInvoice(CredManr,IVr,lateamount,latedays,p);
-                showf = true;
+        testf = true;
+        if (RepSpec.long2>0 and CredManr.MonthlyPaymentDay!=RepSpec.long1) then begin
+          testf = false;
+        end;
+          
+        if (testf) then begin
+          showf = false;
+          TrHs2 = true;
+          ResetLoop(IVr);
+          RecordClear(IVr);
+          IVr.CustCode = CredManr.CustCode;
+          //IVr.InvDate = RepSpec.sStartDate;
+          while (LoopKey("CustDate",IVr,1,TrHs2)) begin
+            if (IVr.CustCode!=CredManr.CustCode or IVr.InvDate>RepSpec.sEndDate) then begin
+              TrHs2 = false;
+            end else begin
+              if (IVr.CustCredManNr==CredManr.SerNr) then begin
+                if (InvoiceIsOverdue(IVr,RepSpec,lateamount,latedays)) then begin
+                  ShowSingleAgreementWithInvoice(CredManr,IVr,lateamount,latedays,p);
+                  showf = true;
+                end;
               end;
             end;
           end;
-        end;
-        if (!showf) then begin
-          ShowSingleAgreement(CredManr,p);
+          if (!showf) then begin
+            ShowSingleAgreement(CredManr,p);
+          end;
         end;
       end;
     end;
