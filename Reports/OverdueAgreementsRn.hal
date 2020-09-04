@@ -1,0 +1,201 @@
+//<halrule>server-only</halrule>
+external procedure CheckBuyOutAgreement(record CredManVc,var record RcVc);
+external inner procedure PSFindPaydAmount(record IPrsVc,var val);
+external inner function LongInt DateDiff(Date,Date);
+external inner procedure SubPrePayments(record IVVc,var val,var val);
+
+procedure ShowAgreementData(record CredManVc CredManr,array Integer p)
+begin
+  record RcVc RepSpec;
+  record CUVc CUr;
+  
+
+  RepSpec.d1 = CurrentDate;
+  CheckBuyOutAgreement(CredManr,RepSpec);
+  CUr.Code = CredManr.CustCode;
+  ReadFirstMain(CUr,1,true);
+  OutString(0,"DblCredManVc",CredManr.SerNr,false);
+  OutString(p[1],"DblCredManTypeVc",CredManr.Type,false);
+  OutString(p[2],"DblCUVc",CredManr.CustCode,false);
+  OutString(p[3],0,CUr.RegNr1,false);
+  OutString(p[4],0,CUr.Name,false);
+  OutString(p[5],0,CredManr.startDate,false);
+  OutString(p[6],0,CredManr.endDate,false);
+  OutString(p[7],0,CredManr.InvSum4,true);
+  OutString(p[8],0,CredManr.InstalmentMonths,true);
+  OutString(p[9],0,CredManr.IntRate,true);
+  OutString(p[10],0,CredManr.MonthlySum,true);
+  OutString(p[11],0,RepSpec.f13,true);
+  OutString(p[12],0,RepSpec.vals4,true);
+  OutString(p[13],0,RepSpec.f12,true);
+  return;
+end;
+
+procedure ShowSingleAgreementWithInvoice(record CredManVc CredManr,record IVVc IVr,val lateamount,Integer latedays,array Integer p)
+begin
+  
+  StartFormat(15);
+  ShowAgreementData(CredManr,p);
+  OutString(p[14],"DblIVVc",IVr.SerNr,false);
+  OutString(p[15],0,lateamount,true);
+  OutString(p[16],0,latedays,true);
+  EndFormat;
+
+  return;
+end;
+
+procedure ShowSingleAgreement(record CredManVc CredManr,array Integer p)
+begin
+  
+  StartFormat(15);
+  ShowAgreementData(CredManr,p);
+  EndFormat;
+
+  return;
+end;
+
+function Boolean InvoiceIsOverdue(record IVVc IVr,record RcVc RepSpec,var val lateamount,var Integer latedays)
+begin
+  val due,paidval,balb1;
+  record IPrsVc IPrsr;
+  Boolean found;
+  Boolean res;
+  Date td;
+  
+  lateamount = 0;
+  latedays = 0;
+  td = IVr.PayDate;
+  if (RepSpec.long1>0) then begin
+    td = AddDay(td,RepSpec.long1);
+  end;
+  due = IVr.Sum4;
+  IPrsr.IVNr = IVr.SerNr;
+  IPrsr.TransType = kIPrsTransTypeReceipt;
+  SubPrePayments(IVr,due,balb1);
+
+  found = true;
+  while (LoopKey("IVKey",IPrsr,2,found)) begin
+    if (IPrsr.IVNr!=IVr.SerNr) then begin 
+      found = false;
+    end else begin
+      if (IPrsr.TransDate>td) then begin
+        res = true;
+      end;
+      if (IPrsr.TransDate<RepSpec.sEndDate) then begin
+        PSFindPaydAmount(IPrsr,paidval);
+        due = due - paidval;
+      end;
+    end;
+  end;
+
+  if (due>0) then begin
+    res = true;
+    lateamount = due;
+  end else begin
+    res = false;
+  end;
+  if (res) then begin
+    latedays = DateDiff(RepSpec.sEndDate,IVr.PayDate);
+  end;
+
+  InvoiceIsOverdue = res;
+  return;
+end;
+
+global
+procedure OverdueAgreementsRn(record RcVc RepSpec)
+begin
+  record CredManVc CredManr;
+  Boolean TrHs,TrHs2,showf,testf;
+  record IVVc IVr;
+  array Integer p;
+  val lateamount;
+  Integer latedays;
+
+  StartReportJob(USetStr(2000000));
+
+  EndHeader;
+  p[1] = 50;
+  p[2] = 150;
+  p[3] = 220;
+  p[4] = 300;
+  p[5] = 400;
+  p[6] = 470;
+  p[7] = 580;
+  p[8] = 620;
+  p[9] = 690;
+  p[10] = 770;
+  p[11] = 840;
+  p[12] = 910;
+  p[13] = 980;
+  p[14] = 1000;
+  p[15] = 1130;
+  p[16] = 1200;
+
+  StartFormat(15);
+  
+  OutString(0,0,USetStr(2000001),false);
+  OutString(p[1],0,USetStr(2000002),false);
+  OutString(p[2],0,USetStr(2000003),false);
+  OutString(p[3],0,USetStr(2000004),false);
+  OutString(p[4],0,USetStr(2000005),false);
+  OutString(p[5],0,USetStr(2000006),false);
+  OutString(p[6],0,USetStr(2000007),false);
+  OutString(p[7],0,USetStr(2000008),true);
+  OutString(p[8],0,USetStr(2000009),true);
+  OutString(p[9],0,USetStr(2000010),true);
+  OutString(p[10],0,USetStr(2000011),true);
+  OutString(p[11],0,USetStr(2000012),true);
+  OutString(p[12],0,USetStr(2000013),true);
+  OutString(p[13],0,USetStr(2000014),true);
+  OutString(p[14],0,USetStr(2000015),false);
+  OutString(p[15],0,USetStr(2000016),true);
+  OutString(p[16],0,USetStr(2000017),true);
+  EndFormat;
+  StartFormat(1);
+  Gray_divider(0,p[16]);
+  EndFormat;
+
+
+  TrHs = true;
+  while (LoopKey("startDate",CredManr,1,TrHs)) begin
+    if (CredManr.startDate>RepSpec.sEndDate) then begin
+      TrHs = false;
+    end else begin
+      if (CredManr.OKFlag==1 and CredManr.endDate>CurrentDate) then begin
+        testf = true;
+        if (RepSpec.long2>0 and CredManr.MonthlyPaymentDay!=RepSpec.long1) then begin
+          testf = false;
+        end;
+          
+        if (testf) then begin
+          showf = false;
+          TrHs2 = true;
+          ResetLoop(IVr);
+          RecordClear(IVr);
+          IVr.CustCode = CredManr.CustCode;
+          //IVr.InvDate = RepSpec.sStartDate;
+          while (LoopKey("CustDate",IVr,1,TrHs2)) begin
+            if (IVr.CustCode!=CredManr.CustCode or IVr.InvDate>RepSpec.sEndDate) then begin
+              TrHs2 = false;
+            end else begin
+              if (IVr.CustCredManNr==CredManr.SerNr) then begin
+                if (InvoiceIsOverdue(IVr,RepSpec,lateamount,latedays)) then begin
+                  ShowSingleAgreementWithInvoice(CredManr,IVr,lateamount,latedays,p);
+                  showf = true;
+                end;
+              end;
+            end;
+          end;
+          if (!showf) then begin
+            ShowSingleAgreement(CredManr,p);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  EndJob;
+
+  return;
+end;

@@ -48,7 +48,7 @@ external procedure CheckLoanCustomer(string,string,string,Boolean,var record CUV
 external inner updating function LongInt CUVcRecordUpdate(var record CUVc,record CUVc,LongInt,LongInt);
 external procedure ShowWebSurveyElement(record WebNGElementVc);
 external updating procedure CreateActivityForContactLinks(record CUVc,record CUVc);
-external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc,Integer);
 external function string 255 CreditalFixPhone(string,string);
 external procedure ShowNovitiCountrySelect;
 external procedure ShowNovitiCountrySelect2;
@@ -873,7 +873,7 @@ begin
         ContactCUr.Name = value[2];
         RecordStore(ContactCUr,true);
       end;
-      AddToMailingList(CMb,ContactCUr);
+      AddToMailingList(CMb,ContactCUr,1);
     end;
   end;
 

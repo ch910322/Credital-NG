@@ -282,6 +282,15 @@ begin
   EditField(h3,v,labw,"",Normal,SurveyBankAccLabel,false,0);
   CheckBox(h4,v,0,"Mandatory",SurveyBankAccMand);
   
+  v = v + vs;  
+  CheckBox(h,v,0,"Request Subscription for Newsletter",SurveyNewsLetterFlag);
+  EditField(h2,v,ord,"",Normal,SurveyNewsLetterOrder,false,0);
+  EditField(h6,v,ord,"",Normal,SurveyNewsLetterOrderMobile,false,0);
+  EditField(h3,v,labw,"",Normal,SurveyNewsLetterLabel,false,0);
+  CheckBox(h4,v,0,"Mandatory",SurveyNewsLetterMand);
+  
+
+
   EndWindow;
   
   return;

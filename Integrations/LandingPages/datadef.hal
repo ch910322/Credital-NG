@@ -180,6 +180,12 @@ begin
   RecordField(AfterSubmitName,M4Str,255,0);
   RecordField(LangCode,M4Code,20,0);
 
+  RecordField(SurveyNewsLetterFlag,M4Int,0,0);
+  RecordField(SurveyNewsLetterOrder,M4Long,0,0);
+  RecordField(SurveyNewsLetterLabel,M4Str,255,0);
+  RecordField(SurveyNewsLetterMand,M4Int,0,0);
+  RecordField(SurveyNewsLetterOrderMobile,M4Long,0,0);
+
   ArrayBegin(Math,-,1);
   ArrayField(Months,M4Val,0,0);
   ArrayField(Rate,M4Val,0,0);
