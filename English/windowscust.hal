@@ -1044,7 +1044,14 @@ begin
   SetWRect(64,80,445,95);
   EndWindow;
 end;
-
+window Noviti_RemoveActivitiesVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Specify Remove Activities",Noviti_RemoveActivitiesVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EditField(120,6,100,"Activity Type",Normal,f1,false,ActTypeSClass);
+  EndWindow;
+end;
 
 window B2BLoanApplicationDClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")

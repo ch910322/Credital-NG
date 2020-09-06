@@ -15,6 +15,7 @@ begin
   Report("Overdues/Delayed Invoices",OverdueAgreementsRClass,OverdueAgreementsRn,0,modSL);
 
   Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
+  Maintenance("Remove Activities",Noviti_RemoveActivitiesVClass,Noviti_RemoveActivitiesMn,modSY);
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);
