@@ -1,0 +1,22 @@
+//<halrule>server-only</halrule>
+global
+updating procedure Noviti_RemoveActivitiesMn(record RcVc RepSpec)
+begin
+  record ActVc Actr;
+  Boolean TrHs;
+
+  if (nonblank(RepSpec.f1)) then begin
+    Actr.ActType = RepSpec.f1;
+    TrHs = true;
+    while (LoopKey("ActType",Actr,1,TrHs)) begin
+      if (Actr.ActType!=RepSpec.f1) then begin
+        TrHs = false;
+      end else begin
+        RecordDelete(Actr);
+        StepBack(Actr);
+      end;
+    end;
+  end;
+
+  return;
+end;
