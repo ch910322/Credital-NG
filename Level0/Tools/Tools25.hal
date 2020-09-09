@@ -409,11 +409,11 @@ begin
   record ActVc Act2r;
   string 255 queuename;
   string 255 queuecode;
+  transaction string 255 gNovitiCaller,gNovitiCode;
 
   ServerMakeActEndedPhoneCall(cucode,person,callerid,user,oldAct); //For halcust backward compatibility
-
+logtext(0,"ServerMakeActEndedPhoneCall3 " & missedf & ":" & oldAct & ":" & queue & ":" & callerid & ":" & nr1 & ":" & nr2 & ":" & gNovitiCaller & ":" & gNovitiCode);
   oldcomp = CurrentCompany;
-
   if (missedf and oldAct==-1) then begin
     if (blank(callerid) and blank(nr1) and blank(nr2)) then begin
       goto LServerMakeActEndedPhoneCall3;
@@ -507,6 +507,10 @@ begin
     Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
     RecordStore(Actr,false);
     LogText(0,"ServerMakeActEndedPhoneCall3 Actr.SerNr:" & Actr.SerNr & " CurrentCompany:" & CurrentCompany & " Queue:" & Actr.PBXQueues);
+//CUST-BEGIN
+  end else begin
+    //Credital_SetAsteriskCallMissed(missedf,oldAct);
+//CUST-END
   end;
   ResetCompany(oldcomp);
 LServerMakeActEndedPhoneCall3:;
@@ -543,7 +547,7 @@ begin
   string 255 queuename;
   string 255 queuecode;
 
-//LogText(0,"ServerOnPhoneCallConnected5 cucode=" & cucode & ", person=" & person & ", callerid=" & callerid & ", user=" & user & ", comidtyp=" & comidtyp & ", nr1=" & nr1 & ", nr2=" & nr2 & ", queue=" & queue & ", ActCompNo=" & ActCompNo);
+LogText(0,"ServerOnPhoneCallConnected5 cucode=" & cucode & ", person=" & person & ", callerid=" & callerid & ", user=" & user & ", comidtyp=" & comidtyp & ", nr1=" & nr1 & ", nr2=" & nr2 & ", queue=" & queue & ", ActCompNo=" & ActCompNo);
   ServerOnPhoneCallConnected2(cucode,person,callerid,user,comidtyp);
 
   BlockLoad(GCRMb);
@@ -638,6 +642,7 @@ begin
   Actr.AutoGenCallFlag = 1;
   RecordNew(Act2r);
   RecordCopy(Act2r,Actr);
+  logtext(0,"start activity " & comidtyp & ":" & ASTb.AsteriskCalls);
   switch (comidtyp) begin
     case comIdTypeSkype:
       Actr.ActType = ASTb.SkypeCalls;

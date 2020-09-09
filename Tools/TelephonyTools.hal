@@ -1,0 +1,10 @@
+
+
+global
+procedure Credital_SetAsteriskCallMissed(Boolean missedf,Longint oldAct)
+begin
+  
+  //if (missedf and )
+
+  return;
+end;
