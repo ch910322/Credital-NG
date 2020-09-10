@@ -1,10 +1,58 @@
+//<halrule>server-only</halrule>
 
+function Boolean ActivityOriginates(string actq,string newq)
+begin
+  record PBXQueueVc PBXQueuer;
+  record PBXIVRTreeVc PBXIVRTreer;
+  row PBXIVRTreeVc PBXIVRTreerw;
+  Boolean res;
+  Integer i,rwcnt;
+  
+  PBXIVRTreer.Code = actq;
+  if (ReadFirstMain(PBXIVRTreer,1,true)) then begin
+    rwcnt = MatRowCnt(PBXIVRTreer);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(PBXIVRTreer,i,PBXIVRTreerw);
+      if (PBXIVRTreerw.Queue==newq) then begin
+        res = true;
+        i = rwcnt;
+      end;
+    end;
+  end;
+
+  ActivityOriginates = res;
+  return;
+end;
 
 global
-procedure Credital_SetAsteriskCallMissed(Boolean missedf,Longint oldAct)
+function Boolean FindExistingAsteriskActivity(var record ActVc Actr,string callerid,string code,Boolean origf)
 begin
-  
-  //if (missedf and )
+  Boolean res;
+  record ActVc tActr;
+  transaction Boolean gAsteriskqueue;
 
+  if (gAsteriskqueue==false) then begin
+    tActr.Phone = callerid;
+    tActr.TransDate = CurrentDate;
+    tActr.StartTime = CurrentTime;
+    if (ReadLastKey("PhoneTime",tActr,3,true)) begin
+      if (origf) then begin
+        if (ActivityOriginates(tActr.PBXQueues,code)) then begin
+          res = true;
+        end;
+      end else begin
+        if (nonblank(tActr.PBXQueues)) then begin
+          res = true;
+        end;
+      end;
+      if (res) then begin
+        RecordCopy(Actr,tActr);
+      end;
+    end;
+  end;
+  
+  logtext(0,"FindExistingAsteriskActivity " & callerid & ":" & code & ":" & origf & ":" & res);
+
+  FindExistingAsteriskActivity = res;
   return;
 end;
