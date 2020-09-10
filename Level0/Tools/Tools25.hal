@@ -1,3 +1,4 @@
+//<halrule>server-only</halrule>
 external function Integer InString2(string,string);
 external function Integer CountObjects(string);
 external function Boolean GetGlobalUserMainCompany(string,var string);
@@ -33,6 +34,9 @@ external function Boolean PasteActTypeInAct(string,var record ActVc);
 remote updating function Boolean GetLicensesFromServer(array record LicensesVc);
 external function Boolean LicenseShouldBeMovedToServer(record LicensesVc);
 external function Boolean FindOriginalTransLine(var record LicensesVc);
+//CUST-BEGIN
+external outer function Boolean FindExistingAsteriskActivity(var record ActVc,string,string,Boolean);
+//CUST-END
 
 global
 function val FindPaidInPeriod_IVVc(record IVVc orgIVp,Boolean curncyf,Date StartDate,Date EndDate)
@@ -409,8 +413,20 @@ begin
   record ActVc Act2r;
   string 255 queuename;
   string 255 queuecode;
+//CUST-BEGIN
+  transaction string 255 gNovitiCaller,gNovitiCode;
+  record ActVc oldActr;
+  Boolean updf;
+  transaction Boolean gAsteriskqueue;
+//CUST-END
 
   ServerMakeActEndedPhoneCall(cucode,person,callerid,user,oldAct); //For halcust backward compatibility
+logtext(0,"ServerMakeActEndedPhoneCall3 " & missedf & ":" & oldAct & ":" & queue & ":" & callerid & ":" & nr1 & ":" & nr2 & ":" & gNovitiCaller & ":" & gNovitiCode);
+//CUST-BEGIN
+  if (blank(nr1) or nr1=="ing") then begin//wtf is this "ing"???
+    goto LServerMakeActEndedPhoneCall3;
+  end;
+//CUST-END
 
   oldcomp = CurrentCompany;
 
@@ -437,12 +453,21 @@ begin
       end;
     end;
     BlockLoad(ASTb);
-    RecordNew(Actr);
-    ActVcRecordDefServer(Actr);
-    Actr.SerNr = -1;
-    Actr.Invalid = 0;
-    Actr.TodoFlag = 1;
-    Actr.SymbNr = kActivitySymbolCall;
+//CUST-BEGIN
+    gAsteriskqueue = true;
+    if (FindExistingAsteriskActivity(Actr,nr1,"",false)) then begin
+      RecordCopy(oldActr,Actr);
+      updf = true;
+    end else begin
+      RecordNew(Actr);
+      ActVcRecordDefServer(Actr);
+      Actr.SerNr = -1;
+      Actr.Invalid = 0;
+      Actr.TodoFlag = 1;
+      Actr.SymbNr = kActivitySymbolCall;
+    end;
+    gAsteriskqueue = false;
+//CUST-END
     Actr.CUCode = cucode;
     Actr.Comment = "";
     CUr.Code = cucode;
@@ -504,8 +529,12 @@ begin
       Act2r.SerNr = NextSerNr("ActVc",Act2r.TransDate,-1,false,"");
       RecordStore(Act2r,true);
     end;
-    Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
-    RecordStore(Actr,false);
+    if (updf) then begin
+      RecordUpdate(oldActr,Actr,true);
+    end else begin
+      Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
+      RecordStore(Actr,false);
+    end;
     LogText(0,"ServerMakeActEndedPhoneCall3 Actr.SerNr:" & Actr.SerNr & " CurrentCompany:" & CurrentCompany & " Queue:" & Actr.PBXQueues);
   end;
   ResetCompany(oldcomp);
@@ -542,8 +571,12 @@ begin
   record PBXQueueVc PBXQr;
   string 255 queuename;
   string 255 queuecode;
-
-//LogText(0,"ServerOnPhoneCallConnected5 cucode=" & cucode & ", person=" & person & ", callerid=" & callerid & ", user=" & user & ", comidtyp=" & comidtyp & ", nr1=" & nr1 & ", nr2=" & nr2 & ", queue=" & queue & ", ActCompNo=" & ActCompNo);
+//CUST-BEGIN
+  record ActVc oldActr;
+  Boolean updf;
+  transaction Boolean gAsteriskqueue;
+//CUST-END
+LogText(0,"ServerOnPhoneCallConnected5 cucode=" & cucode & ", person=" & person & ", callerid=" & callerid & ", user=" & user & ", comidtyp=" & comidtyp & ", nr1=" & nr1 & ", nr2=" & nr2 & ", queue=" & queue & ", ActCompNo=" & ActCompNo);
   ServerOnPhoneCallConnected2(cucode,person,callerid,user,comidtyp);
 
   BlockLoad(GCRMb);
@@ -594,12 +627,21 @@ begin
     end;
   end;
   BlockLoad(ASTb);
-  RecordNew(Actr);
-  ActVcRecordDefServer(Actr);
-  Actr.SerNr = -1;
-  Actr.Invalid = 0;
-  Actr.TodoFlag = 1;
-  Actr.SymbNr = kActivitySymbolCall;
+//CUST-BEGIN
+  gAsteriskqueue = true;
+  if (FindExistingAsteriskActivity(Actr,nr1,"",false)) then begin
+    RecordCopy(oldActr,Actr);
+    updf = true;
+  end else begin
+    RecordNew(Actr);
+    ActVcRecordDefServer(Actr);
+    Actr.SerNr = -1;
+    Actr.Invalid = 0;
+    Actr.TodoFlag = 1;
+    Actr.SymbNr = kActivitySymbolCall;
+  end;
+  gAsteriskqueue = false;
+//CUST-END
   Actr.CUCode = cucode;
   Actr.Comment = "";
   Actr.PBXCallID = pbxcallid;
@@ -656,9 +698,15 @@ begin
   end;
   PasteActTypeInAct("",Actr);
   SetActTypeValues(Actr);
-  Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
-  if (RecordStore(Actr,false)) then begin
-  end; 
+//CUST-BEGIn
+  if (updf) then begin
+    RecordUpdate(oldActr,Actr,true);
+  end else begin
+    Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
+    if (RecordStore(Actr,false)) then begin
+    end; 
+  end;
+//CUST-END;
   if (nonblank(ASTb.ServerAsteriskCalls)) then begin
     Act2r.SerNr = NextSerNr("ActVc",Act2r.TransDate,-1,false,"");
     PasteActTypeInAct("",Act2r);

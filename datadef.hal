@@ -471,6 +471,14 @@ begin
   RecordField(MissedUser,M4Code,20,UserVc);
   EndRecordAdd;
 
+  RecordAddBegin(ActVc,"ActVc_Cust");
+  KeyBegin(PhoneTime);
+  KeySegment(Phone);
+  KeySegment(TransDate);
+  KeySegment(StartTime);
+  KeySegment(SerNr);
+  EndRecordAdd;
+
   Exec_File("halcust\\LoanApp\\datadef.hal");
   SourceFile("halcust\\LoanApp",0);
 
