@@ -203,7 +203,7 @@ begin
           tstr = IVr.CustCredManNr;
         end;
         WebOutString("<div class='acc-item-line'><div class='item-cnt'>" & i & "</div>");
-        DisplayAccDataField("date",ToolWebNGTranslateText2(70280),IVr.InvDate);
+        DisplayAccDataField("date",ToolWebNGTranslateText2(70280),DateToString(IVr.InvDate,"YYYY-MM-DD"));
         DisplayAccDataField("amount",ToolWebNGTranslateText2(70281),IVr.Sum4);
         DisplayAccDataField("ref",ToolWebNGTranslateText2(70282),"<a href='/WebUpdatingAction.hal?action=download_invoice&sernr=" & IVr.SerNr & "' target='_blank'>" & tstr & "</a>");
         WebOutString("</div>");
