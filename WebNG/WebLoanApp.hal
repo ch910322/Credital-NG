@@ -1588,9 +1588,9 @@ begin
     CUr.CustType = 1;
     CUr.AllowLogin = 0;
     CUr.CountryCode = CYb.CountryCode;//"LT";//hardcoded?    
+    CUr.eMail = WebGetArg(ind & "email");
   end;
   if (updatef==false or manf) then begin
-    CUr.eMail = WebGetArg(ind & "email");
     CUr.Name = WebGetArg(ind & "name");
     CUr.Phone = CreditalFixPhone(WebGetArg(ind & "phone"),CUr.CountryCode);
     CUr.RegNr1 = WebGetArg(ind & "id");
@@ -1608,7 +1608,7 @@ begin
   end;
 
   RecordCopy(tCUr,CUr);
-  if (nonblank(CUr.Name) and nonblank(CUr.eMail) and !manf) then begin
+  if (nonblank(CUr.Name) and nonblank(CUr.eMail)) then begin
     CUr.Code = LAr.CustCode;
     CUr.Name = LAr.CustName;
     AddContactCUDsmRemote(CUr,tCur.Code);
