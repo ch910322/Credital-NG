@@ -1566,11 +1566,20 @@ begin
   
   RecordClear(CUr);
   BlockLoad(CYb);
-  CUr.eMail = WebGetArg(ind & "email");
-  if (ReadFirstKey("eMail",CUr,1,true)) then begin
-    RecordCopy(oldCUr,CUr);
-    updatef = true;
+  if (nonblank(CurrentCust)) then begin
+    CUr.Code = CurrentCust;
+    if (ReadFirstMain(Cur,1,true)) then begin
+      RecordCopy(oldCUr,CUr);
+      updatef = true;
+    end;
   end else begin
+    CUr.eMail = WebGetArg(ind & "email");
+    if (ReadFirstKey("eMail",CUr,1,true)) then begin
+      RecordCopy(oldCUr,CUr);
+      updatef = true;
+    end;
+  end;
+  if (!updatef) then begin
     RecordNew(CUr);
     if (GetNextCustNr(tstr)) then begin end;
     CUr.Code = tstr;
@@ -1881,14 +1890,31 @@ begin
   return;
 end;
 
+function Boolean ManIDNeedsLogin(string id)
+begin
+  Boolean res;
+  record CUVc CUr;
+
+  CUr.RegNr1 = id;
+  if (ReadFirstKey("RegNr1",CUr,1,true)) then begin
+    if (blank(CurrentCust) or CurrentCust!=Cur.Code) then begin
+      res = true;
+    end;
+  end;
+
+
+  ManIDNeedsLogin = res;
+  return;
+end;
+
 global
 updating procedure LoanApplicationStoreStep2()
 begin
   Integer type,err;
-  string 255 bankacc,bankcode,link,addr2,errstr,managercode,step;  
+  string 255 bankacc,bankcode,link,addr2,errstr,managercode,step,manid;  
   record B2BLoanApplicationVc LAr,oldLAr;
   Integer paymentdate;
-  Boolean mansurf,addrtype,verf,ignoref;
+  Boolean mansurf,addrtype,verf,ignoref,loginf;
   vector string 255 vSess;
   record CUVc CUr,oldCUr;
   record CMOrderClassBlock OCb;
@@ -1901,6 +1927,7 @@ begin
   mansurf = (WebGetArg("mainsurety")=="1");
   addrtype = (WebGetArg("addrtype")=="1");
   addr2 = WebGetArg("address2");
+  manid = WebGetArg("manid");
 
   oldcomp = SetCompanyBasedOnCountry;
 
@@ -1913,12 +1940,19 @@ begin
 
     type = MapLoanType(LAr.Type);
     if (type!=1 and type!=2 and (paymentdate<1 or paymentdate>31)) then begin
-      err = err + 8;
+      err = err + 16;
     end;
 
     if (FastType(type)) then begin
       ignoref = true;
     end;
+
+    if (nonblank(manid) and ManIDNeedsLogin(manid)) then begin
+      err = err + 32;
+      errstr = "1";
+      loginf = true;
+    end;
+
 
     if (err==0) then begin
       step = "3";
@@ -1974,7 +2008,11 @@ begin
   end else begin
     errstr = ToolWebNGTranslateText2(70122);
   end;
-  WebOutString("<res err='" & errstr & "' redir='" & link & "'></res>");
+  WebOutString("<res err='" & errstr & "' redir='" & link & "'>");
+  if (loginf) then begin
+    WebOutString("<err id='require_login'></err>");
+  end;
+  WebOutString("</res>");
 
   ResetCompanyBasedOnCountry(oldcomp);
 
