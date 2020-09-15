@@ -224,11 +224,18 @@ begin
   return;
 end;
 
-
-
 global
 function Integer OuterGetIVPaylinkFlag(record IVVc IVr)
 begin
   OuterGetIVPaylinkFlag = IVr.PayLinkFlag;
   return;
 end;
+
+global
+function Boolean IsNovitiCustomer()
+begin
+  
+  IsNovitiCustomer = true;
+  return;
+end;
+
