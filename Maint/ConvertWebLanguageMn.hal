@@ -1,0 +1,119 @@
+//<halrule>server-only</halrule>
+
+global
+updating procedure Noviti_UpdateWebMenu(record WebNGMenuVc WMr,string fromlang,string tolang)
+begin
+  row WebNGMenuVc WMrw;
+  record WebNGMenuVc oldWMr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WMr,1,true)) then begin
+    RecordCopy(oldWMr,WMr);
+    rwcnt = MatRowCnt(WMr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WMr,i,WMrw);
+      if (WMrw.LangCode==fromlang) then begin
+        WMrw.LangCode = tolang;
+        MatRowPut(WMr,i,WMrw);
+        updatef = true;
+        i = rwcnt;
+      end;
+    end;
+    if (updatef) then begin
+      RecordUpdate(oldWMr,WMr,true);
+    end;
+  end;
+  
+  return;
+end;
+
+global
+updating procedure Noviti_UpdateWebText(record WebTextVc WebTextr,string fromlang,string tolang)
+begin
+  row WebTextVc WebTextrw;
+  record WebTextVc oldWebTextr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WebTextr,1,true)) then begin
+    RecordCopy(oldWebTextr,WebTextr);
+    rwcnt = MatRowCnt(WebTextr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WebTextr,i,WebTextrw);
+      if (WebTextrw.LangCode==fromlang) then begin
+        WebTextrw.LangCode = tolang;
+        MatRowPut(WebTextr,i,WebTextrw);
+        updatef = true;
+        i = rwcnt;
+      end;
+    end;
+    if (updatef) then begin
+      RecordUpdate(oldWebTextr,WebTextr,true);
+    end;
+  end;
+  
+  return;
+end;
+
+global
+updating procedure Noviti_UpdateWebLang(record WebNGLanguageVc WLr,string tolang)
+begin
+  record WebNGLanguageVc oldWLr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WLr,1,true)) then begin
+    RecordCopy(oldWLr,WLr);
+    WLr.Code = tolang;
+    RecordUpdate(oldWLr,WLr,true);
+  end;
+  
+  return;
+end;
+
+global
+updating procedure Noviti_UpdateWebTrans(record WebNGTranslateVc WTr,string fromlang,string tolang)
+begin
+  record WebNGTranslateVc oldWTr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WTr,3,true)) then begin
+    if (WTr.LangCode==fromlang) then begin
+      RecordCopy(oldWTr,WTr);
+      WTr.LangCode = tolang;
+      RecordUpdate(oldWTr,WTr,true);
+    end;
+  end;
+  
+  return;
+end;
+global
+procedure ConvertWebLanguageMn(record RcVc RepSpec)
+begin
+  record WebNGLanguageVc WLr;
+  record WebNGMenuVc WMr;
+  record WebNGTranslateVc WTr;
+  record WebTextVc WebTextr;
+  Boolean TrHs;
+
+  if (nonblank(RepSpec.f1) and nonblank(RepSpec.f2) and RepSpec.f1!=RepSpec.f2) then begin
+    WLr.Code = RepSpec.f1;
+    if (ReadFirstMain(WLr,1,true)) then begin
+      qupdating.Noviti_UpdateWebLang(WLr,RepSpec.f2);
+    end;
+
+    while (LoopMain(WMr,1,true)) begin
+      qupdating.Noviti_UpdateWebMenu(WMr,RepSpec.f1,RepSpec.f2);
+    end;
+    while (LoopMain(WTr,1,true)) begin
+      qupdating.Noviti_UpdateWebTrans(WTr,RepSpec.f1,RepSpec.f2);
+    end;
+    while (LoopMain(WebTextr,1,true)) begin
+      qupdating.Noviti_UpdateWebText(WebTextr,RepSpec.f1,RepSpec.f2);
+    end;
+  end;
+
+  return;
+end;

@@ -1044,12 +1044,23 @@ begin
   SetWRect(64,80,445,95);
   EndWindow;
 end;
+
 window Noviti_RemoveActivitiesVClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   WindowBegin("Specify Remove Activities",Noviti_RemoveActivitiesVClass,CGMnt,RcType);
   SetWRect(64,80,445,95);
   EditField(120,6,100,"Activity Type",Normal,f1,false,ActTypeSClass);
+  EndWindow;
+end;
+
+window ConvertWebLanguageVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Specify Convert Web Language",ConvertWebLanguageVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EditField(120,6,100,"From Language",Normal,f1,false,WebNGLanguageSClass);
+  EditField(120,26,100,"To Language",Normal,f2,false,0);
   EndWindow;
 end;
 

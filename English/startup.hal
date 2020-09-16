@@ -16,6 +16,7 @@ begin
 
   Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
   Maintenance("Remove Activities",Noviti_RemoveActivitiesVClass,Noviti_RemoveActivitiesMn,modSY);
+  Maintenance("Convert Web Language",ConvertWebLanguageVClass,ConvertWebLanguageMn,modWebShopNG);
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);
