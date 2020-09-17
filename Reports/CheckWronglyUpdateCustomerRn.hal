@@ -1,0 +1,68 @@
+//<halrule>server-only</halrule>
+external procedure GetWronglyUpdatedContacts(var vector Boolean,var vector string,var vector string,var vector string,var vector string,var vector string,var vector string);
+
+
+global
+procedure CheckWronglyUpdateCustomerRn(record RcVc RepSpec)
+begin
+  vector Boolean vUpdateCust;
+  array string 255 aUpdateCust;
+  vector string 255 vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr;
+  Integer i;
+  record CUVc CUr;
+
+  StartReportJob("Check Contacts");
+
+  EndHeader;
+
+  SetRepCol(2,60);
+  SetRepCol(3,150);
+  SetRepCol(4,240);
+  SetRepCol(5,320);
+  SetRepCol(6,390);
+  SetRepCol(7,420);
+
+  GetWronglyUpdatedContacts(vUpdateCust,vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr);
+  StartFormat(15);
+  OutString(0,0,"Code",false);
+  OutString(2,0,"Name",false);
+  OutString(3,0,"Email",false);
+  OutString(4,0,"Bank Account",false);
+  OutString(5,0,"Phone",false);
+  OutString(6,0,"Job Title",false);
+  OutString(7,0,"Reg. No",false);
+  EndFormat;
+  
+  GetVectorTags(vUpdateCust,aUpdateCust);
+  for (i=0;i<aUpdateCust.length;i=i+1) begin
+    CUr.Code = aUpdateCust[i];
+    if (ReadFirstMain(CUr,1,true)) then begin
+      StartFormat(15);
+      OutString(0,"DblCUVc",CUr.Code,false);
+      OutString(2,0,CUr.Name,false);
+      OutString(3,0,CUr.eMail,false);
+      OutString(4,0,CUr.BankAccount,false);
+      OutString(5,0,CUr.Phone,false);
+      OutString(6,0,CUr.JobDesc,false);
+      OutString(7,0,CUr.RegNr1,false);
+      EndFormat;
+      StartFormat(15);
+      OutString(0,0,"",false);
+      OutString(2,0,vCUName[CUr.Code],false);
+      OutString(3,0,vCUEMail[CUr.Code],false);
+      OutString(4,0,vCUBankAcc[CUr.Code],false);
+      OutString(5,0,vCUPhone[CUr.Code],false);
+      OutString(6,0,vCUJobDesc[CUr.Code],false);
+      OutString(7,0,vCURegNr[CUr.Code],false);
+      EndFormat;
+      StartFormat(1);
+      Gray_divider(0,1);
+      EndFormat;
+    end;
+  end;
+
+
+  EndJob;
+
+  return;
+end;
