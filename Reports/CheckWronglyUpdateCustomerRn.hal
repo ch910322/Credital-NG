@@ -46,15 +46,6 @@ begin
       OutString(6,0,CUr.JobDesc,false);
       OutString(7,0,CUr.RegNr1,false);
       EndFormat;
-      StartFormat(15);
-      OutString(0,0,"",false);
-      OutString(2,0,vCUName[CUr.Code],false);
-      OutString(3,0,vCUEMail[CUr.Code],false);
-      OutString(4,0,vCUBankAcc[CUr.Code],false);
-      OutString(5,0,vCUPhone[CUr.Code],false);
-      OutString(6,0,vCUJobDesc[CUr.Code],false);
-      OutString(7,0,vCURegNr[CUr.Code],false);
-      EndFormat;
       StartFormat(1);
       Gray_divider(0,1);
       EndFormat;
