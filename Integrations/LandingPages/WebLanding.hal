@@ -16,7 +16,7 @@ external inner procedure ShowWebAppPageStart(record WebNGPageVc,string);
 external inner procedure ShowWebAppPageEnd(record WebNGPageVc);
 external inner procedure LoadWebPage(string,var record WebNGPageVc);
 external procedure ShowWebLoanStrings();
-external procedure CheckLoanCustomer2(string,string,string,string,string,Boolean,var record CUVc,var record CUVc,var Integer);
+external procedure CheckLoanCustomer2(string,string,string,string,string,Boolean,var record CUVc,var record CUVc,var Integer,Boolean);
 external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc,var string);
 external function Boolean InsertManagerInB2BApplication(var record B2BLoanApplicationVc);
 external function string 255 GetAgreementType(record B2BLoanApplicationVc,Integer,string);
@@ -560,6 +560,9 @@ begin
     if (nonblank(phone)) then begin
       CUr.Phone = CreditalFixPhone(phone,CUr.CountryCode);
     end;
+    if (CUr.eMail==ContactCUr.eMail) then begin
+      CUr.eMail = "";
+    end;
     FillValue(CUr.BankAccount,bankacc);
 //    CUr.InvAddr0 = address;
     RecordUpdate(oldCUr,CUr,false);
@@ -744,7 +747,7 @@ begin
       term = StringToLongint(WebGetArg("term"));
       if (err==0) then begin
         if (nonblank(contactemail) or nonblank(contactmobile)) then begin//disabling this
-          CheckLoanCustomer2(regnr,name,email,contactemail,contactmobile,true,CUr,ContactCUr,status);
+          CheckLoanCustomer2(regnr,name,email,contactemail,contactmobile,true,CUr,ContactCUr,status,true);
           switch (status) begin
             case 0://we are logged in - all good
             case 1://we just created a new company and new contact - all good

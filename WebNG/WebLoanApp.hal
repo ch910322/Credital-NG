@@ -1118,7 +1118,7 @@ begin
 end;
 
 global
-procedure CheckLoanCustomer2(string regnr,string name2,string compemail2,string email,string contactphone,Boolean ignoreloginf,var record CUVc CUr,var record CUVc ContactCUr,var Integer status)
+procedure CheckLoanCustomer2(string regnr,string name2,string compemail2,string email,string contactphone,Boolean ignoreloginf,var record CUVc CUr,var record CUVc ContactCUr,var Integer status,Boolean landf)
 begin
   string 255 tstr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,vatnr,compemail,custclass;
   Boolean res;
@@ -1136,7 +1136,13 @@ begin
         contactf = false;
       end;
     end;
+    if (landf) then begin
+      if (ContactCUr.CUType==1) then begin
+        goto LCheckLoanCustomer2_CreateContact;
+      end;
+    end;
   end else begin
+LCheckLoanCustomer2_CreateContact:;
     if (qupdating.StoreLoanContact(email,contactphone,"",ContactCUr)) then begin
       res = true;
     end;
@@ -1212,7 +1218,7 @@ global
 procedure CheckLoanCustomer(string regnr,string email,string contactphone,Boolean ignoreloginf,var record CUVc CUr,var record CUVc ContactCUr,var Integer status)
 begin
 
-  CheckLoanCustomer2(regnr,"","",email,contactphone,ignoreloginf,CUr,ContactCUr,status);
+  CheckLoanCustomer2(regnr,"","",email,contactphone,ignoreloginf,CUr,ContactCUr,status,false);
 
   return;
 end;
