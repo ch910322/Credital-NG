@@ -1,4 +1,5 @@
 //<halrule>server-only</halrule>
+external inner function string 255 StrReplace(string,string,string);
 
 global
 updating procedure Noviti_UpdateWebMenu(record WebNGMenuVc WMr,string fromlang,string tolang)
@@ -57,6 +58,42 @@ begin
 end;
 
 global
+updating procedure Noviti_UpdateWebCountry(record WebNGCountryVc WCr,string fromlang,string tolang)
+begin
+  row WebNGCountryVc WCrw;
+  record WebNGCountryVc oldWCr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WCr,1,true)) then begin
+    RecordCopy(oldWCr,WCr);
+    rwcnt = MatRowCnt(WCr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WCr,i,WCrw);
+      if (WCrw.LangCode==fromlang) then begin
+        WCrw.LangCode = tolang;
+        MatRowPut(WCr,i,WCrw);
+        updatef = true;
+        i = rwcnt;
+      end;
+    end;
+    if (WCr.DefaultLanguage==fromlang) then begin
+      WCr.DefaultLanguage = tolang;
+      updatef = true;
+    end;
+    if (SetInSet(fromlang,WCr.AllowedLanguages)) then begin
+      WCr.AllowedLanguages = StrReplace(WCr.AllowedLanguages,fromlang,tolang);
+      updatef = true;
+    end;
+    if (updatef) then begin
+      RecordUpdate(oldWCr,WCr,true);
+    end;
+  end;
+  
+  return;
+end;
+
+global
 updating procedure Noviti_UpdateWebLang(record WebNGLanguageVc WLr,string tolang)
 begin
   record WebNGLanguageVc oldWLr;
@@ -95,6 +132,7 @@ begin
   record WebNGLanguageVc WLr;
   record WebNGMenuVc WMr;
   record WebNGTranslateVc WTr;
+  record WebNGCountryVc WCr;
   record WebTextVc WebTextr;
   Boolean TrHs;
 
@@ -112,6 +150,9 @@ begin
     end;
     while (LoopMain(WebTextr,1,true)) begin
       qupdating.Noviti_UpdateWebText(WebTextr,RepSpec.f1,RepSpec.f2);
+    end;
+    while (LoopMain(WCr,1,true)) begin
+      qupdating.Noviti_UpdateWebCountry(WCr,RepSpec.f1,RepSpec.f2);
     end;
   end;
 
