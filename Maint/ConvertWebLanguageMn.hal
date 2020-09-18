@@ -93,6 +93,34 @@ begin
   return;
 end;
 
+
+global
+updating procedure Noviti_UpdateWebNodeTrans(record WebNodeTransVc WNTr,string fromlang,string tolang)
+begin
+  row WebNodeTransVc WNTrw;
+  record WebNodeTransVc oldWNTr;
+  Integer i,rwcnt;
+  Boolean updatef;
+
+  if (ReadFirstMain(WNTr,1,true)) then begin
+    RecordCopy(oldWNTr,WNTr);
+    rwcnt = MatRowCnt(WNTr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(WNTr,i,WNTrw);
+      if (WNTrw.LangCode==fromlang) then begin
+        WNTrw.LangCode = tolang;
+        MatRowPut(WNTr,i,WNTrw);
+        updatef = true;
+        i = rwcnt;
+      end;
+    end;
+    if (updatef) then begin
+      RecordUpdate(oldWNTr,WNTr,true);
+    end;
+  end;
+  
+  return;
+end;
 global
 updating procedure Noviti_UpdateWebLang(record WebNGLanguageVc WLr,string tolang)
 begin
@@ -133,6 +161,7 @@ begin
   record WebNGMenuVc WMr;
   record WebNGTranslateVc WTr;
   record WebNGCountryVc WCr;
+  record WebNodeTransVc WNTr;
   record WebTextVc WebTextr;
   Boolean TrHs;
 
@@ -154,7 +183,11 @@ begin
     while (LoopMain(WCr,1,true)) begin
       qupdating.Noviti_UpdateWebCountry(WCr,RepSpec.f1,RepSpec.f2);
     end;
+    while (LoopMain(WNTr,1,true)) begin
+      qupdating.Noviti_UpdateWebNodeTrans(WNTr,RepSpec.f1,RepSpec.f2);
+    end;
   end;
+
 
   return;
 end;
