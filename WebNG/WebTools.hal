@@ -1960,10 +1960,43 @@ LCreditalFixPhone:;
   return;
 end;
 
+function string 255 UpdatePathToLanguage(string path,string langcode)
+begin
+  string 255 res,tstr,tmp;
+  record WebNodeTransVc NTr;
+  row WebNodeTransVc NTrw;
+  Integer i,rwcnt;
+  Longint pos;
+  
+  while (GetNextSubstring(path,pos,"/",tstr)) begin
+    ResetLoop(NTr);
+    NTr.Mother = -1;
+    if (LoopKey("NodeName:" & tstr,NTr,1,true)) begin
+      rwcnt = MatRowCnt(NTr);
+      tmp = NTr.Name;
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(NTr,i,NTrw);
+      if (NTrw.LangCode==langcode) then begin
+          tmp = NTrw.NodeName;
+          i = rwcnt;
+        end;
+      end;
+      res = res & "/" & tmp;
+    end else begin
+      if (nonblank(tstr)) then begin
+        res = res & "/" & tstr;
+      end;
+    end;
+  end;
+
+  UpdatePathToLanguage = res;
+  return;
+end;
+
 global
 procedure ShowNovitiLanguageSelect()
 begin
-  string 255 lang,tmp;
+  string 255 lang,tmp,path;
   record WebNGLanguageVc WLr,tWLr;
   record WebNGCountryVc WCr;
   Longint pos;
@@ -1983,7 +2016,8 @@ begin
       WLr.Code = tmp;
       if (ReadFirstMain(WLr,1,true)) then begin
         if (WLr.NotInUse!=1 and lang!=WLr.Code) then begin
-          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & WebGetArg("path") & "'>" & WLr.Comment & "</a></li>")
+          path = UpdatePathToLanguage(WebGetArg("path"),WLr.Code);
+          WebOutString("<li><a href='/WebAction.hal?action=changelanguage&langcode=" & WLr.Code & "&path=" & path & "'>" & WLr.Comment & "</a></li>")
         end;
       end;
     end;
