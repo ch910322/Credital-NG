@@ -70,6 +70,23 @@ external outer function Boolean FindNodeTranslation(string,Longint,var record We
 external outer function Integer SetCompanyBasedOnCountry();
 external outer procedure ResetCompanyBasedOnCountry(Integer);
 external outer procedure SetHiddenElements();
+
+function string 255 GetCountryDefaultLanguage()
+begin
+  record WebNGCountryVc WCr;
+  string 255 res;
+  
+  WCr.Code = ToolWebNGGetCountry;
+  if (nonblank(WCr.Code)) then begin
+    if (ReadFirstMain(WCr,1,true)) then begin
+      res = WCr.DefaultLanguage;
+    end;
+  end;
+
+  GetCountryDefaultLanguage = res;
+  return;
+end;
+
 //CUST-END
 
 procedure SetCountryAndLanguage(var string path)
@@ -105,6 +122,10 @@ begin
   end;
   if (blank(language)) begin
     language = GetCookie("langcode");
+   WLr.Code = language;
+    if (ReadFirstMain(WLr,1,true)==false) then begin
+      language = GetCountryDefaultLanguage;
+    end;
   end;
   if (blank(language)) begin
     language = WCr.DefaultLanguage;
