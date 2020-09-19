@@ -1036,6 +1036,18 @@ begin
   EndWindow;
 
 end;
+window CheckWronglyUpdateCustomerVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+
+  WindowBegin("Wongly updated Contacts",CheckWronglyUpdateCustomerVClass,CGRcW,RcType);
+  SetWRect(20,80,400,200);
+  h = 150; v=6; vs=20;
+  EndWindow;
+
+end;
+
 window CredManHistFixVClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
@@ -1044,12 +1056,32 @@ begin
   SetWRect(64,80,445,95);
   EndWindow;
 end;
+
+window FixContactDataVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+
+  WindowBegin("Specify Fix wrongly updated Contacts",FixContactDataVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EndWindow;
+end;
+
 window Noviti_RemoveActivitiesVClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   WindowBegin("Specify Remove Activities",Noviti_RemoveActivitiesVClass,CGMnt,RcType);
   SetWRect(64,80,445,95);
   EditField(120,6,100,"Activity Type",Normal,f1,false,ActTypeSClass);
+  EndWindow;
+end;
+
+window ConvertWebLanguageVClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Specify Convert Web Language",ConvertWebLanguageVClass,CGMnt,RcType);
+  SetWRect(64,80,445,95);
+  EditField(120,6,100,"From Language",Normal,f1,false,WebNGLanguageSClass);
+  EditField(120,26,100,"To Language",Normal,f2,false,0);
   EndWindow;
 end;
 
@@ -1382,7 +1414,7 @@ begin
   SpecialMenu("Get Surety Provider Data",' ',4,"");
   SpecialMenu("Evaluation Report",' ',5,"DoEvalReportDsm");
   SpecialMenu("Customer Status",'e',6,"CUStatusB2BLoanAppDsm");
-  SpecialMenu("Creditinfo.lt",'',6,"GetCreditinfoStatDsm");
+  SpecialMenu("Fill Data from Creditinfo.lt",'',6,"GetCreditinfoStatDsm");
   SpecialMenu("Invite additional Surety Provider",'',6,"InviteSuretyDsm");
   
   SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0); 

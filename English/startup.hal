@@ -13,9 +13,13 @@ begin
   Report("Overdue Invoices",OverdueFeesRClass,OverdueFeesRn,0,modSL);
   Report("Credit Agreement History",CredManHistRClass,CredManHistRn,0,modCredMan);
   Report("Overdues/Delayed Invoices",OverdueAgreementsRClass,OverdueAgreementsRn,0,modSL);
+  Report("Wrongly updated Contacts",CheckWronglyUpdateCustomerVClass,CheckWronglyUpdateCustomerRn,0,modCredMan);
+
 
   Maintenance("Fix Credit Agreement History",CredManHistFixVClass,CredManHistFixMn,modCredMan);
   Maintenance("Remove Activities",Noviti_RemoveActivitiesVClass,Noviti_RemoveActivitiesMn,modSY);
+  Maintenance("Convert Web Language",ConvertWebLanguageVClass,ConvertWebLanguageMn,modWebShopNG);
+  Maintenance("Fix wrongly updated Contacts",FixContactDataVClass,FixContactDataMn,modCredMan);
 
   Setting("Campaigns",WebCampaignLClass,modWebShopNG);
   Setting("Partners",WebPartnerTClass,modWebShopNG);

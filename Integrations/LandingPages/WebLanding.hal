@@ -16,7 +16,7 @@ external inner procedure ShowWebAppPageStart(record WebNGPageVc,string);
 external inner procedure ShowWebAppPageEnd(record WebNGPageVc);
 external inner procedure LoadWebPage(string,var record WebNGPageVc);
 external procedure ShowWebLoanStrings();
-external procedure CheckLoanCustomer2(string,string,string,string,string,Boolean,var record CUVc,var record CUVc,var Integer);
+external procedure CheckLoanCustomer2(string,string,string,string,string,Boolean,var record CUVc,var record CUVc,var Integer,Boolean);
 external function Boolean InsertCustomerInB2BApplication(var record B2BLoanApplicationVc,var string);
 external function Boolean InsertManagerInB2BApplication(var record B2BLoanApplicationVc);
 external function string 255 GetAgreementType(record B2BLoanApplicationVc,Integer,string);
@@ -540,23 +540,38 @@ begin
   return;
 end;
 
+procedure FillValue(var string field,string value)
+begin
+  
+  if (nonblank(value)) then begin
+    field = value;
+  end;
+
+  return;
+end;
+
 updating procedure UpdateContactRecordsWithExtraData(record CUVc CUr,record CUVc ContactCUr,string email,string phone,string contactname,string contactjob,string vatnr,string address,string contactid,string bankacc)
 begin
   record CUVc oldCUr;
 
   if (ReadFirstMain(CUr,1,true)) then begin
     RecordCopy(oldCUr,CUr);
-    CUr.eMail = email;
-    CUr.Phone = CreditalFixPhone(phone,CUr.CountryCode);
-    CUr.BankAccount = bankacc;
+    FillValue(CUr.eMail,email);
+    if (nonblank(phone)) then begin
+      CUr.Phone = CreditalFixPhone(phone,CUr.CountryCode);
+    end;
+    if (CUr.eMail==ContactCUr.eMail) then begin
+      CUr.eMail = "";
+    end;
+    FillValue(CUr.BankAccount,bankacc);
 //    CUr.InvAddr0 = address;
     RecordUpdate(oldCUr,CUr,false);
   end;
   if (ReadFirstMain(ContactCUr,1,true)) then begin
     RecordCopy(oldCUr,ContactCUr);
-    ContactCUr.JobDesc = contactjob;
-    ContactCUr.Name = contactname;
-    ContactCUr.RegNr1 = contactid;
+    FillValue(ContactCUr.JobDesc,contactjob);
+    FillValue(ContactCUr.Name,contactname);
+    FillValue(ContactCUr.RegNr1,contactid);
     RecordUpdate(oldCUr,ContactCUr,false);
     CUVcRecordUpdate(ContactCUr,oldCUr,Rs_Update,1);
   end;
@@ -732,7 +747,7 @@ begin
       term = StringToLongint(WebGetArg("term"));
       if (err==0) then begin
         if (nonblank(contactemail) or nonblank(contactmobile)) then begin//disabling this
-          CheckLoanCustomer2(regnr,name,email,contactemail,contactmobile,true,CUr,ContactCUr,status);
+          CheckLoanCustomer2(regnr,name,email,contactemail,contactmobile,true,CUr,ContactCUr,status,true);
           switch (status) begin
             case 0://we are logged in - all good
             case 1://we just created a new company and new contact - all good

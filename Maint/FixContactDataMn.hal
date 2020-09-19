@@ -1,0 +1,245 @@
+//<halrule>server-only</halrule>
+
+function Boolean UpdateAffectsContact(record CUVc CUr,var vector string vCUName,var vector string vCUEMail,var vector string vCUBankAcc,var vector string vCUPhone,var vector string vCUJobDesc,var vector string vCURegNr)
+begin
+  Boolean res;
+
+  
+  if (nonblank(vCUName[CUr.Code]) and CUr.Name!=vCUName[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact name " & CUr.Name & ":" & vCUName[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+  if (nonblank(vCUEmail[CUr.Code]) and CUr.eMail!=vCUEmail[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact email " & CUr.eMail & ":" & vCUEmail[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+  if (nonblank(vCUBankAcc[CUr.Code]) and CUr.BankAccount!=vCUBankAcc[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact bankacc " & CUr.BankAccount & ":" & vCUBankAcc[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+  if (nonblank(vCUPhone[CUr.Code]) and CUr.Phone!=vCUPhone[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact phone " & CUr.Phone & ":" & vCUPhone[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+  if (nonblank(vCURegNr[CUr.Code]) and CUr.RegNr1!=vCURegNr[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact regnr " & CUr.RegNr1 & ":" & vCURegNr[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+  if (nonblank(vCUJobDesc[CUr.Code]) and CUr.JobDesc!=vCUJobDesc[CUr.Code]) then begin
+    res = true;
+    if (CUr.Code=="104834") then begin
+    logtext(0,"UpdateAffectsContact jobdesc " & CUr.JobDesc & ":" & vCUJobDesc[CUr.Code]);
+    end;
+    goto LUpdateAffectsContact;
+  end;
+
+LUpdateAffectsContact:;
+  UpdateAffectsContact = res;
+  return;
+end;
+
+procedure CheckAndAddCustomer(record CUVc prevCUr,record CUVc CUr,var vector Boolean vUpdateCust,record RHistVc prevRHistr,Date td)
+begin
+  Boolean changef;
+
+  changef = false;
+  if (prevCUr.Name!=CUr.Name) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed " & CUr.Name & ":" & prevCUr.Name);
+    end;
+  end;              
+  if (prevCUr.Phone!=CUr.Phone) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed2 " & CUr.Phone & ":" & prevCUr.Phone);
+    end;
+  end;              
+  if (prevCUr.BankAccount!=CUr.BankAccount) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed3 " & CUr.BankAccount & ":" & prevCUr.BankAccount);
+    end;
+  end;              
+  if (prevCUr.eMail!=CUr.eMail) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed4 " & CUr.eMail & ":" & prevCUr.eMail);
+    end;
+  end;              
+  if (prevCUr.RegNr1!=CUr.RegNr1) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed5 " & CUr.RegNr1 & ":" & prevCUr.RegNr1);
+    end;
+  end;              
+  if (prevCUr.JobDesc!=CUr.JobDesc) then begin
+    changef = true;
+    if (CUr.Code=="103924") then begin
+      logtext(0,"changed6 " & CUr.JobDesc & ":" & prevCUr.JobDesc);
+    end;
+  end;  
+  if (changef) then begin
+    if (prevRHistr.accode==kRecordHistoryActionUpdated and blank(prevRHistr.User) and prevRHistr.TransDate!=td) then begin
+      if (CUr.Code=="103924") then begin
+        logtext(0,"add " & CUr.Code & ":" & prevRHistr.TransDate & ":" & td);
+      end;
+      vUpdateCust[CUr.Code] = true;
+    end;
+  end;            
+
+
+  return;
+end;
+
+global
+procedure GetWronglyUpdatedContacts(var vector Boolean vUpdateCust,var vector string vCUName,var vector string vCUEMail,var vector string vCUBankAcc,var vector string vCUPhone,var vector string vCUJobDesc,var vector string vCURegNr)
+begin
+  record RHistVc RHistr,prevRHistr;
+  Integer compno;
+  string 255 vcname;
+  record CUVc CUr,prevCUr;
+  vector string 255 vCreated;
+  vector Boolean vAllowLogin,vCreditLimit;
+  vector string 255 vPassw;
+  Boolean changef,TrHs;
+  string 255 recidstr;
+  Date td;
+/*
+  while (LoopMain(RHistr,1,true)) begin
+    compno = GetRecordLinkFields(RHistr.RecidStr,vcname);
+    if (compno==CurrentCompany and vcname=="CUVc") then begin
+      //UnpackRecordLink(RHistr.RecidStr,CUr);
+      RecordClear(CUr);
+      ReadOriginalRecord(RHistr,CUr);
+          if (CUr.Code=="104834") then begin
+            logtext(0,"check1 " & CUr.eMail & ":" & RHistr.accode & ":" & RHistr.User);
+          end;
+      if ((RHistr.accode==kRecordHistoryActionUpdated and nonblank(RHistr.User)) or RHistr.accode==kRecordHistoryActionCreated) then begin//
+        //if (blank(vCUName[CUr.Code])) then begin// and nonblank(RHistr.User)
+          //this is initial info stored
+          if (nonblank(CUr.Name)) then begin
+            vCUName[CUr.Code] = CUr.Name;
+          end;
+          if (CUr.Code=="104834") then begin
+            logtext(0,"check2 " & CUr.eMail);
+          end;
+          if (nonblank(CUr.eMail)) then begin
+            vCUEMail[CUr.Code] = CUr.eMail;
+          end;
+          if (nonblank(CUr.BankAccount)) then begin
+            vCUBankAcc[CUr.Code] = CUr.BankAccount;
+          end;
+          if (nonblank(CUr.Phone)) then begin
+            vCUPhone[CUr.Code] = CUr.Phone;
+          end;
+          if (nonblank(CUr.JobDesc)) then begin
+            vCUJobDesc[CUr.Code] = CUr.JobDesc;
+          end;
+          if (nonblank(CUr.RegNr1)) then begin
+            vCURegNr[CUr.Code] = CUr.RegNr1;
+          end;
+          if (RHistr.accode==kRecordHistoryActionCreated) then begin
+            vCreated[CUr.Code] = RHistr.TransDate;
+          end;
+          if (Cur.AllowLogin==1) then begin
+            vAllowLogin[CUr.Code] = true;
+          end;
+        //end;
+      end;
+      if (blank(RHistr.User) and RHistr.accode==kRecordHistoryActionUpdated and (vCreated[CUr.Code]!=(RHistr.TransDate & ""))) then begin
+        if (UpdateAffectsContact(CUr,vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr)) then begin
+          if (CUr.Code=="104834") then begin
+            logtext(0,"ddd " & Cur.Code & ":" & vCreated[CUr.Code] & ":" & RHistr.TransDate);
+          end;
+          vUpdateCust[CUr.Code] = true;
+        end;
+      end;
+    end;
+  end;
+*/
+
+  while (LoopMain(CUr,1,true)) begin
+    if (CUr.CUType==1) then begin
+      RecordClear(prevCUr);
+      ResetLoop(RHistr);
+      TrHs = true;
+      recidstr = BuildRecordIDStr(CUr,CurrentCompany);
+      RHistr.RecidStr = recidstr;
+      td = "";
+      while (LoopKey("RecidStr",RHistr,1,TrHs)) begin
+        if (RHistr.RecidStr!=recidstr) then begin
+          TrHs = false;
+        end else begin
+          if (RHistr.accode==kRecordHistoryActionUpdated or RHistr.accode==kRecordHistoryActionCreated) then begin 
+            if (RHistr.accode==kRecordHistoryActionCreated) then begin
+              td = RHistr.TransDate;
+            end;
+            ReadOriginalRecord(RHistr,CUr);
+            if (prevCUr.Code!="") then begin
+              CheckAndAddCustomer(prevCUr,CUr,vUpdateCust,prevRHistr,td);
+            end;
+            recordCopy(prevCUr,CUr);
+            recordCopy(prevRHistr,RHistr);
+          end;
+        end;
+      end;
+      CheckAndAddCustomer(prevCUr,CUr,vUpdateCust,prevRHistr,td);
+    end;
+  end;
+
+  return;
+end;
+
+global
+updating procedure FixWronglyUpdatedContacts(vector Boolean vUpdateCust,vector string vCUName,vector string vCUEMail,vector string vCUBankAcc,vector string vCUPhone,vector string vCUJobDesc,vector string vCURegNr)
+begin
+  Integer i;
+  record CUVc CUr,oldCUr;
+  array string 255 aUpdateCust;
+  
+  GetVectorTags(vUpdateCust,aUpdateCust);
+  for (i=0;i<aUpdateCust.length;i=i+1) begin
+    CUr.Code = aUpdateCust[i];
+    if (ReadFirstMain(CUr,1,true)) then begin
+      RecordCopy(oldCUr,CUr);
+      CUr.Name = vCUName[CUr.Code];
+      CUr.eMail = vCUEMail[CUr.Code];
+      CUr.BankAccount = vCUBankAcc[CUr.Code];
+      CUr.Phone = vCUPhone[CUr.Code];
+      CUr.JobDesc = vCUJobDesc[CUr.Code];
+      CUr.RegNr1 = vCURegNr[CUr.Code];
+      RecordUpdate(oldCUr,CUr,true);
+    end;
+  end;
+
+  return;
+end;
+
+global
+procedure FixContactDataMn(record RcVc RepSpec)
+begin
+  vector Boolean vUpdateCust;
+  vector string 255 vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr;
+
+  GetWronglyUpdatedContacts(vUpdateCust,vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr);
+
+  qupdating.FixWronglyUpdatedContacts(vUpdateCust,vCUName,vCUEMail,vCUBankAcc,vCUPhone,vCUJobDesc,vCURegNr);
+
+  return;
+end;
