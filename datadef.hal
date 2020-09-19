@@ -479,6 +479,11 @@ begin
   KeySegment(SerNr);
   EndRecordAdd;
 
+  BlockBegin(EmailQueDelayBlock,-,"");
+  RecordField(DelayMinutes,M4Long,0,0);
+  EndBlock;
+
+
   SourceFile("halcust\\LoanApp\\Stubs",3);
   Exec_File("halcust\\LoanApp\\datadef.hal");
   SourceFile("halcust\\LoanApp",0);

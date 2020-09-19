@@ -277,6 +277,20 @@ begin
   EndWindow;
 end;
 
+window EmailQueDelayTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+  WindowBegin("Email Queue Delay Setting",EmailQueDelayTClass,CGSbl,-);
+  SetBlid(EmailQueDelayBlock);
+  SetWRect(20,80,500,298);
+  vs=20; h=160; vs2=16; hm=-100;
+  EditField(h,v=6,100,"Delay in Minutes",Normal,DelayMinutes,false,0);
+  EndWindow;
+end;
+
+
+
 window PassSessLClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
