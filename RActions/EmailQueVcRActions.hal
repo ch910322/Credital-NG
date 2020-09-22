@@ -1,0 +1,25 @@
+//<halrule>server-only</halrule>
+global
+updating function LongInt EMailQueVcRecordSave(var record EMailQueVc EMailQuer,record EMailQueVc EMailQue2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record EmailQueDelayBlock QDb;
+  Date td;
+  Time tt;
+
+  res = inner.EMailQueVcRecordSave(EMailQuer,EMailQue2r,stat,long4);
+
+  BlockLoad(QDb);
+  if (QDb.DelayMinutes>0) then begin
+    td = EMailQuer.QueDate;
+    tt = AddMinutes(EMailQuer.QueTime,QDb.DelayMinutes);
+    if (tt<EMailQuer.QueTime) then begin
+      td = AddDay(td,1);
+    end;
+    EMailQuer.SendDate = td;
+    EMailQuer.SendTime = tt;
+  end;
+
+  EMailQueVcRecordSave = res; 
+  RETURN;
+END;

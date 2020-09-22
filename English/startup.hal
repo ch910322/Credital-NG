@@ -47,6 +47,11 @@ begin
 /* System */
 	Setting("Rekvizitai.lt Classifications",RekvizitaiClassTClass,modSY);
 
+/*Email*/
+	Setting("Email Queue Delay Setting",EmailQueDelayTClass,modEmail);
+
+
+
   SString(1808,"Noviti Nr. ");
 
 /*OverdueAgreementsNr*/
