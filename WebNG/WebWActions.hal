@@ -1,6 +1,7 @@
 remote inner procedure GetWebNGContentAttachedImages(record WebNGContentVc,var array string);
 external inner procedure PasteFromSysList(Integer ,Integer);
 remote procedure GetWebCampaignAttachedImages(record WebCampaignVc,var array string);
+remote updating procedure GetMetaTagRemote(Longint,Integer,var record WebMetaTagVc);
 
 global
 function Boolean WebNGContentImageSClassOnOpenWindow(Integer wn)
@@ -174,5 +175,21 @@ begin
       end;
   end;
   OrderClassTransDClassAfterEditField = res;
+  return;
+end;
+
+global
+updating procedure WebNGStructureDClassOpenMetaTag()
+begin
+  record WebNGStructVc WSr;
+  record WebMetaTagVc MTr;
+  Integer wn,nwn,num;
+
+  wn = CurWindow;
+  if (WindowState(wn)==Rs_Normal) then begin
+    GetWindowRecord(wn,WSr);
+    GetMetaTagRemote(WSr.SerNr,0,MTr);
+    nwn = OpenWindow("WebMetaTagDClass",0,0,"","",MTr);
+  end;
   return;
 end;

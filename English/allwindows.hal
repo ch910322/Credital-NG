@@ -68,3 +68,34 @@ begin
   EditField(h,v+=vs,95,"User for Missed Calls",Normal,MissedUser,false,UserSClass);
   EndWindow;
 end;
+
+window WebNGStructDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,h3,h4,v,vs;
+  WindowBegin("Web Structure",WebNGStructDClass,CGview,-);
+  UseView(WebNGStructVc);
+  SetWRect(20,80,500,360);
+  Sizeable(-1,-1,0,0);
+  vs = 20;h = 120;h2 =  -70;h3 = 260; h4 = 340; v = 6;
+  EditField(h,v,82,"Ser. No.",Normal,SerNr,false,0);
+  EditField(h3,v,60,"Parent",Normal,Mother,false,WebNGStructSClass);
+  EditField(h,v+=vs,-20,"Web structure name",Normal,Name,false,WebNGCountrySClass);
+  EditField(h,v+=vs,-20,"Comment",Normal,Comment,false,0);
+  EditField(h,v+=vs,160,"Type",Normal,Type,false,SetSClass);
+  EditField(h4,v,-20,"Web Page",Normal,WebPage,false,WebNGPageSClass);
+  EditField(h,v+=vs,-20,"Parameter/URL",Normal,HALFunc,false,WebNGParamSClass);
+  CheckBox(h,v+=vs,0,"Require login for this and all child nodes",NeedsLogin);
+  CheckBox(h2,v,0,"Closed",Closed);
+  CheckBox(h,v+=16,0,"Log access to this node",LogAccess);
+
+  RecordList2(10,v+=40,-30,-39,"WebNGStructVc");
+  RlColKey(4,4,"No",SerNr,false,MotherSerNr);
+  RlColKey(55,55,"Name",Name,false,MotherName);
+//  RlColKey(185,185,"Mother",Mother,false,Mother);
+  RlColKey(185,185,"Comment",Comment,false,MotherComment);
+  SpecialMenu("New child node",'c',1,"TWebNGStructNewChildnodeDsm");
+  SpecialMenu("Open node in web browser",'w',2,"TWebNGStructOpenNodeInBrowserDsm");
+  SpecialMenu("Edit Meta Tag",'w',2,"WebNGStructureDClassOpenMetaTag");
+  EndWindow;
+end;
