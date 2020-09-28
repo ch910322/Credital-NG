@@ -134,6 +134,7 @@ begin
   RecordField(HideElements,M4UStr,255,0);
   RecordField(HideMenus,M4UStr,255,0);
   RecordField(LoanStruct,M4Long,0,0);
+  RecordField(DisplayMode,M4Int,0,0);
   EndBlock;
 
   RecordBegin(WebMetaTagVc,-,"");

@@ -61,9 +61,14 @@ end;
 function Boolean FastType(Integer type)
 begin
   Boolean res;
+  record CreditalWebSetBlock CWb;
 
-  if (type==0 or type==3 or type==4) then begin
-    res = true;
+  BlockLoad(CWb);
+
+  if (CWb.DisplayMode==0) then begin
+    if (type==0 or type==3 or type==4) then begin
+      res = true;
+    end;
   end;
 
   FastType = res;
@@ -84,6 +89,10 @@ begin
     vSess["LoanAmount"] = 0;
     vSess["LoanTerm"] = 0;
   end;
+/* 
+  vSess["WebLoanNr"] = 203523;
+  vSess["LoanNewCust"] = "true";
+*/
 
   return;
 end;
