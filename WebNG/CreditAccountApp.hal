@@ -930,7 +930,11 @@ begin
   WebOutString("fee='" & GetOneTimeFeeAmount(CredManr,CredManPayPlanr,WSb) & " &euro;'  ");
   WebOutString("monthlyfee='" & GetMonthlyTimeFeeAmount(CredManr,CredManPayPlanr,WSb) & " &euro;' "); 
   WebOutString("months='" & CredManr.InstalmentMonths & "' ");
-  WebOutString("delaymonths='" & ValToString(CredManr.PrincipleDelayMonths,M4Val,"",",",1) & " " & ToolWebNGTranslateText2(70014) & "' ");
+  if (CredManr.PrincipleDelayMonths>0) then begin
+    WebOutString("delaymonths='" & ValToString(CredManr.PrincipleDelayMonths,M4Val,"",",",1) & " " & ToolWebNGTranslateText2(70014) & "' ");
+  end else begin
+    WebOutString("delaymonths='-' ");
+  end;
   WebOutString("rate='" & ValToString(CredManr.IntRate,M4Rate,"",".",0) & "%' ");
   WebOutString("suretylist='" & ShowSuretyCredMan(CredManr) & "' ");
   WebOutString("bankacc='" & CredManr.BankAccount & "' ");
