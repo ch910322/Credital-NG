@@ -554,6 +554,9 @@ begin
     WSr.Name = node;
 //CUST-BEGIN
     if (CheckIfLandingPage(node)) then begin
+      if (RedirectToCorrectLanguage(path)) then begin
+        goto LHandlePathOut;
+      end;
       ShowLandingPage(node,mpath);
       goto LHandlePathOut;
     end;
