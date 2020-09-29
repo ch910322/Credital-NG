@@ -78,6 +78,10 @@ begin
     end;
   end;
 
+  if (res==false and nonblank(WMr.WebElement)) then begin
+    res = true;
+  end;
+
 
   HasMenuTranslation = res;
   return;
