@@ -60,6 +60,32 @@ begin
   end;  
   return;
 end;
+
+function Boolean HasMenuTranslation(record WebNGMenuVc WMr)
+begin
+  row WebNGMenuVc WMrw;
+  Integer i,rwcnt;
+  string 255 lang;
+  Boolean res;
+
+  lang = CurrentWebLang;
+  rwcnt = MatRowCnt(WMr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(WMr,i,WMrw);
+    if (WMrw.LangCode==lang) then begin
+      res = true;
+      i = rwcnt;
+    end;
+  end;
+
+  if (res==false and nonblank(WMr.WebElement)) then begin
+    res = true;
+  end;
+
+
+  HasMenuTranslation = res;
+  return;
+end;
 //CUST-END
 
 global
@@ -96,6 +122,9 @@ begin
       testf = true;
 //CUST-BEGIN
       if (nonblank(gHiddenMenus) and SetInSet(WMr.Code,gHiddenMenus)) then begin
+        testf = false;
+      end;
+      if (HasMenuTranslation(WMr)==false) then begin
         testf = false;
       end;
 //CUST-END

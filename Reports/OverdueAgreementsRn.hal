@@ -164,7 +164,7 @@ begin
     end else begin
       if (CredManr.OKFlag==1 and CredManr.endDate>CurrentDate) then begin
         testf = true;
-        if (RepSpec.long2>0 and CredManr.MonthlyPaymentDay!=RepSpec.long1) then begin
+        if (RepSpec.long2>0 and CredManr.MonthlyPaymentDay!=RepSpec.long2) then begin
           testf = false;
         end;
           
@@ -179,15 +179,23 @@ begin
             if (IVr.CustCode!=CredManr.CustCode or IVr.InvDate>RepSpec.sEndDate) then begin
               TrHs2 = false;
             end else begin
-              if (IVr.CustCredManNr==CredManr.SerNr) then begin
-                if (InvoiceIsOverdue(IVr,RepSpec,lateamount,latedays)) then begin
-                  ShowSingleAgreementWithInvoice(CredManr,IVr,lateamount,latedays,p);
-                  showf = true;
+              if (IVr.OKFlag==1) then begin
+                if (IVr.CustCredManNr==CredManr.SerNr) then begin
+                  if (InvoiceIsOverdue(IVr,RepSpec,lateamount,latedays)) then begin
+                    testf = true;
+                    if (RepSpec.long1>0 and latedays<RepSpec.long1) then begin
+                      testf = false;
+                    end;
+                    if (testf) then begin
+                      ShowSingleAgreementWithInvoice(CredManr,IVr,lateamount,latedays,p);
+                    end;
+                    showf = true;
+                  end;
                 end;
               end;
             end;
           end;
-          if (!showf) then begin
+          if (!showf and RepSpec.long1<=0) then begin
             ShowSingleAgreement(CredManr,p);
           end;
         end;

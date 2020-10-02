@@ -2284,3 +2284,28 @@ begin
 
   return;
 end;
+
+global
+updating procedure GetMetaTagRemote(Longint id,Integer type,var record WebMetaTagVc MTr)
+begin
+  
+  if (type==0) then begin
+    MTr.StructNr = id;
+    if (ReadFirstKey("StructNr",MTr,1,true)==false) then begin
+      RecordNew(MTr);
+      MTr.SerNr = NextSerNr("WebMetaTagVc",CurrentDate,-1,false,"");
+      MTr.StructNr = id;
+      RecordInsert(MTr,true);
+    end;
+  end else begin
+    MTr.ContentNr = id;
+    if (ReadFirstKey("ContentNr",MTr,1,true)==false) then begin
+      RecordNew(MTr);
+      MTr.SerNr = NextSerNr("WebMetaTagVc",CurrentDate,-1,false,"");
+      MTr.ContentNr = id;
+      RecordInsert(MTr,true);
+    end;
+  end;
+
+  return;
+end;

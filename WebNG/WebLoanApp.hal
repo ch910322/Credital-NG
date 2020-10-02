@@ -61,9 +61,14 @@ end;
 function Boolean FastType(Integer type)
 begin
   Boolean res;
+  record CreditalWebSetBlock CWb;
 
-  if (type==0 or type==3 or type==4) then begin
-    res = true;
+  BlockLoad(CWb);
+
+  if (CWb.DisplayMode==0) then begin
+    if (type==0 or type==3 or type==4) then begin
+      res = true;
+    end;
   end;
 
   FastType = res;
@@ -84,6 +89,10 @@ begin
     vSess["LoanAmount"] = 0;
     vSess["LoanTerm"] = 0;
   end;
+/*
+  vSess["WebLoanNr"] = 203523;
+  vSess["LoanNewCust"] = "true";
+*/
 
   return;
 end;
@@ -620,9 +629,11 @@ begin
     ShowInputField("bankacc",ToolWebNGTranslateText2(70132),ToolWebNGTranslateText2(70133),CUr.BankAccount,"",8);
     WebOutString("</div>");
 
+/*
     WebOutString("<div class='row input_row block_end ltype" & loantype & "'>")
     ShowPaymentDateField("paymentdate",ToolWebNGTranslateText2(70138),ToolWebNGTranslateText2(70139),"","","",4);
     WebOutString("</div>");
+*/
 
     WebOutString("<div class='surety_block_wrap'>")
     WebOutString("<div class='loan_head'><h2>" & ToolWebNGTranslateText2(70124) & "</h2></div>");
@@ -759,14 +770,16 @@ begin
   //smartid,paysera and e-signature
   WebOutString("<h2 class='verification_head'>" & ToolWebNGTranslateText2(70231) & "</h2>");
   WebOutString("<div class='verification_options'>")
-  if (LAr.ContactName==LAr.Surety1Name) then begin
+  //if (LAr.ContactName==LAr.Surety1Name) then begin
     ShowVerificatonMethod("esig","esignature.svg",ToolWebNGTranslateText2(70225));
     ShowVerificatonMethod("ebank","ebank.svg",ToolWebNGTranslateText2(70226));
     ShowVerificatonMethod("smartid","esmartid.svg",ToolWebNGTranslateText2(70227));
     ShowVerificatonMethod("other","other.svg",ToolWebNGTranslateText2(70224));
+/*
   end else begin
     ShowVerificatonMethod("other","other.svg",ToolWebNGTranslateText2(70373));
   end;
+*/
   WebOutString("</div>");
   WebOutString("<div class='clear'></div>");
   return;
@@ -1376,6 +1389,7 @@ logtext(0,"status " & status);
     LAr.PrincipleDelayInterest = CMTr.PrincipleDelayInterest;
     LAr.Months = CMTr.InstalmentMonths;
   end;
+  //LAr.MonthlyPaymentDay = CredManSb.InvDay;
   type = MapLoanType(LAr.Type);
   switch (type) begin
     case 2: LAr.Months = 6;
@@ -1944,11 +1958,12 @@ begin
       err = err + 8;
     end;
 
+/*
     type = MapLoanType(LAr.Type);
     if (type!=1 and type!=2 and (paymentdate<1 or paymentdate>31)) then begin
       err = err + 16;
     end;
-
+*/
     if (FastType(type)) then begin
       ignoref = true;
     end;
@@ -1974,7 +1989,7 @@ begin
           LAr.BankName = Bankr.Name;
         end;
       end;
-      LAr.MonthlyPaymentDay = paymentdate;
+      //LAr.MonthlyPaymentDay = paymentdate;
       if (addrtype) then begin
         LAr.Addr0 = addr2;
       end;

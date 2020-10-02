@@ -24,10 +24,12 @@ begin
     if (CRr.ContactCode!=custcode) then begin
       TrHs = false;
     end else begin
-      cnt = cnt + 1;
-      if (cnt>1) then begin
-        TrHs = false;
-        res = true;
+      if (CRr.Invalid==0) then begin
+        cnt = cnt + 1;
+        if (cnt>1) then begin
+          TrHs = false;
+          res = true;
+        end;
       end;
     end;
   end;

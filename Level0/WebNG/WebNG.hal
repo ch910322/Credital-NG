@@ -87,6 +87,24 @@ begin
   return;
 end;
 
+function Boolean LanguageAllowed(string langcode)
+begin
+  record WebNGCountryVc WCr;
+  Boolean res;
+
+  WCr.Code = ToolWebNGGetCountry;
+  if (nonblank(WCr.Code)) then begin
+    if (ReadFirstMain(WCr,1,true)) then begin
+      if (SetInSet(langcode,WCr.AllowedLanguages)) then begin
+        res = true;
+      end;
+    end;
+  end;
+
+  LanguageAllowed = res;
+  return;
+end;
+
 //CUST-END
 
 procedure SetCountryAndLanguage(var string path)
@@ -110,7 +128,13 @@ begin
   end;
   WLr.Code = node;
   if (ReadFirstMain(WLr,1,true)) then begin
-    language = WLr.Code;
+//CUST-BEGin
+    if (LanguageAllowed(WLr.Code)) then begin
+      language = WLr.Code;
+    end else begin
+      language = CurrentWebLang;
+    end;
+//CUST-END
     path = "";
     if (nonblank(country)) then begin
       path = country & "/";
@@ -122,7 +146,7 @@ begin
   end;
   if (blank(language)) begin
     language = GetCookie("langcode");
-   WLr.Code = language;
+    WLr.Code = language;
     if (ReadFirstMain(WLr,1,true)==false) then begin
       language = GetCountryDefaultLanguage;
     end;
@@ -530,6 +554,9 @@ begin
     WSr.Name = node;
 //CUST-BEGIN
     if (CheckIfLandingPage(node)) then begin
+      if (RedirectToCorrectLanguage(path)) then begin
+        goto LHandlePathOut;
+      end;
       ShowLandingPage(node,mpath);
       goto LHandlePathOut;
     end;
