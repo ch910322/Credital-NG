@@ -770,14 +770,16 @@ begin
   //smartid,paysera and e-signature
   WebOutString("<h2 class='verification_head'>" & ToolWebNGTranslateText2(70231) & "</h2>");
   WebOutString("<div class='verification_options'>")
-  if (LAr.ContactName==LAr.Surety1Name) then begin
+  //if (LAr.ContactName==LAr.Surety1Name) then begin
     ShowVerificatonMethod("esig","esignature.svg",ToolWebNGTranslateText2(70225));
     ShowVerificatonMethod("ebank","ebank.svg",ToolWebNGTranslateText2(70226));
     ShowVerificatonMethod("smartid","esmartid.svg",ToolWebNGTranslateText2(70227));
     ShowVerificatonMethod("other","other.svg",ToolWebNGTranslateText2(70224));
+/*
   end else begin
     ShowVerificatonMethod("other","other.svg",ToolWebNGTranslateText2(70373));
   end;
+*/
   WebOutString("</div>");
   WebOutString("<div class='clear'></div>");
   return;
