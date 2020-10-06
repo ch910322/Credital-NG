@@ -589,6 +589,7 @@ begin
     end;
     WebOutString("<div class='loan_back top'><div class='hl_button'>" & ToolWebNGTranslateText2(70143) & "</div></div>");
     WebOutString("<div class='row input_row'>")
+    WebOutString("<input type='hidden' id='loan_value' value='" & LAr.Sum & "'>");
     ShowInputField("compname",ToolWebNGTranslateText2(70125),ToolWebNGTranslateText2(70126),LAr.CustName,"readonly",4);
     ShowInputField("regnr",ToolWebNGTranslateText2(70112),ToolWebNGTranslateText2(70113),CUr.RegNr1,"readonly",4);
     WebOutString("</div>");
