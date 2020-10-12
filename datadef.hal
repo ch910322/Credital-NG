@@ -484,6 +484,27 @@ begin
   RecordField(DelayMinutes,M4Long,0,0);
   EndBlock;
 
+  RecordBegin(CompInforsVc,-,"");
+  RecordField(RegNr,M4Str,20,0);
+  RecordField(CountryCode,M4Code,20,0);
+  RecordField(TransDate,M4Date,0,0);
+  RecordField(Name,M4Str,255,0);
+  RecordField(Addr0,M4Str,255,0);
+  RecordField(Addr1,M4Str,255,0);
+  RecordField(Addr2,M4Str,255,0);
+  RecordField(Addr3,M4Str,255,0);
+  RecordField(Phone,M4Str,255,0);
+  RecordField(Mobile,M4Str,255,0);
+  RecordField(Fax,M4Str,255,0);
+  RecordField(eMail,M4Str,255,0);
+  RecordField(HomePage,M4Str,255,0);
+  RecordField(VATNr,M4Str,255,0);
+  RecordField(CustClass,M4Str,255,0);
+  MainKeyBegin(MainKey,0);
+  KeySegment(RegNr);
+  KeySegment(CountryCode);
+  EndRecord;
+
 
   SourceFile("halcust\\LoanApp\\Stubs",3);
   Exec_File("halcust\\LoanApp\\datadef.hal");

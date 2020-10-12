@@ -1,0 +1,7 @@
+global
+function Boolean HasMoneyTransferDate()
+begin
+  
+  HasMoneyTransferDate = true;
+  return;
+end;

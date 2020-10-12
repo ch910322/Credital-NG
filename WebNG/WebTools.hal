@@ -1100,6 +1100,81 @@ begin
   return;
 end;
 
+function Boolean FindCompanyNameInCache(string regnr,string countrycode,var string name,var string addr0,var string addr1,var string addr2,var string addr3,var string phone,var string mobile,var string fax,var string homepage,var string email,var string vatnr,var string custclass)
+begin
+  record CompInforsVc CIr;
+  Boolean res;
+  Integer i,rwcnt,cnt,listcnt;
+  string 255 list;
+  array string 255 alist,nlist;
+  Longint pos;
+  record RekvizitaiClassBlock RCb;
+  row RekvizitaiClassBlock RCbrw;
+
+  CIr.RegNr = regnr;
+  CIr.CountryCode = countrycode;
+  if (ReadFirstMain(CIr,1,true)) then begin
+    if (CIr.TransDate==CurrentDate) then begin
+      name = CIr.Name;
+      addr0 = CIr.Addr0;
+      addr1 = CIr.Addr1;
+      addr2 = CIr.Addr2;
+      addr3 = CIr.Addr3;
+      phone = CIr.Phone;
+      mobile = CIr.Mobile;
+      fax = CIr.Fax;
+      homepage = CIr.HomePage;
+      email = CIr.eMail;
+      vatnr = CIr.VATNr;
+      custclass = CIr.CustClass;
+      res = true;
+    end;
+  end;
+
+
+  FindCompanyNameInCache = res;
+  return;
+end;
+
+global
+updating procedure StoreCompInfoHistory(string regnr,string countrycode,string name,string addr0,string addr1,string addr2,string addr3,string phone,string mobile,string fax,string homepage,string email,string vatnr,string custclass)
+begin
+  record CompInforsVc CIr;
+  Boolean res;
+  Integer i,rwcnt,cnt,listcnt;
+  string 255 list;
+  array string 255 alist,nlist;
+  Longint pos;
+  record RekvizitaiClassBlock RCb;
+  row RekvizitaiClassBlock RCbrw;
+
+  CIr.RegNr = regnr;
+  CIr.CountryCode = countrycode;
+  if (ReadFirstMain(CIr,1,true)==false) then begin
+    RecordNew(CIr);
+    CIr.RegNr = regnr;
+    CIr.CountryCode = countrycode;    
+  end;
+  CIr.TransDate = CurrentDate;
+
+  CIr.Name = name;
+  CIr.Addr0 = addr0;
+  CIr.Addr1 = addr1;
+  CIr.Addr2 = addr2;
+  CIr.Addr3 = addr3;
+  CIr.Phone = phone;
+  CIr.Mobile = mobile;
+  CIr.Fax = fax;
+  CIr.HomePage = homepage;
+  CIr.eMail = email;
+  CIr.VATNr = vatnr;
+  CIr.CustClass = custclass;
+
+  RecordStore(CIr,true);
+
+  return;
+end;
+
 global
 procedure GetCustomerNameFromServer2(string regnr,var string name,var string addr0,var string addr1,var string addr2,var string addr3,var string phone,var string mobile,var string fax,var string homepage,var string email,var string vatnr,var string custclass,Boolean checkclassf,string countrycode,var Boolean res)
 begin
@@ -1115,6 +1190,11 @@ begin
   record RekvizitaiClassBlock RCb;
   row RekvizitaiClassBlock RCbrw;
   
+
+  if (FindCompanyNameInCache(regnr,countrycode,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,email,vatnr,custclass)) then begin
+    res = true;
+    goto LGetCustomerNameFromServer2;
+  end;
   
   name = "";
   SendFunctionVersion("54.0","",a_req);
@@ -1205,6 +1285,11 @@ begin
     end;
   end;
 
+  if (res and nonblank(name)) then begin
+    queued.StoreCompInfoHistory(regnr,countrycode,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,email,vatnr,custclass);
+  end;
+
+LGetCustomerNameFromServer2:;
   return;
 end;
 
