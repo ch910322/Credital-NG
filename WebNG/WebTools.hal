@@ -413,6 +413,7 @@ begin
   Integer i,rwcnt;
   Integer oldcomp;
   record CreditalWebSetBlock CWSb;
+  val amt;
 
   oldcomp = SetCompanyBasedOnCountry;
 
@@ -451,7 +452,11 @@ begin
     WebOutString("var rates" & type & " = [];");//sorry for doing it like this. 
     for (i=0;i<rwcnt;i=i+1) begin
       MatRowGet(WLCr,i,WLCrw);
-      WebOutString("rates" & type & ".push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+      amt = WLCrw.AmountTo;
+      if (blank(amt)) then begin
+        amt = 0;
+      end;
+      WebOutString("rates" & type & ".push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
     end;
     WebOutString("</script>");
 
@@ -507,6 +512,7 @@ begin
   string 255 add,link;
   Integer oldcomp;
   record CreditalWebSetBlock CWSb;
+  val amt;
 
   oldcomp = SetCompanyBasedOnCountry;
 
@@ -538,7 +544,11 @@ begin
     WebOutString("var rates = [];");
     for (i=0;i<rwcnt;i=i+1) begin
       MatRowGet(WLCr,i,WLCrw);
-      WebOutString("rates.push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+      amt = WLCrw.AmountTo;
+      if (blank(amt)) then begin
+        amt = 0;
+      end;
+      WebOutString("rates.push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
     end;
     WebOutString("</script>");
 

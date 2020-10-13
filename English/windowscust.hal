@@ -259,8 +259,10 @@ begin
   RadioButton(h,v+=16,1,0,"Days",TermType);  
 
   MatrixBegin(10,v+=vs+40,-40,-20,-,99);
-  MatCol(1,24,"Months",0,Months,false,0);
-  MatCol(1,74,"Rate",0,Rate,false,0);
+
+  MatCol(1,24,"Amount To",0,AmountTo,true,0);
+  MatCol(1,94,"Months",0,Months,true,0);
+  MatCol(1,174,"Rate",0,Rate,false,0);
   EndMatrix;
   EndWindow;
 end;
