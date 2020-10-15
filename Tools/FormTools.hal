@@ -1,4 +1,5 @@
 //<halrule>server-only</halrule>
+external inner function string 255 StrReplace(string,string,string);
 
 function Boolean FindDocument(var record MultiDocVc MDr,string docname,Integer loantype,Boolean maxf,string langcode)
 begin
@@ -239,3 +240,17 @@ begin
   return;
 end;
 
+global
+function Boolean Ext_GetPDFInvoiceName(record IVVc IVr,var string fname) 
+begin
+  Boolean res;
+
+  res = true;
+  if (nonblank(IVr.OfficialSerNr)) then begin
+    fname = "Noviti Nr. " & StrReplace(IVr.OfficialSerNr,"/","") & ".pdf";
+  end else begin
+    fname = "Noviti Nr. " & IVr.SerNr & ".pdf";
+  end;
+  Ext_GetPDFInvoiceName = res;
+  return;
+end;
