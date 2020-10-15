@@ -794,7 +794,7 @@ end;
 procedure ShowDataProcessing()
 begin
   
-  WebOutString("<div class='data_wrap'><div class='data_img gradient'><img src='/files?file=dataproc.svg' alt='" & ToolWebNGTranslateText2(70228) & "'></div><div class='data_text'><h3>" & ToolWebNGTranslateText2(70228) & "</h3><p>" & ToolWebNGTranslateText2(70229) & "</p><p>" & ToolWebNGTranslateText2(70230) & "</p></div><div class='clear'></div></div>");
+  WebOutString("<div class='data_wrap'><div class='data_img gradient'><img src='/files?file=dataproc.svg' alt='" & ToolWebNGTranslateText2(70228) & "'></div><div class='data_text'><h3>" & ToolWebNGTranslateText2(70228) & "</h3><p>" & ToolWebNGTranslateText2(70229) & "</p><p><a href='/WebShowLoanAppAgreement.hal' target='_blank' class='gdpr_doc_link'>" & ToolWebNGTranslateText2(70230) & "</a></p></div><div class='clear'></div></div>");
 
   return;
 end;
