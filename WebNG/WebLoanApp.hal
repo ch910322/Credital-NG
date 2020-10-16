@@ -42,6 +42,8 @@ external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
 external inner function string 10 ToolWebNGGetCountry();
 external updating function Boolean ArchiveExistingDocument(record AgreementDocVc,var string);
+external updating procedure RemoveContactFromMailingList(record PersColVc,record CUVc);
+
 
 global
 function string 255 GetLinkToLoanApp()
@@ -89,10 +91,10 @@ begin
     vSess["LoanAmount"] = 0;
     vSess["LoanTerm"] = 0;
   end;
-/*
+
   vSess["WebLoanNr"] = 203523;
   vSess["LoanNewCust"] = "true";
-*/
+
 
   return;
 end;
@@ -1346,6 +1348,23 @@ begin
   end;
   if (ReadFirstMain(PersColr,1,true)) then begin
     AddContactToMailingList(PersColr,CUr);
+  end;
+
+  return;
+end;
+
+global
+updating procedure RemoveFromMailingList(record CMApplicationSetBlock CMb,record CUVc CUr,Integer num)
+begin
+  record PersColVc PersColr;
+  
+  if (num==1) then begin
+    PersColr.Code = CMb.MailingList;
+  end else begin    
+    PersColr.Code = CMb.MailingList2;
+  end;
+  if (ReadFirstMain(PersColr,1,true)) then begin
+    RemoveContactFromMailingList(PersColr,CUr);
   end;
 
   return;

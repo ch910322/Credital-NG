@@ -632,6 +632,21 @@ begin
   return;
 end;
 
+global
+updating procedure RemoveContactFromMailingList(record PersColVc PersColr,record CUVc CUr)
+begin
+  record PersColListVc PersColListr;
+
+  RecordNew(PersColListr);
+  PersColListr.Code = CUr.Code;
+  PersColListr.PersColCode = PersColr.Code;
+  if (ReadFirstMain(PersColListr,2,true)) then begin
+    RecordRemove(PersColListr);
+  end;
+
+  return;
+end;
+
 global webpublic
 updating procedure WebSubmitNewsLetter()
 begin
