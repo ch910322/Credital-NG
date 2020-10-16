@@ -15,6 +15,8 @@ external function Integer MapLoanType(string);
 external function string 255 CreditalFixPhone(string,string);
 external inner function string 10 CurrentWebLang();
 external function Boolean CustIsSurety(string,record CredManVc);
+external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc,Integer);
+external updating procedure RemoveFromMailingList(record CMApplicationSetBlock,record CUVc,Integer);
 
 procedure DisplayAccDataField(string cls,string label,string value) 
 begin
@@ -569,6 +571,43 @@ begin
   return;
 end;
 
+procedure ShowRadioButton(string name,string value,Boolean selected,string label)
+begin
+  string 255 selectedstr;
+  
+  if (selected) then begin
+    selectedstr = "checked";
+  end;
+
+  WebOutString("<div class='radio_line'><div class='radio_input'><input type='radio' name='" & name & "' " & selectedstr & " value='" & value & "'></div><div class='radio_label'>" & label & "</div></div>");
+
+  return;
+end;
+
+procedure ShowAccountSubscription(record CUVc CUr)
+begin
+  
+  //profile left
+  WebOutString("<div class='row'><div class='col-lg subscription'>");
+  WebOutString("<div class='subscription_frame'><div class='subscription_title'>" & ToolWebNGTranslateText2(70430) & "</div><div class='subscription_body'>");
+
+  WebOutString("<form id='subscription_form'>");
+  ShowRadioButton("subscription",1,(CUr.NoLetterPosting==1 or CUr.NoMailPosting==1),ToolWebNGTranslateText2(70431));
+    WebOutString("<div class='subscription_subtype'>");
+    WebOutString("<div class='subscription_smalltitle'>" & ToolWebNGTranslateText2(70432) & "</div>");
+    ShowRadioButton("subscription_type",1,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70433));
+    ShowRadioButton("subscription_type",2,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70434));
+    ShowRadioButton("subscription_type",3,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70435));
+
+    WebOutString("</div>");
+  ShowRadioButton("subscription",2,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70436));
+  WebOutString("<form>");
+  WebOutString("</div>");
+  WebOutString("<div class='subscription_button'><div class='hl_button'>" & ToolWebNGTranslateText2(70437) & "</div></div>");
+  WebOutString("</div></div>");
+  return;
+end;
+
 procedure ShowProfile()
 begin
   record CUVc CUr;
@@ -618,6 +657,8 @@ begin
   WebOutString("</div>");//profile_right
 
   WebOutString("</div>");//profile_wrap
+
+  ShowAccountSubscription(CUr);
 
   return;
 end;
@@ -1050,6 +1091,47 @@ begin
 end;
 
 global
+updating procedure UpdateCMSubscriptionFromWeb(string subscriptiontype,var Boolean res)
+begin
+  record CUVc CUr,oldCUr;
+  record CMApplicationSetBlock CMb;
+  
+  CUr.Code = CurrentCust;
+  if (ReadFirstMain(CUr,1,true)) then begin
+    RecordCopy(oldCUr,CUr);
+    switch (subscriptiontype) begin
+      case "1": 
+        CUr.NoLetterPosting = 0;
+        CUr.NoMailPosting = 1;
+      case "2": 
+        CUr.NoLetterPosting = 1;
+        CUr.NoMailPosting = 0;
+      case "3": 
+        CUr.NoLetterPosting = 1;
+        CUr.NoMailPosting = 1;
+      otherwise 
+        CUr.NoLetterPosting = 0;
+        CUr.NoMailPosting = 0;
+    end;
+
+    BlockLoad(CMb);
+    if (CUr.NoLetterPosting!=0 or CUr.NoMailPosting!=0) then begin
+      AddToMailingList(CMb,CUr,2);
+    end else begin
+      RemoveFromMailingList(CMb,CUr,2);
+    end;
+    
+    if (RecordUpdate(oldCUr,CUr,true)==0) then begin
+      res = true;
+    end;
+  end;
+
+  return;
+end;
+
+
+
+global
 updating procedure UpdateCreditPassword(string old,string new,string new2,var Boolean res,var string tstr)
 begin
   record CUVc CUr,oldCUr;
@@ -1104,6 +1186,11 @@ begin
       end;
     case "updateprofile":
       qupdating.UpdateCreditProfile(WebGetArg("address"),WebGetArg("phone"),res);
+      if (res==false) then begin
+        WebOutString("<res err='1' msg='" & ToolWebNGTranslateText2(70367) & "'></res>");
+      end;
+    case "updatesubscription":
+      qupdating.UpdateCMSubscriptionFromWeb(WebGetArg("subscription_type"),res);
       if (res==false) then begin
         WebOutString("<res err='1' msg='" & ToolWebNGTranslateText2(70367) & "'></res>");
       end;

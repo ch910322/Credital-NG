@@ -149,7 +149,7 @@ begin
   rwcnt = MatRowCnt(LPr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(LPr,i,LPrw);
-    WebOutString("calcrates.push({months:" & ValToString(LPrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(LPrw.Rate,M4Val,"",".",0) & "});");
+    WebOutString("calcrates.push({months:" & ValToString(LPrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(0,M4Val,"",".",0) & ",rate:" & ValToString(LPrw.Rate,M4Val,"",".",0) & "});");
   end;
 
   WebOutString("</script>");

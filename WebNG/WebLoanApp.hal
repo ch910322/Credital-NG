@@ -42,6 +42,8 @@ external function Boolean GetLoanAppContact(string,string,var record CUVc);
 external inner function Boolean ExternalDocumentEnabled(string);
 external inner function string 10 ToolWebNGGetCountry();
 external updating function Boolean ArchiveExistingDocument(record AgreementDocVc,var string);
+external updating procedure RemoveContactFromMailingList(record PersColVc,record CUVc);
+
 
 global
 function string 255 GetLinkToLoanApp()
@@ -370,6 +372,7 @@ begin
   row WebLoanCalcVc WLCrw;
   Integer i,rwcnt;
   string 255 add;
+  val amt;
 
   WebOutString("<script>");
   WebOutString("var deftype = " & type & ";");
@@ -402,7 +405,11 @@ begin
     
     for (i=0;i<rwcnt;i=i+1) begin
       MatRowGet(WLCr,i,WLCrw);
-      WebOutString("t['rates'].push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+      amt = WLCrw.AmountTo;
+      if (blank(amt)) then begin
+        amt = 0;
+      end;
+      WebOutString("t['rates'].push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
     end;
     WebOutString("loantypes['" & WLCr.Type & "'] = t;");
   end;
@@ -789,7 +796,7 @@ end;
 procedure ShowDataProcessing()
 begin
   
-  WebOutString("<div class='data_wrap'><div class='data_img gradient'><img src='/files?file=dataproc.svg' alt='" & ToolWebNGTranslateText2(70228) & "'></div><div class='data_text'><h3>" & ToolWebNGTranslateText2(70228) & "</h3><p>" & ToolWebNGTranslateText2(70229) & "</p><p>" & ToolWebNGTranslateText2(70230) & "</p></div><div class='clear'></div></div>");
+  WebOutString("<div class='data_wrap'><div class='data_img gradient'><img src='/files?file=dataproc.svg' alt='" & ToolWebNGTranslateText2(70228) & "'></div><div class='data_text'><h3>" & ToolWebNGTranslateText2(70228) & "</h3><p>" & ToolWebNGTranslateText2(70229) & "</p><p><a href='/WebShowLoanAppAgreement.hal' target='_blank' class='gdpr_doc_link'>" & ToolWebNGTranslateText2(70230) & "</a></p></div><div class='clear'></div></div>");
 
   return;
 end;
@@ -1341,6 +1348,23 @@ begin
   end;
   if (ReadFirstMain(PersColr,1,true)) then begin
     AddContactToMailingList(PersColr,CUr);
+  end;
+
+  return;
+end;
+
+global
+updating procedure RemoveFromMailingList(record CMApplicationSetBlock CMb,record CUVc CUr,Integer num)
+begin
+  record PersColVc PersColr;
+  
+  if (num==1) then begin
+    PersColr.Code = CMb.MailingList;
+  end else begin    
+    PersColr.Code = CMb.MailingList2;
+  end;
+  if (ReadFirstMain(PersColr,1,true)) then begin
+    RemoveContactFromMailingList(PersColr,CUr);
   end;
 
   return;
