@@ -592,7 +592,7 @@ begin
   WebOutString("<div class='subscription_frame'><div class='subscription_title'>" & ToolWebNGTranslateText2(70430) & "</div><div class='subscription_body'>");
 
   WebOutString("<form id='subscription_form'>");
-  ShowRadioButton("subscription",1,(CUr.NoLetterPosting==1 or CUr.NoMailPosting==1),ToolWebNGTranslateText2(70431));
+  ShowRadioButton("subscription",1,(CUr.NoLetterPosting==1 or CUr.NoMailPosting==1),ToolWebNGTranslateText2(70431) & ToolWebNGTranslateText2(70438));
     WebOutString("<div class='subscription_subtype'>");
     WebOutString("<div class='subscription_smalltitle'>" & ToolWebNGTranslateText2(70432) & "</div>");
     ShowRadioButton("subscription_type",1,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70433));
