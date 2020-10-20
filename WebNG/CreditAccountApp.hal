@@ -604,7 +604,7 @@ begin
   WebOutString("<form>");
   WebOutString("</div>");
   WebOutString("<div class='subscription_button'><div class='hl_button'>" & ToolWebNGTranslateText2(70437) & "</div></div>");
-  WebOutString("</div></div>");
+  WebOutString("</div></div></div>");
   return;
 end;
 
