@@ -146,7 +146,7 @@ function string 255 CheckInternalStrings(Longint strno)
 begin
   string 255 res;
 
-  SetLangMode(LangLithuanian,"LIT",0);
+  SetLangMode(LangLithuanian,"LIT",2);
 
   switch (strno) begin
     case 70000: res = "test";
@@ -245,7 +245,8 @@ begin
     case 70162: res = "�vesk el. pa�to adres�";
     case 70163: res = "�vesk slapta�od�, laukas negali b�ti tu�ias";
     case 70164: res = "�vestas slapta�odis turi sutapti";
-    
+    case 70165: res = "Įmonės finansiniai dokumentai";
+
 
   //normal web strings end at 70200
     case 70200: res = "Foto galerija";

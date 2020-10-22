@@ -54,6 +54,27 @@ begin
   return;
 end;
 
+function Boolean OnlyFeeInvoice(record IVVc IVr)
+begin
+  Boolean res;
+  Integer i,rwcnt;
+  row IVVc IVrw;
+
+  res = true;
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (IVrw.ChargeType>0) then begin
+      if (IVrw.ChargeType!=8) then begin
+        res = false;
+      end;
+    end;
+  end;
+
+  OnlyFeeInvoice = res;
+  return;
+end;
+
 function Boolean InvoiceIsOverdue(record IVVc IVr,record RcVc RepSpec,var val lateamount,var Integer latedays)
 begin
   val due,paidval,balb1;
@@ -62,6 +83,10 @@ begin
   Boolean res;
   Date td;
   
+  if (OnlyFeeInvoice(IVr)) then begin
+    goto LInvoiceIsOverdue;
+  end;
+
   lateamount = 0;
   latedays = 0;
   td = IVr.PayDate;
@@ -98,6 +123,7 @@ begin
     latedays = DateDiff(RepSpec.sEndDate,IVr.PayDate);
   end;
 
+LInvoiceIsOverdue:;
   InvoiceIsOverdue = res;
   return;
 end;
@@ -111,7 +137,9 @@ begin
   array Integer p;
   val lateamount;
   Integer latedays;
+  record CMOrderClassBlock OCb;
 
+  BlockLoad(OCb);
   StartReportJob(USetStr(2000000));
 
   EndHeader;
@@ -195,7 +223,7 @@ begin
               end;
             end;
           end;
-          if (!showf and RepSpec.long1<=0) then begin
+          if (!showf and RepSpec.long1<=0 and CredManr.OrderClass==OCb.ActiveCredOrderClass) then begin
             ShowSingleAgreement(CredManr,p);
           end;
         end;
