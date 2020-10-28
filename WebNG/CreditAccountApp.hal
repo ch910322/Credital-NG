@@ -765,26 +765,6 @@ begin
   return;
 end;
 
-
-function string 255 ShowSuretyCredMan(record CredManVc CredManr)
-begin
-  string 255 res;
-  
-  if (nonblank(CredManr.SuretyProvider1)) then begin
-    res = CredManr.Surety1Name & " (" & CredManr.Surety1ID & ")";
-  end;
-  if (nonblank(CredManr.SuretyProvider2)) then begin
-    res = AddObjectToObjectList(res,CredManr.Surety1Name & " (" & CredManr.Surety1ID & ")");
-  end;
-  if (nonblank(CredManr.SuretyProvider3)) then begin
-    res = AddObjectToObjectList(res,CredManr.Surety1Name & " (" & CredManr.Surety1ID & ")");
-  end;
-
-
-  ShowSuretyCredMan = res;
-  return;
-end;
-
 function val GetOneTimeFeeAmount(record CredManVc CredManr,record CredManPayPlanVc CredManPayPlanr,record CreditalWebSetBlock WSb)
 begin
   val res;
@@ -887,7 +867,6 @@ begin
     res = true;
   end;
 
-LContactShouldSeeDocument:;
   ContactShouldSeeDocument = res;
   return;
 end;
