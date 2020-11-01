@@ -592,15 +592,15 @@ begin
   WebOutString("<div class='subscription_frame'><div class='subscription_title'>" & ToolWebNGTranslateText2(70430) & "</div><div class='subscription_body'>");
 
   WebOutString("<form id='subscription_form'>");
-  ShowRadioButton("subscription",1,(CUr.NoLetterPosting==1 or CUr.NoMailPosting==1),ToolWebNGTranslateText2(70431) & ToolWebNGTranslateText2(70438));
+  ShowRadioButton("subscription",1,(CUr.NoLetterPosting==0 or CUr.NoMailPosting==0),ToolWebNGTranslateText2(70431) & ToolWebNGTranslateText2(70438));
     WebOutString("<div class='subscription_subtype'>");
     WebOutString("<div class='subscription_smalltitle'>" & ToolWebNGTranslateText2(70432) & "</div>");
-    ShowRadioButton("subscription_type",1,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70433));
-    ShowRadioButton("subscription_type",2,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70434));
-    ShowRadioButton("subscription_type",3,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70435));
+    ShowRadioButton("subscription_type",1,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70433));
+    ShowRadioButton("subscription_type",2,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70434));
+    ShowRadioButton("subscription_type",3,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70435));
 
     WebOutString("</div>");
-  ShowRadioButton("subscription",2,(CUr.NoLetterPosting==0 and CUr.NoMailPosting==0),ToolWebNGTranslateText2(70436));
+  ShowRadioButton("subscription",2,(CUr.NoLetterPosting==1 and CUr.NoMailPosting==1),ToolWebNGTranslateText2(70436));
   WebOutString("<form>");
   WebOutString("</div>");
   WebOutString("<div class='subscription_button'><div class='hl_button'>" & ToolWebNGTranslateText2(70437) & "</div></div>");
@@ -1086,11 +1086,11 @@ begin
         CUr.NoLetterPosting = 1;
         CUr.NoMailPosting = 0;
       case "3": 
-        CUr.NoLetterPosting = 1;
-        CUr.NoMailPosting = 1;
-      otherwise 
         CUr.NoLetterPosting = 0;
         CUr.NoMailPosting = 0;
+      otherwise 
+        CUr.NoLetterPosting = 1;
+        CUr.NoMailPosting = 1;
     end;
 
     BlockLoad(CMb);

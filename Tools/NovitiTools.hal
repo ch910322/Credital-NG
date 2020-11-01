@@ -5,3 +5,11 @@ begin
   HasMoneyTransferDate = true;
   return;
 end;
+
+global
+function Boolean CheckCredManSchedule()
+begin
+  
+  CheckCredManSchedule = true;
+  return;
+end;

@@ -637,6 +637,10 @@ begin
     ShowInputField("bankacc",ToolWebNGTranslateText2(70132),ToolWebNGTranslateText2(70133),CUr.BankAccount,"",8);
     WebOutString("</div>");
 
+    WebOutString("<div class='row input_row wide'>")
+    ShowInputField2("upload",ToolWebNGTranslateText2(70165),"","","multiple",8,"file");
+    WebOutString("</div>");
+
 /*
     WebOutString("<div class='row input_row block_end ltype" & loantype & "'>")
     ShowPaymentDateField("paymentdate",ToolWebNGTranslateText2(70138),ToolWebNGTranslateText2(70139),"","","",4);
@@ -2296,6 +2300,30 @@ LAgreementDoc:;
           AllClientsRemoteAsync.DocumentSigningClientDone(custcode,ADr);
         end;
       end;
+  end;
+
+  return;
+end;
+
+global
+updating procedure FinishLoanAppFileUpload(string sess,string filename,string id,string tag)
+begin
+  string 255 fn,nfn;
+  area filearea;
+  vector string 255 vVals;
+  array string 255 aVals;
+  Integer i;
+  record B2BLoanApplicationVc LAr;
+
+  fn = "tmp/" & tag & "/" & sess;
+  if (FileExists(fn)) then begin
+    nfn = "tmp/" & tag & "/" & Trim(filename);
+    RenameFile(fn,nfn);
+    LAr.SerNr = StringToLongint(id);
+    if (ReadFirstMain(LAr,1,true)) then begin
+      RecordLinkFile(nfn,0,LAr,CurrentCompany);    
+    end;
+    Delete_File(nfn);
   end;
 
   return;
