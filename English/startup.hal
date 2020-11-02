@@ -50,6 +50,9 @@ begin
 /*Email*/
 	Setting("Email Queue Delay Setting",EmailQueDelayTClass,modEmail);
 
+/*CRM*/
+  Report("Marketing Report",MarketingRClass,MarketingRn,0,modCRM);
+
 
 
   SString(1808,"Noviti Nr. ");
