@@ -506,6 +506,9 @@ begin
   KeySegment(CountryCode);
   EndRecord;
 
+  RecordAddBegin(HttpPathRedirectVc,"Cust_HttpPathRedirectVc");
+  ChangeField(ToPath,M4Str,255,0);
+  EndRecordAdd;
 
   SourceFile("halcust\\LoanApp\\Stubs",3);
   Exec_File("halcust\\LoanApp\\datadef.hal");
