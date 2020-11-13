@@ -3,6 +3,8 @@ begin
   SetLangMode(LangLithuanian,"LIT",2);
 
   SString(1808,"Noviti Nr. ");
+  SString(1803,"Sąskaita");
+  SString(1805,"Kredito pažyma");
 
   return;
 end;
