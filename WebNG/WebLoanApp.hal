@@ -372,7 +372,7 @@ begin
   row WebLoanCalcVc WLCrw;
   Integer i,rwcnt;
   string 255 add;
-  val amt;
+  val amt,months2;
 
   WebOutString("<script>");
   WebOutString("var deftype = " & type & ";");
@@ -409,7 +409,11 @@ begin
       if (blank(amt)) then begin
         amt = 0;
       end;
-      WebOutString("t['rates'].push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+      months2 = WLCrw.Months;
+      if (blank(months2)) then begin
+        months2 = 0;
+      end;
+      WebOutString("t['rates'].push({months:" & ValToString(months2,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
     end;
     WebOutString("loantypes['" & WLCr.Type & "'] = t;");
   end;
