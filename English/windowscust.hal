@@ -1037,8 +1037,6 @@ begin
 
 end;
 
-
-
 window CredManHistRClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
@@ -1048,8 +1046,22 @@ begin
   SetWRect(20,80,400,200);
   h = 150; v=6; vs=20;
   EndWindow;
-
 end;
+window MarketingRClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs,v2,vs2,hm;
+
+  WindowBegin("Marketing Report",MarketingRClass,CGRcW,RcType);
+  SetWRect(20,80,400,200);
+  h = 150; v=6; vs=20;
+  PeriodField(h=160,v=6,"Period");
+  CheckBox(h,v=v+30,0,"Agreed to receive Emails",flags[1]);
+  CheckBox(h,v=v+vs,0,"Agreed to receive SMS",flags[0]);
+  EndWindow;
+end;
+
+
 window CheckWronglyUpdateCustomerVClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin

@@ -1,0 +1,70 @@
+external inner function string 255 GetMainCustomerCodeFromContact(string);
+
+
+global
+procedure MarketingRn(record RcVc RepSpec)
+begin
+  Boolean testf,checkf;
+  record CUVc CUr;
+  string 255 s1,s2;
+  
+  StartReportJob("Marketing Report");
+
+  EndHeader;
+  if (RepSpec.flags[0]==1 or RepSpec.flags[1]==1) then begin
+    checkf = true;
+  end;
+
+  SetRepCol(2,60);
+  SetRepCol(3,180);
+  SetRepCol(4,240);
+  SetRepCol(5,300);
+  SetRepCol(6,380);
+  SetRepCol(7,400);
+  SetRepCol(7,420);
+  SetRepCol(8,440);
+
+  while (LoopMain(CUr,1,true)) begin
+    if (CUr.CUType==0) then begin
+      testf = true;
+      if (checkf) then begin
+        if (RepSpec.flags[0]==1 and CUr.NoLetterPosting==1) then begin
+          testf = false;
+        end;
+        if (RepSpec.flags[1]==1 and CUr.NoMailPosting==1) then begin
+          testf = false;
+        end;
+      end else begin
+        if (CUr.NoMailPosting==1 or CUr.NoLetterPosting==1) then begin
+          testf = false;
+        end;
+      end;
+      if (testf) then begin
+        s1 = "Yes";
+        if (CUr.NoLetterPosting==1) then begin
+          s1 = "No";
+        end;
+        s2 = "Yes";
+        if (CUr.NoMailPosting==1) then begin
+          s2 = "No";
+        end;
+        StartFormat(15);
+        OutString(0,"DblCUVc",CUr.Code,false);
+        OutString(2,0,CUr.Name,false);
+        OutString(3,0,CUr.Phone,false);
+        OutString(4,0,CUr.Mobile,false);
+        OutString(5,0,CUr.eMail,false);
+        OutString(6,0,s1,false);
+        OutString(7,0,s2,false);
+        OutString(8,"DblCUVc",GetMainCustomerCodeFromContact(CUr.Code),false);
+        
+        EndFormat;
+      end;
+    end;
+  end;
+
+
+  EndJob;
+
+  return;
+end;

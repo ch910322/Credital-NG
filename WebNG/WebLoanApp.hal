@@ -372,7 +372,7 @@ begin
   row WebLoanCalcVc WLCrw;
   Integer i,rwcnt;
   string 255 add;
-  val amt;
+  val amt,months2;
 
   WebOutString("<script>");
   WebOutString("var deftype = " & type & ";");
@@ -409,7 +409,11 @@ begin
       if (blank(amt)) then begin
         amt = 0;
       end;
-      WebOutString("t['rates'].push({months:" & ValToString(WLCrw.Months,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
+      months2 = WLCrw.Months;
+      if (blank(months2)) then begin
+        months2 = 0;
+      end;
+      WebOutString("t['rates'].push({months:" & ValToString(months2,M4Val,"",".",0) & ",amountto: " & ValToString(amt,M4Val,"",".",0) & ",rate:" & ValToString(WLCrw.Rate,M4Val,"",".",0) & "});");
     end;
     WebOutString("loantypes['" & WLCr.Type & "'] = t;");
   end;
@@ -759,18 +763,21 @@ begin
 
   WebOutString("<div class='summary_table'>");
   //DisplaySummaryLine(ToolWebNGTranslateText2(70205),DateToString(LAr.StartDate,"YYYY MM DD"));
-  DisplaySummaryLine(ToolWebNGTranslateText2(70206),GetLoanType(LAr.Type));
+  //DisplaySummaryLine(ToolWebNGTranslateText2(70206),GetLoanType(LAr.Type));
   DisplaySummaryLine(ToolWebNGTranslateText2(70207),ValToString(LAr.Sum,M4Val," ",".",1) & " &euro;");
+/*
   type = MapLoanType(LAr.Type);
+
   if (type!=1 and type!=2) then begin
     DisplaySummaryLine(ToolWebNGTranslateText2(70208),DateToString(CredManr.FirstInvDate,"YYYY MM DD"));  
   end;
   DisplaySummaryLine(ToolWebNGTranslateText2(70209),DateToString(CredManr.endDate,"YYYY MM DD"));
+*/
   DisplaySummaryLine(ToolWebNGTranslateText2(70211),LAr.CustName);
   DisplaySummaryLine(ToolWebNGTranslateText2(70212),CUr.RegNr1);
   DisplaySummaryLine(ToolWebNGTranslateText2(70213),LAr.Addr0);
   DisplaySummaryLine(ToolWebNGTranslateText2(70214),LAr.BankAccount);
-  DisplaySummaryLine(ToolWebNGTranslateText2(70215),ShowSuretyApp(LAr));
+//  DisplaySummaryLine(ToolWebNGTranslateText2(70215),ShowSuretyApp(LAr));
   WebOutString("</div>");
 
   return;
