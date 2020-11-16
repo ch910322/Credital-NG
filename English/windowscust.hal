@@ -1209,6 +1209,10 @@ begin
   EditField(h2+50,v,100,"CEO Name",Normal,CEOName,false,0);
   EditField(h2+280,v,100,"CEO Represent.",Normal,CEORep,false,0);
  
+  ButtonFrame(h,v=v+60,100,2,"Finished on Web");
+  RadioButton(h,v,0,0,"First Step",FinishStep);
+  RadioButton(h,v+=16,1,0,"Second Step",FinishStep);
+
   Tile(tilenr,290,true,tilenr,MajorityOwner1); tilenr = tilenr + 1;  
   
   StaticText(h,v=26,"Surety Provider 1",false);
