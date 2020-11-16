@@ -13,3 +13,10 @@ begin
   CheckCredManSchedule = true;
   return;
 end;
+
+global
+function Boolean HasBalloonLoanType()
+begin
+  HasBalloonLoanType = true;
+  return;
+end;
