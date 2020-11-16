@@ -2019,6 +2019,7 @@ begin
       FindBankForBankAccount(bankacc,bankcode);
       LAr.BankAccount = bankacc;
       LAr.BankCode = bankcode;
+      LAr.FinishStep = 1;
       if (nonblank(LAr.BankCode)) then begin
         Bankr.Code = LAr.BankCode;
         if (ReadFirstMain(Bankr,1,true)) then begin
