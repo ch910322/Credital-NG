@@ -1565,7 +1565,7 @@ begin
           PSr.UsedFlag = 1;
           RecordUpdate(oldPSr,PSr,true);
 
-          link = "<form method=\"POST\" action=\"/dologin\" name=\"loginform\" style=\"display:none\"><input type=\"text\" name=\"login\" value=\"" & CUr.Code & "\"><input type=\"text\" name=\"passwd\" value=\"" & passw1 & "\"><input type=\"text\" name=\"failed\" value=\"/WebUpdatingAction.hal?action=afterlogin&failed=1\"><input type=\"text\" name=\"custpage\" value=\"/WebUpdatingAction.hal?action=afterlogin&cust=1\"><input type=\"submit\" value=\"ddd\"></form>";
+          link = "<form method=\"POST\" action=\"/dologin\" name=\"loginform\" style=\"display:none\"><input type=\"text\" name=\"login\" value=\"" & CUr.Code & "\"><input type=\"text\" name=\"passwd\" value=\"" & passw1 & "\"><input type=\"text\" name=\"failed\" value=\"/WebUpdatingAction.hal?action=afterlogin&failed=1\"><input type=\"text\" name=\"custpage\" value=\"/WebUpdatingAction.hal?action=afterlogin&cust=1\"><input type=""hidden"" id=""company"" name=""company"" value=""" & CurrentCompany & """><input type=\"submit\" value=\"ddd\"></form>";
 
           //link = "/dologin?login=" & CUr.Code & "&passwd=" & passw1 & "&failed=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&failed=1") & "&custpage=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&cust=1") & "&cooksess=true";
 
