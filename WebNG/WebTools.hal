@@ -2370,6 +2370,20 @@ begin
   return;
 end;
 
+function Boolean AgreementWaitingForSignature(record CredManVc CredManr)
+begin
+  record CMApplicationSetBlock CMb;
+  Boolean res;
+
+  BlockLoad(CMb);
+  if (CredManr.OrderClass==CMb.SignOrderClass) then begin
+    res = true;
+  end;
+
+  AgreementWaitingForSignature = res;
+  return;
+end;
+
 global
 updating procedure CMRecalculateOpenSchedules(string custcode)
 begin
@@ -2384,7 +2398,7 @@ begin
       TrHs = false;
     end else begin
       if (CredManr.startDate<CurrentDate) then begin
-        if (NoInvoicesCreated(CredManr) and ScheduleIsNotSigned(CredManr,ADr)) then begin
+        if (NoInvoicesCreated(CredManr) and AgreementWaitingForSignature(CredManr)) then begin
           RecordCopy(oldCredManr,CredManr);
           CredManr.startDate = CurrentDate;
           CredManSetDatesCust(CredManr,true);
