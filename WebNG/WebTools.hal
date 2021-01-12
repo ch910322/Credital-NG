@@ -35,6 +35,7 @@ external inner function string 255 GetLinkToStruct(LongInt,boolean);
 external inner function string 255 GetBrowserOperatingSystem();
 external  procedure CredManSetDatesCust(var record CredManVc,Boolean);
 external function Boolean GetAgreementDoc(record CredManVc,Integer,var record AgreementDocVc);
+external procedure GenerateAgreementSchedule(record CredManVc,Boolean);
 
 global
 function Integer SetCompanyBasedOnCountry()
@@ -2407,6 +2408,7 @@ begin
               RecordRemove(ADr);
             end;
             //click sign button
+            GenerateAgreementSchedule(CredManr,true);
             GetAgreementDoc(CredManr,2,AD2r);
           end;
         end;
