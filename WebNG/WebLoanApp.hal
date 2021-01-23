@@ -1205,7 +1205,7 @@ LCheckLoanCustomer2_CreateContact:;
       if (nonblank(contactphone)) then begin
         phone = contactphone;
       end;
-      if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr)) then begin
+      if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,"",fax,homepage,compemail,vatnr,custclass,CUr)) then begin
         res = true;
       end;
     end;

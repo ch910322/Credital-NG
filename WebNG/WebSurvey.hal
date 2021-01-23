@@ -471,7 +471,7 @@ begin
             if (ReadFirstKey("RegNr1",CUr,1,true)==false) then begin//should check email as well
               BlockLoad(CYb);
               GetCustomerNameFromServer(regnr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,true,CYb.CountryCode);
-              if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr)) then begin
+              if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,"",fax,homepage,compemail,vatnr,custclass,CUr)) then begin
               end;
             end;
           end else begin  

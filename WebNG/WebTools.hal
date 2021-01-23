@@ -35,6 +35,7 @@ external inner function string 255 GetLinkToStruct(LongInt,boolean);
 external inner function string 255 GetBrowserOperatingSystem();
 external  procedure CredManSetDatesCust(var record CredManVc,Boolean);
 external function Boolean GetAgreementDoc(record CredManVc,Integer,var record AgreementDocVc);
+external procedure GenerateAgreementSchedule(record CredManVc,Boolean);
 
 global
 function Integer SetCompanyBasedOnCountry()
@@ -1565,7 +1566,7 @@ begin
           PSr.UsedFlag = 1;
           RecordUpdate(oldPSr,PSr,true);
 
-          link = "<form method=\"POST\" action=\"/dologin\" name=\"loginform\" style=\"display:none\"><input type=\"text\" name=\"login\" value=\"" & CUr.Code & "\"><input type=\"text\" name=\"passwd\" value=\"" & passw1 & "\"><input type=\"text\" name=\"failed\" value=\"/WebUpdatingAction.hal?action=afterlogin&failed=1\"><input type=\"text\" name=\"custpage\" value=\"/WebUpdatingAction.hal?action=afterlogin&cust=1\"><input type=\"submit\" value=\"ddd\"></form>";
+          link = "<form method=\"POST\" action=\"/dologin\" name=\"loginform\" style=\"display:none\"><input type=\"text\" name=\"login\" value=\"" & CUr.Code & "\"><input type=\"text\" name=\"passwd\" value=\"" & passw1 & "\"><input type=\"text\" name=\"failed\" value=\"/WebUpdatingAction.hal?action=afterlogin&failed=1\"><input type=\"text\" name=\"custpage\" value=\"/WebUpdatingAction.hal?action=afterlogin&cust=1\"><input type=""hidden"" id=""company"" name=""company"" value=""" & CurrentCompany & """><input type=\"submit\" value=\"ddd\"></form>";
 
           //link = "/dologin?login=" & CUr.Code & "&passwd=" & passw1 & "&failed=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&failed=1") & "&custpage=" & UrlEncode("WebUpdatingAction.hal?action=afterlogin&cust=1") & "&cooksess=true";
 
@@ -2370,6 +2371,20 @@ begin
   return;
 end;
 
+function Boolean AgreementWaitingForSignature(record CredManVc CredManr)
+begin
+  record CMApplicationSetBlock CMb;
+  Boolean res;
+
+  BlockLoad(CMb);
+  if (CredManr.OrderClass==CMb.SignOrderClass) then begin
+    res = true;
+  end;
+
+  AgreementWaitingForSignature = res;
+  return;
+end;
+
 global
 updating procedure CMRecalculateOpenSchedules(string custcode)
 begin
@@ -2384,7 +2399,7 @@ begin
       TrHs = false;
     end else begin
       if (CredManr.startDate<CurrentDate) then begin
-        if (NoInvoicesCreated(CredManr) and ScheduleIsNotSigned(CredManr,ADr)) then begin
+        if (NoInvoicesCreated(CredManr) and AgreementWaitingForSignature(CredManr)) then begin
           RecordCopy(oldCredManr,CredManr);
           CredManr.startDate = CurrentDate;
           CredManSetDatesCust(CredManr,true);
@@ -2393,6 +2408,7 @@ begin
               RecordRemove(ADr);
             end;
             //click sign button
+            GenerateAgreementSchedule(CredManr,true);
             GetAgreementDoc(CredManr,2,AD2r);
           end;
         end;
