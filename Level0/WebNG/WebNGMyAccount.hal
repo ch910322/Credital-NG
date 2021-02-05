@@ -82,7 +82,8 @@ begin
   LongInt res;
   record WebNGStructVc WSr;
   
-  WSr.Type = kStructTypeMyAccountApp;
+  //CUST
+  WSr.Type = 201;//kStructTypeMyAccountApp;
   if (ReadFirstKey("Type",WSr,1,true)) then begin
     res = WSr.SerNr;
   end;
