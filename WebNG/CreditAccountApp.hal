@@ -701,7 +701,7 @@ begin
     case "profile":
       ShowProfile;
     otherwise
-      ShowCreditAccountReceipts;
+      ShowCreditAccountAgreements;
   end;
 
   ShowAccountStrings;
