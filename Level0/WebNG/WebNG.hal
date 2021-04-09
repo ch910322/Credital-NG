@@ -464,6 +464,7 @@ begin
   if (InString(path,"/payment/")>0 and PathIsWebshop(path)) then begin
     redirectf = true;
   end;
+  redirect = true;//CUST
   if (WebSecureMode==false) then begin
     if (redirectf) then begin
       PutSessionString("https_forced_redirect","1");
