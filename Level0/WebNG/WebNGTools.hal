@@ -1451,7 +1451,7 @@ global
 procedure ShowRedirectHtml(string link,boolean secure)
 begin
 
-  ShowRedirectHtml2(link,secure,kHttpStatusFound);
+  ShowRedirectHtml2(link,secure,kHttpStatusMovedPermanently);//CUST
 
   return;
 end;
