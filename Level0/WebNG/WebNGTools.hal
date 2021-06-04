@@ -1190,12 +1190,12 @@ begin
       end;
       if (WCSr.CommentFlag!=0) then begin
         if (nonblank(WCSr.HeadingClass)) then begin
-          WebOutTagOpen("<h1 class=""" & WCSr.HeadingClass & """>");
+          WebOutTagOpen("<h2 class=""" & WCSr.HeadingClass & """>");
         end else begin
-          WebOutTagOpen("<h1>");
+          WebOutTagOpen("<h2>");
         end;
         WebOutString(WebNGTranslater.Comment);
-        WebOutTagClose("</h1>");
+        WebOutTagClose("</h2>");
       end;
       if (filename!=0) then begin
         if (nonblank(WCSr.TextClass)) then begin
@@ -1451,7 +1451,7 @@ global
 procedure ShowRedirectHtml(string link,boolean secure)
 begin
 
-  ShowRedirectHtml2(link,secure,kHttpStatusFound);
+  ShowRedirectHtml2(link,secure,kHttpStatusMovedPermanently);//CUST
 
   return;
 end;

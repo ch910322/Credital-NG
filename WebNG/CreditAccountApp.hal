@@ -98,6 +98,7 @@ begin
   return;
 end;
 
+global
 function string 255 GetSelectedCustomerCode()
 begin
   string 255 res;
