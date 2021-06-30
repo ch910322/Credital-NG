@@ -1096,7 +1096,7 @@ begin
         CUr.NoLetterPosting = 1;
         CUr.NoMailPosting = 1;
     end;
-    
+    BlockLoad(CMb);
     if(nonblank(CMb.MarkMailClass))then begin
       CUr.Classification = RemoveObjectFromObjectList(CUr.Classification,CMb.MarkMailClass);
       if(subscriptiontype=="2" or subscriptiontype=="3")then begin
