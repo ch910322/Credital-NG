@@ -25,7 +25,11 @@ begin
   SetRepCol(8,440);
 
   while (LoopMain(CUr,1,true)) begin
-    if (CUr.CUType==0) then begin
+    testf = true;
+    if(CUr.CUType!=0)then begin testf = false; end;
+    if(nonblank(RepSpec.f1) and !setinset(RepSpec.f1,CUr.Classification))then begin testf = false;  end;
+    
+    if (testf) then begin
       testf = true;
       if (checkf) then begin
         if (RepSpec.flags[0]==1 and CUr.NoLetterPosting==1) then begin

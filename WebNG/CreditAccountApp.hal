@@ -17,6 +17,9 @@ external inner function string 10 CurrentWebLang();
 external function Boolean CustIsSurety(string,record CredManVc);
 external updating procedure AddToMailingList(record CMApplicationSetBlock,record CUVc,Integer);
 external updating procedure RemoveFromMailingList(record CMApplicationSetBlock,record CUVc,Integer);
+external inner function string 60 RemoveObjectFromObjectList(string,string);
+external inner function string 60 AddObjectToObjectList(string,string);
+
 
 procedure DisplayAccDataField(string cls,string label,string value) 
 begin
@@ -1093,8 +1096,23 @@ begin
         CUr.NoLetterPosting = 1;
         CUr.NoMailPosting = 1;
     end;
-
+    
+    
     BlockLoad(CMb);
+    
+    if(nonblank(CMb.MarkMailClass))then begin
+      CUr.Classification = RemoveObjectFromObjectList(CUr.Classification,CMb.MarkMailClass);
+      if(subscriptiontype=="2" or subscriptiontype=="3")then begin
+        CUr.Classification = AddObjectToObjectList(CUr.Classification,CMb.MarkMailClass);
+      end;
+    end;
+    if(nonblank(CMb.MarkSMSClass))then begin
+      CUr.Classification = RemoveObjectFromObjectList(CUr.Classification,CMb.MarkSMSClass);
+      if(subscriptiontype=="1" or subscriptiontype=="3")then begin
+        CUr.Classification = AddObjectToObjectList(CUr.Classification,CMb.MarkSMSClass);
+      end;
+    end;
+    
     if (CUr.NoLetterPosting!=0 or CUr.NoMailPosting!=0) then begin
       AddToMailingList(CMb,CUr,2);
     end else begin
