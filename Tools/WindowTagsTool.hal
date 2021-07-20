@@ -11,3 +11,10 @@ begin
   HasB2BCreateOffer = true;
   return;
 end;
+
+global function boolean IsOmegaCustomer()
+begin
+  
+  IsOmegaCustomer = false;
+return;
+end;
