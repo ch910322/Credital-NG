@@ -1152,7 +1152,7 @@ end;
 global
 procedure CheckLoanCustomer2(string regnr,string name2,string compemail2,string email,string contactphone,Boolean ignoreloginf,var record CUVc CUr,var record CUVc ContactCUr,var Integer status,Boolean landf)
 begin
-  string 255 tstr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,vatnr,compemail,custclass;
+  string 255 tstr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,vatnr,compemail,custclass,tempname;
   Boolean res;
   Boolean compf,contactf,loginf,res2;
   record CYBlock CYb;
@@ -1201,7 +1201,11 @@ LCheckLoanCustomer2_CreateContact:;
       res = true;
     end else begin
       BlockLoad(CYb);
+      tempname = name2;
       GetCustomerNameFromServer(regnr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,true,CYb.CountryCode);
+      if(blank(name))then begin
+        name = tempname;
+      end;
       if (nonblank(contactphone)) then begin
         phone = contactphone;
       end;

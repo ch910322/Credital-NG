@@ -567,14 +567,14 @@ begin
 //    CUr.InvAddr0 = address;
     RecordUpdate(oldCUr,CUr,false);
   end;
-  if (ReadFirstMain(ContactCUr,1,true)) then begin
+  /*if (ReadFirstMain(ContactCUr,1,true)) then begin//Disablet to update existing contact
     RecordCopy(oldCUr,ContactCUr);
     FillValue(ContactCUr.JobDesc,contactjob);
     FillValue(ContactCUr.Name,contactname);
     FillValue(ContactCUr.RegNr1,contactid);
     RecordUpdate(oldCUr,ContactCUr,false);
     CUVcRecordUpdate(ContactCUr,oldCUr,Rs_Update,1);
-  end;
+  end;*/
 
   return;
 end;
@@ -706,8 +706,10 @@ begin
   record CYBlock CYb;
   record NotePadVc Noter;
   record RLinkVc RLr;
-  string 255 newsletter;
-
+  string 255 newsletter,tempName;
+  
+  
+  
   if (WebGetArg("action")=="store") then begin
     oldcomp = SetCompanyBasedOnCountry;
     //get values and only then store if all the values are filled in    
@@ -766,11 +768,15 @@ begin
             CUr.RegNr1 = regnr;
             if (ReadFirstKey("RegNr1",CUr,1,true)==false) then begin//should check email as well
               BlockLoad(CYb);
+              tempName = name;
               GetCustomerNameFromServer(regnr,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,true,CYb.CountryCode);
+              if(blank(name))then begin
+                name = tempName;
+              end;
               if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr)) then begin
               end;
             end;
-          end else begin            
+          end else begin          
             if (qupdating.StoreLoanCustomer(regnr,email,name,addr0,addr1,addr2,addr3,phone,mobile,fax,homepage,compemail,vatnr,custclass,CUr)) then begin
             end;
           end;
