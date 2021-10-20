@@ -225,13 +225,13 @@ begin
 //    CUr.InvAddr0 = address;
     RecordUpdate(oldCUr,CUr,false);
   end;
-  /*if (ReadFirstMain(ContactCUr,1,true)) then begin//Disable to updating existing contact
+  if (ReadFirstMain(ContactCUr,1,true) and blank(ContactCUr.Name)) then begin//Disable to updating existing contact
     RecordCopy(oldCUr,ContactCUr);
     ContactCUr.JobDesc = contactjob;
     ContactCUr.Name = contactname;
     RecordUpdate(oldCUr,ContactCUr,false);
     CUVcRecordUpdate(ContactCUr,oldCUr,Rs_Update,1);
-  end;*/
+  end;
 
   return;
 end;
